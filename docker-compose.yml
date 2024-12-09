@@ -1,0 +1,43 @@
+version: '3.8'
+
+volumes:
+    pg_orbistay:
+    redis_orbistay:
+
+services:
+    orbistay_db:
+        image: postgres:12.0-alpine
+        restart: always
+        environment:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: orbistay_db
+        volumes:
+          - pg_orbistay:/var/lib/postgresql/data
+        ports:
+            - "127.0.0.1:1201:5432"
+    redis_db:
+      image: redis:6.2-alpine
+      restart: always
+      volumes:
+        - redis_orbistay:/data
+      ports:
+        - "127.0.0.1:1202:6379"
+    financial_tracker:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+          - "8180:8080"
+        depends_on:
+          - orbistay_db
+          - redis_db
+        environment:
+            SPRING_DATASOURCE_URL: jdbc:postgresql://orbistay_db:5432/orbistay_db
+            SPRING_DATASOURCE_USERNAME: user
+            SPRING_DATASOURCE_PASSWORD: password
+            SPRING_FLYWAY_URL: jdbc:postgresql://orbistay_db:5432/orbistay_db
+            SPRING_FLYWAY_USER: user
+            SPRING_FLYWAY_PASSWORD: password
+            SPRING_DATA_REDIS_HOST: redis_db
+            SPRING_DATA_REDIS_PORT: 6379
