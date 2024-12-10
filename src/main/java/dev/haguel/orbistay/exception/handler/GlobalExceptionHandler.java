@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
                 "Provided JWT token is invalid"
         );
 
-        log.error("Uniqueness violation", exception);
+        log.error("Invalid jwt token", exception);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
