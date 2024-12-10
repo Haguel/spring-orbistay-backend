@@ -40,6 +40,7 @@ public class Passport {
     @JoinColumn(name = "place_of_birth_id")
     private PlaceOfBirth placeOfBirth;
 
-    @OneToOne(mappedBy = "passport")
+    @OneToOne
+    @JoinColumn(name = "app_user_id")
     private AppUser appUser;
 }
