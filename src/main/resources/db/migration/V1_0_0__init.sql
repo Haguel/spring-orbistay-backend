@@ -28,6 +28,7 @@ CREATE TABLE app_user (
     avatar_url VARCHAR(255),
     citizenship_id BIGINT,
     residency_id BIGINT,
+    role VARCHAR(50) NOT NULL,
     FOREIGN KEY (citizenship_id) REFERENCES country(id),
     FOREIGN KEY (residency_id) REFERENCES address(id)
 );
