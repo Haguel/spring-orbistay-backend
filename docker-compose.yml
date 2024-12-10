@@ -23,7 +23,7 @@ services:
         - redis_orbistay:/data
       ports:
         - "127.0.0.1:1202:6379"
-    financial_tracker:
+    orbistay_server:
         build:
             context: .
             dockerfile: Dockerfile
