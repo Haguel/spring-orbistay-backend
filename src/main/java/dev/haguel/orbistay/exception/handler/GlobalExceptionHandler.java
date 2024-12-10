@@ -1,10 +1,7 @@
 package dev.haguel.orbistay.exception.handler;
 
 import com.google.common.base.Joiner;
-import dev.haguel.orbistay.exception.AppUserNotFoundException;
-import dev.haguel.orbistay.exception.IncorrectAuthDataException;
-import dev.haguel.orbistay.exception.InvalidJwtTokenException;
-import dev.haguel.orbistay.exception.UniquenessViolationException;
+import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -77,7 +74,7 @@ public class GlobalExceptionHandler {
                 "Data cannot be saved because of field uniqueness violation"
         );
 
-        log.error("Uniqueness violation", exception);
+        log.error("Uniqueness violation exception", exception);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
@@ -91,7 +88,21 @@ public class GlobalExceptionHandler {
                 "Provided JWT token is invalid"
         );
 
-        log.error("Invalid jwt token", exception);
+        log.error("Invalid jwt token exception", exception);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleIncorrectPasswordException(IncorrectPasswordException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Password is incorrect"
+        );
+
+        log.error("Incorrect password exception", exception);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
