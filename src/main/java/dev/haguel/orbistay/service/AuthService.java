@@ -1,15 +1,9 @@
 package dev.haguel.orbistay.service;
 
-import dev.haguel.orbistay.dto.JwtRequestDTO;
-import dev.haguel.orbistay.dto.JwtResponseDTO;
-import dev.haguel.orbistay.dto.SignInRequestDTO;
-import dev.haguel.orbistay.dto.SignUpRequestDTO;
+import dev.haguel.orbistay.dto.*;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.enumeration.Role;
-import dev.haguel.orbistay.exception.AppUserNotFoundException;
-import dev.haguel.orbistay.exception.IncorrectAuthDataException;
-import dev.haguel.orbistay.exception.InvalidJwtTokenException;
-import dev.haguel.orbistay.exception.UniquenessViolationException;
+import dev.haguel.orbistay.exception.*;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -124,7 +118,8 @@ public class AuthService {
         throw new InvalidJwtTokenException("Invalid refresh token");
     }
 
-    public void logOut(String refreshToken) throws InvalidJwtTokenException {
+    public void logOut(String refreshToken)
+            throws InvalidJwtTokenException {
         if(jwtService.validateRefreshToken(refreshToken)) {
             Claims claims = jwtService.getRefreshClaims(refreshToken);
             String email = claims.getSubject();
@@ -139,6 +134,30 @@ public class AuthService {
             log.info("User logged out successfully");
         } else {
             throw new InvalidJwtTokenException("Invalid refresh token");
+        }
+    }
+
+    public void changePassword(ChangePasswordRequestDTO changePasswordRequestDTO)
+            throws AppUserNotFoundException, InvalidJwtTokenException, IncorrectPasswordException {
+        String accessToken = changePasswordRequestDTO.getAccessToken();
+        if(!jwtService.validateAccessToken(accessToken)) {
+            throw new InvalidJwtTokenException("Invalid access token");
+        };
+
+        Claims claims = jwtService.getAccessClaims(accessToken);
+        String email = claims.getSubject();
+
+        final AppUser appUser = appUserService.findByEmail(email);
+        if (appUser == null) {
+            throw new AppUserNotFoundException("User not found");
+        }
+
+        if (passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), appUser.getPasswordHash())) {
+            appUser.setPasswordHash(passwordEncoder.encode(changePasswordRequestDTO.getNewPassword()));
+
+            appUserService.save(appUser);
+        } else {
+            throw new IncorrectPasswordException("Incorrect old password");
         }
     }
 }

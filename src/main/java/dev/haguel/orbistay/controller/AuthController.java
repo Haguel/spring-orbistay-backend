@@ -1,13 +1,7 @@
 package dev.haguel.orbistay.controller;
 
-import dev.haguel.orbistay.dto.JwtRequestDTO;
-import dev.haguel.orbistay.dto.JwtResponseDTO;
-import dev.haguel.orbistay.dto.SignInRequestDTO;
-import dev.haguel.orbistay.dto.SignUpRequestDTO;
-import dev.haguel.orbistay.exception.AppUserNotFoundException;
-import dev.haguel.orbistay.exception.IncorrectAuthDataException;
-import dev.haguel.orbistay.exception.InvalidJwtTokenException;
-import dev.haguel.orbistay.exception.UniquenessViolationException;
+import dev.haguel.orbistay.dto.*;
+import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
 import dev.haguel.orbistay.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -86,10 +80,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/refresh-tokens")
-    public ResponseEntity<?> getNewTokens(@RequestBody JwtRequestDTO jwtRequestDTO)
+    public ResponseEntity<?> getNewTokens(@RequestBody JwtRefreshTokenDTO jwtRefreshTokenDTO)
             throws InvalidJwtTokenException, AppUserNotFoundException {
         log.info("Refresh token request received");
-        JwtResponseDTO jwtResponseDTO = authService.refresh(jwtRequestDTO.getRefreshToken());
+        JwtResponseDTO jwtResponseDTO = authService.refresh(jwtRefreshTokenDTO.getRefreshToken());
 
         log.info("Token refreshed successfully");
         return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
@@ -105,10 +99,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/refresh-access-token")
-    public ResponseEntity<?> getNewAccessToken(@RequestBody JwtRequestDTO jwtRequestDTO)
+    public ResponseEntity<?> getNewAccessToken(@RequestBody JwtRefreshTokenDTO jwtRefreshTokenDTO)
             throws AppUserNotFoundException {
         log.info("Refresh access token request received");
-        JwtResponseDTO jwtResponseDTO = authService.getAccessToken(jwtRequestDTO.getRefreshToken());
+        JwtResponseDTO jwtResponseDTO = authService.getAccessToken(jwtRefreshTokenDTO.getRefreshToken());
 
         log.info("Access token refreshed successfully");
         return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
@@ -123,12 +117,34 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/log-out")
-    public ResponseEntity<?> logOut(@RequestBody JwtRequestDTO jwtRequestDTO)
+    public ResponseEntity<?> logOut(@RequestBody JwtRefreshTokenDTO jwtRefreshTokenDTO)
             throws InvalidJwtTokenException {
         log.info("Log out request received");
-        authService.logOut(jwtRequestDTO.getRefreshToken());
+        authService.logOut(jwtRefreshTokenDTO.getRefreshToken());
 
         log.info("User logged out successfully");
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @Operation(summary = "Change password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid JWT token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Password is incorrect",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequestDTO changePasswordRequestDTO)
+            throws AppUserNotFoundException, InvalidJwtTokenException, IncorrectPasswordException {
+        log.info("Change password request received");
+        authService.changePassword(changePasswordRequestDTO);
+
+        log.info("Password changed successfully");
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
