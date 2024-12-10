@@ -113,4 +113,22 @@ public class AuthController {
         log.info("Access token refreshed successfully");
         return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
     }
+
+    @Operation(summary = "Log out")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User logged out successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid JWT token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/log-out")
+    public ResponseEntity<?> logOut(@RequestBody JwtRequestDTO jwtRequestDTO)
+            throws InvalidJwtTokenException {
+        log.info("Log out request received");
+        authService.logOut(jwtRequestDTO.getRefreshToken());
+
+        log.info("User logged out successfully");
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

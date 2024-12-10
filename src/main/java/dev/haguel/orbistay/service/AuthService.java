@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.service;
 
+import dev.haguel.orbistay.dto.JwtRequestDTO;
 import dev.haguel.orbistay.dto.JwtResponseDTO;
 import dev.haguel.orbistay.dto.SignInRequestDTO;
 import dev.haguel.orbistay.dto.SignUpRequestDTO;
@@ -121,5 +122,23 @@ public class AuthService {
         }
 
         throw new InvalidJwtTokenException("Invalid refresh token");
+    }
+
+    public void logOut(String refreshToken) throws InvalidJwtTokenException {
+        if(jwtService.validateRefreshToken(refreshToken)) {
+            Claims claims = jwtService.getRefreshClaims(refreshToken);
+            String email = claims.getSubject();
+
+            if(redisTemplate.opsForValue().get(email) == null) {
+                log.error("Refresh token doesn't bind to any email in redis");
+                throw new InvalidJwtTokenException("Invalid refresh token");
+            }
+
+            redisTemplate.delete(email);
+
+            log.info("User logged out successfully");
+        } else {
+            throw new InvalidJwtTokenException("Invalid refresh token");
+        }
     }
 }
