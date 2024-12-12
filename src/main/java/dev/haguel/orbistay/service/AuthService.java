@@ -75,20 +75,18 @@ public class AuthService {
     }
 
     public JwtResponseDTO getAccessToken(String refreshToken)
-            throws AppUserNotFoundException {
+            throws AppUserNotFoundException, InvalidJwtTokenException {
+        if(!jwtService.validateRefreshToken(refreshToken)) {
+            throw new InvalidJwtTokenException("Invalid refresh token");
+        }
+
         Claims claims = jwtService.getRefreshClaims(refreshToken);
         String email = claims.getSubject();
         String storedRefreshToken = redisService.getValue(email);
 
-        if (storedRefreshToken != null && storedRefreshToken.equals(refreshToken)) {
-            AppUser appUser = appUserService.findByEmail(email);
-            if(appUser == null) {
-                throw new AppUserNotFoundException("User not found");
-            }
-
-            String accessToken = jwtService.generateAccessToken(appUser);
-
-            return new JwtResponseDTO(accessToken, null);
+        if (storedRefreshToken == null) {
+            log.error("Refresh token doesn't bind to any email in redis");
+            throw new AppUserNotFoundException("User not found");
         }
 
         UserDetails userDetails = userDetailsCustomService.loadUserByUsername(email);

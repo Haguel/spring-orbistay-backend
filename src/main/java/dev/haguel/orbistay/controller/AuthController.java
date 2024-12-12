@@ -93,6 +93,8 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Access token refreshed successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid JWT token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
@@ -100,7 +102,7 @@ public class AuthController {
     })
     @PostMapping("/refresh-access-token")
     public ResponseEntity<?> getNewAccessToken(@RequestBody JwtRefreshTokenDTO jwtRefreshTokenDTO)
-            throws AppUserNotFoundException {
+            throws AppUserNotFoundException, InvalidJwtTokenException {
         log.info("Refresh access token request received");
         JwtResponseDTO jwtResponseDTO = authService.getAccessToken(jwtRefreshTokenDTO.getRefreshToken());
 
