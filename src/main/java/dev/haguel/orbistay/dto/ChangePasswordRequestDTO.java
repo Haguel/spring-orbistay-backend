@@ -1,8 +1,13 @@
 package dev.haguel.orbistay.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Schema(name = "ChangePasswordRequestDTO", description = "Data Transfer Object for changing user's password")
 public class ChangePasswordRequestDTO extends JwtAccessTokenDTO{

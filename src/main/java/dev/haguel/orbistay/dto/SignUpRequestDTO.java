@@ -5,11 +5,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(name = "SignUpRequestDTO", description = "Data Transfer Object for signing up a new user")
 public class SignUpRequestDTO {
     @Schema(description = "The username of the user", example = "user123")

@@ -2,10 +2,14 @@ package dev.haguel.orbistay.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Schema(name = "JwtResponseDTO", description = "Data Transfer Object for a JWT response")
 public class JwtResponseDTO {
     @Schema(description = "The type of the token", example = "Bearer")

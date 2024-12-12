@@ -4,9 +4,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(name = "SignInRequestDTO", description = "Data Transfer Object for signing in a user")
 public class SignInRequestDTO {
     @Schema(description = "The email of the user", example = "example@gmail.com")
