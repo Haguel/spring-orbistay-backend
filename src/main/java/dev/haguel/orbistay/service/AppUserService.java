@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -17,11 +16,11 @@ public class AppUserService {
     public AppUser save(AppUser appUser) throws DataIntegrityViolationException {
         appUser = appUserRepository.save(appUser);
 
-        log.info("User saved to databased");
+        log.info("User saved to database");
         return appUser;
     }
 
-    public AppUser findByEmail(String email) {
+   public AppUser findByEmail(String email) {
         AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
 
         if(appUser == null) {
