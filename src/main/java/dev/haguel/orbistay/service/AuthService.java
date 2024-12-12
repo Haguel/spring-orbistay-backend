@@ -8,7 +8,6 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -24,10 +23,11 @@ public class AuthService {
     private final AppUserService appUserService;
     private final UserDetailsCustomService userDetailsCustomService;
     private final JwtService jwtService;
+    private final RedisService redisService;
     private final AuthenticationManager authenticationManager;
-    private final RedisTemplate<String, String> redisTemplate;
 
-    public JwtResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) throws UniquenessViolationException {
+    public JwtResponseDTO signUp(SignUpRequestDTO signUpRequestDTO)
+            throws UniquenessViolationException {
         AppUser appUser = AppUser.builder()
                 .username(signUpRequestDTO.getUsername())
                 .email(signUpRequestDTO.getEmail())
@@ -45,12 +45,13 @@ public class AuthService {
 
         String accessToken = jwtService.generateAccessToken(appUser);
         String refreshToken = jwtService.generateRefreshToken(appUser);
-        redisTemplate.opsForValue().set(appUser.getEmail(), refreshToken);
+        redisService.setValue(appUser.getEmail(), refreshToken);
 
         return new JwtResponseDTO(accessToken, refreshToken);
     }
 
-    public JwtResponseDTO signIn(SignInRequestDTO signInRequestDTO) throws AppUserNotFoundException, IncorrectAuthDataException {
+    public JwtResponseDTO signIn(SignInRequestDTO signInRequestDTO)
+            throws AppUserNotFoundException, IncorrectAuthDataException {
         String email = signInRequestDTO.getEmail();
         UserDetails appUser = userDetailsCustomService.loadUserByUsername(email);
         if(appUser == null) {
@@ -68,15 +69,16 @@ public class AuthService {
 
         String accessToken = jwtService.generateAccessToken(appUser);
         String refreshToken = jwtService.generateRefreshToken(appUser);
-        redisTemplate.opsForValue().set(email, refreshToken);
+        redisService.setValue(email, refreshToken);
 
         return new JwtResponseDTO(accessToken, refreshToken);
     }
 
-    public JwtResponseDTO getAccessToken(String refreshToken) throws AppUserNotFoundException {
+    public JwtResponseDTO getAccessToken(String refreshToken)
+            throws AppUserNotFoundException {
         Claims claims = jwtService.getRefreshClaims(refreshToken);
         String email = claims.getSubject();
-        String storedRefreshToken = redisTemplate.opsForValue().get(email);
+        String storedRefreshToken = redisService.getValue(email);
 
         if (storedRefreshToken != null && storedRefreshToken.equals(refreshToken)) {
             AppUser appUser = appUserService.findByEmail(email);
@@ -95,11 +97,12 @@ public class AuthService {
         return new JwtResponseDTO(accessToken, null);
     }
 
-    public JwtResponseDTO refresh(String refreshToken) throws AppUserNotFoundException, InvalidJwtTokenException {
+    public JwtResponseDTO refresh(String refreshToken)
+            throws AppUserNotFoundException, InvalidJwtTokenException {
         if (jwtService.validateRefreshToken(refreshToken)) {
             Claims claims = jwtService.getRefreshClaims(refreshToken);
             String email = claims.getSubject();
-            String storedRefreshToken = redisTemplate.opsForValue().get(email);
+            String storedRefreshToken = redisService.getValue(email);
 
             if (storedRefreshToken != null && storedRefreshToken.equals(refreshToken)) {
                 final AppUser appUser = appUserService.findByEmail(email);
@@ -109,7 +112,7 @@ public class AuthService {
 
                 String accessToken = jwtService.generateAccessToken(appUser);
                 String newRefreshToken = jwtService.generateRefreshToken(appUser);
-                redisTemplate.opsForValue().set(appUser.getEmail(), newRefreshToken);
+                redisService.setValue(appUser.getEmail(), newRefreshToken);
 
                 return new JwtResponseDTO(accessToken, newRefreshToken);
             }
@@ -124,14 +127,12 @@ public class AuthService {
             Claims claims = jwtService.getRefreshClaims(refreshToken);
             String email = claims.getSubject();
 
-            if(redisTemplate.opsForValue().get(email) == null) {
+            if(!redisService.hasKey(email)) {
                 log.error("Refresh token doesn't bind to any email in redis");
                 throw new InvalidJwtTokenException("Invalid refresh token");
             }
 
-            redisTemplate.delete(email);
-
-            log.info("User logged out successfully");
+            redisService.deleteValue(email);
         } else {
             throw new InvalidJwtTokenException("Invalid refresh token");
         }
