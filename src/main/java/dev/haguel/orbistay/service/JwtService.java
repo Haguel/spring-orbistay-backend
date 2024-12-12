@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -33,16 +34,18 @@ public class JwtService {
 
     public String generateAccessToken(UserDetails userDetails) {
         final LocalDateTime now = LocalDateTime.now();
-        final Instant accessExpirationInstant = now.plusMinutes(5).atZone(ZoneId.systemDefault()).toInstant();
+        final Instant accessExpirationInstant = now.plusMinutes(10).atZone(ZoneId.systemDefault()).toInstant();
         final Date accessExpiration = Date.from(accessExpirationInstant);
 
         if(userDetails instanceof AppUser appUser) {
             String token = Jwts.builder()
                     .setSubject(appUser.getEmail())
                     .setExpiration(accessExpiration)
+                    .setIssuedAt(new Date(System.currentTimeMillis()))
                     .signWith(jwtAccessSecret)
                     .claim("role", appUser.getRole())
                     .claim("username", appUser.getUsername())
+                    .claim("uuid", UUID.randomUUID().toString())
                     .compact();
 
             log.info("JWT access token generated");
@@ -63,8 +66,10 @@ public class JwtService {
         if(userDetails instanceof AppUser appUser) {
             String token = Jwts.builder()
                     .setSubject(appUser.getEmail())
+                    .setIssuedAt(new Date(System.currentTimeMillis()))
                     .setExpiration(refreshExpiration)
                     .signWith(jwtRefreshSecret)
+                    .claim("uuid", UUID.randomUUID().toString())
                     .compact();
 
             log.info("JWT refresh token generated");
