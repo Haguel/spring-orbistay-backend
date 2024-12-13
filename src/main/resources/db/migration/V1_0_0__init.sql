@@ -67,7 +67,9 @@ CREATE TABLE hotel_room (
     cost_per_day NUMERIC(10, 2) NOT NULL,
     is_children_friendly BOOLEAN NOT NULL DEFAULT FALSE,
     capacity INT NOT NULL,
-    images_url TEXT[]
+    images_url TEXT[],
+    hotel_id BIGINT NOT NULL,
+    FOREIGN KEY (hotel_id) REFERENCES hotel(id)
 );
 
 CREATE TABLE room_facility (

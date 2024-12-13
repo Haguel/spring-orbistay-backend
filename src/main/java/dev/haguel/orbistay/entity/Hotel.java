@@ -30,6 +30,9 @@ public class Hotel {
     @Column
     private String mainImageUrl;
 
+    @OneToMany(mappedBy = "hotel")
+    private List<HotelRoom> hotelRooms;
+
     @ManyToOne
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;

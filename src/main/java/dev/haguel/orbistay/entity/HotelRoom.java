@@ -32,6 +32,10 @@ public class HotelRoom {
     @ElementCollection
     private List<String> imagesUrl;
 
+    @ManyToOne
+    @JoinColumn(name = "hotel_id", nullable = false)
+    private Hotel hotel;
+
     @OneToMany(mappedBy = "hotelRoom")
     private List<HotelRoomRoomFacility> roomFacilities;
 
