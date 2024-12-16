@@ -2,7 +2,8 @@ package dev.haguel.orbistay.entity;
 
 import lombok.*;
 import jakarta.persistence.*;
-import java.util.Date;
+
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -15,10 +16,10 @@ public class Booking {
     private Long id;
 
     @Column(nullable = false)
-    private Date checkIn;
+    private LocalDate checkIn;
 
     @Column(nullable = false)
-    private Date checkOut;
+    private LocalDate checkOut;
 
     @ManyToOne
     @JoinColumn(name = "app_user_id", nullable = false)
