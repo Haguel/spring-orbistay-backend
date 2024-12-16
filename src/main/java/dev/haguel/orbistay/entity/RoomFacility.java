@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import jakarta.persistence.*;
 
@@ -19,5 +20,6 @@ public class RoomFacility {
     private String name;
 
     @OneToMany(mappedBy = "roomFacility")
+    @JsonIgnore
     private List<HotelRoomRoomFacility> hotelRoomRoomFacilities;
 }

@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import dev.haguel.orbistay.entity.enumeration.Role;
 import lombok.*;
 import jakarta.persistence.*;
@@ -50,7 +51,12 @@ public class AppUser implements UserDetails {
     private Address residency;
 
     @OneToOne(mappedBy = "appUser")
+    @JsonManagedReference
     private Passport passport;
+
+    @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Review> reviews;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

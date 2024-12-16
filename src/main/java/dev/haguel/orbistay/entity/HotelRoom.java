@@ -1,10 +1,14 @@
 package dev.haguel.orbistay.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -35,14 +39,30 @@ public class HotelRoom {
 
     @ManyToOne
     @JoinColumn(name = "hotel_id", nullable = false)
+    @JsonBackReference
     private Hotel hotel;
 
-    @OneToMany
+    @OneToMany(mappedBy = "hotelRoom")
+    @JsonManagedReference
     private List<HotelRoomImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "hotelRoom")
-    private List<HotelRoomRoomFacility> roomFacilities;
+    private List<HotelRoomRoomFacility> hotelRoomRoomFacilities;
 
     @OneToMany(mappedBy = "hotelRoom")
-    private List<HotelRoomRoomHighlight> roomHighlights;
+    private List<HotelRoomRoomHighlight> hotelRoomRoomHighlights;
+
+    @JsonProperty("hotelRoomRoomFacilities")
+    public List<RoomFacility> getRoomFacilities() {
+        return hotelRoomRoomFacilities.stream()
+                .map(HotelRoomRoomFacility::getRoomFacility)
+                .collect(Collectors.toList());
+    }
+
+    @JsonProperty("hotelRoomRoomHighlights")
+    public List<RoomHighlight> getRoomHighlights() {
+        return hotelRoomRoomHighlights.stream()
+                .map(HotelRoomRoomHighlight::getRoomHighlight)
+                .collect(Collectors.toList());
+    }
 }

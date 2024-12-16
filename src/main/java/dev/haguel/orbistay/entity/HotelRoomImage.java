@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,5 +19,6 @@ public class HotelRoomImage {
 
     @ManyToOne
     @JoinColumn(name = "hotel_room_id", nullable = false)
+    @JsonBackReference
     private HotelRoom hotelRoom;
 }
