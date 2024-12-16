@@ -26,7 +26,7 @@ class AppUserRepositoryTest {
     private AppUserRepository appUserRepository;
 
     @Test
-    void givenEmail_whenFindByEmail_thenReturnAppUser() {
+    void whenFindByEmail_thenReturnUser() {
         String expected = TestDataGenerator.generateRandomEmail();
         AppUser data = TestDataGenerator.generateRandomUser();
         data.setEmail(expected);
