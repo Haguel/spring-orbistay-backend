@@ -23,7 +23,8 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
           AND (:peopleCount IS NULL OR hr.capacity >= CAST(:peopleCount AS INT))
           AND (:isChildrenFriendly IS NULL OR :isChildrenFriendly = hr.is_children_friendly)
           AND ((CAST(:checkIn AS DATE) IS NULL OR CAST(:checkOut AS DATE) IS NULL) 
-                   OR (CAST(:checkIn AS DATE) < b.check_out AND CAST(:checkOut AS DATE) > b.check_in))
+                   OR (CAST(:checkIn AS DATE) < b.check_in AND CAST(:checkOut AS DATE) < b.check_in)
+                   OR (CAST(:checkIn AS DATE) > b.check_out AND CAST(:checkOut AS DATE) > b.check_out))
     """, nativeQuery = true)
     Optional<List<Hotel>> findHotels(@Param("name") String name,
                                      @Param("city") String city,
