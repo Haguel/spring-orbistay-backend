@@ -1,8 +1,14 @@
 package dev.haguel.orbistay.service;
 
+import com.google.common.collect.Lists;
+import dev.haguel.orbistay.dto.GetBrieflyHotelRoomsResponseDTO;
+import dev.haguel.orbistay.dto.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
+import dev.haguel.orbistay.entity.HotelRoom;
+import dev.haguel.orbistay.entity.HotelRoomImage;
+import dev.haguel.orbistay.exception.HotelNotFoundException;
 import dev.haguel.orbistay.exception.HotelsNotFoundException;
 import dev.haguel.orbistay.repository.HotelRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +56,51 @@ public class HotelService {
 
         log.info("Returning {} hotels", hotelsResponses.size());
         return hotelsResponses;
+    }
+
+    public GetHotelResponseDTO getHotelById(Long id) throws HotelNotFoundException {
+        Hotel hotel = hotelRepository.findById(id).orElse(null);
+
+        if(hotel == null) {
+            log.error("No hotel found with the given ID");
+            throw new HotelNotFoundException("No hotel found with the given ID");
+        }
+
+        String address = hotel.getAddress().toString();
+        double reviewsAvgRate = hotel.getReviews().stream().mapToDouble(review -> review.getRate()).average().orElse(0);
+
+        List<String> imagesUrls = Lists.newArrayList(hotel.getMainImageUrl());
+        imagesUrls.addAll(hotel.getHotelRooms()
+                .stream()
+                .flatMap(hotelRoom -> hotelRoom.getImagesUrls().stream())
+                .limit(19)
+                .collect(Collectors.toList()));
+
+        List<GetBrieflyHotelRoomsResponseDTO> getBrieflyHotelRoomsResponseDTOs = hotel.getHotelRooms()
+                .stream()
+                .map(hotelRoom -> GetBrieflyHotelRoomsResponseDTO.builder()
+                        .id(hotelRoom.getId())
+                        .name(hotelRoom.getName())
+                        .peopleCount(hotelRoom.getCapacity())
+                        .costPerNight(hotelRoom.getCostPerDay())
+                        .build())
+                .collect(Collectors.toList());
+
+        GetHotelResponseDTO getHotelResponseDTO = GetHotelResponseDTO.builder()
+                .id(hotel.getId())
+                .name(hotel.getName())
+                .shortDesc(hotel.getShortDesc())
+                .fullDesc(hotel.getFullDesc())
+                .address(address)
+                .stars(hotel.getStars())
+                .imagesUrls(imagesUrls)
+                .hotelHighlights(hotel.getHotelHighlights())
+                .reviewsCount(hotel.getReviews().size())
+                .avgRate(reviewsAvgRate)
+                .reviews(hotel.getReviews())
+                .hotelRooms(getBrieflyHotelRoomsResponseDTOs)
+                .build();
+
+        return getHotelResponseDTO;
     }
 }

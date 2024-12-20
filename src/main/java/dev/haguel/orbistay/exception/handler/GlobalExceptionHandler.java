@@ -109,7 +109,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HotelsNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleIncorrectPasswordException(HotelsNotFoundException exception) {
+    public ResponseEntity<ErrorResponse> handleHotelsNotFoundException(HotelsNotFoundException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 exception.getMessage(),
@@ -118,7 +118,21 @@ public class GlobalExceptionHandler {
 
         log.error("No hotels could be found in database", exception);
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(HotelNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleHotelNotFoundException(HotelNotFoundException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Hotel can't be found in database"
+        );
+
+        log.error("Hotel can't be found in database", exception);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(errorResponse);
     }
 
