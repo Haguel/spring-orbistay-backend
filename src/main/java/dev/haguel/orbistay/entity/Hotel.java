@@ -47,7 +47,6 @@ public class Hotel {
     private List<HotelHotelHighlight> hotelHotelHighlights;
 
     @OneToMany(mappedBy = "hotel")
-    @JsonManagedReference
     private List<Review> reviews;
 
     @JsonProperty("hotelHotelHighlights")
