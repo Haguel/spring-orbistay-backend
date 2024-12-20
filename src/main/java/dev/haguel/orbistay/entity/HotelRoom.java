@@ -65,4 +65,10 @@ public class HotelRoom {
                 .map(HotelRoomRoomHighlight::getRoomHighlight)
                 .collect(Collectors.toList());
     }
+
+    public List<String> getImagesUrls() {
+        return images.stream()
+                .map(HotelRoomImage::getImageUrl)
+                .collect(Collectors.toList());
+    }
 }
