@@ -22,4 +22,9 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
+    
+    @Override
+    public String toString() {
+        return city + ", " + street + ", " + country.getName();
+    }
 }
