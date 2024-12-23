@@ -24,7 +24,7 @@ public class GetHotelsRequestDTO {
     private String country;
 
     @Schema(description = "The count of people the hotel's rooms can accommodate", example = "2")
-    private int peopleCount;
+    private Integer peopleCount;
 
     @Schema(description = "Whether the hotel is children-friendly", example = "true")
     private Boolean isChildrenFriendly;
