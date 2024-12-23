@@ -9,7 +9,6 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import test_utils.TestDataGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,12 +26,7 @@ class AppUserRepositoryTest {
 
     @Test
     void whenFindByEmail_thenReturnUser() {
-        String expected = TestDataGenerator.generateRandomEmail();
-        AppUser data = TestDataGenerator.generateRandomUser();
-        data.setEmail(expected);
-
-        appUserRepository.save(data);
-
+        String expected = "jane.smith@example.com";
         AppUser result = appUserRepository.findAppUserByEmail(expected).orElse(null);
         assertNotNull(result);
 

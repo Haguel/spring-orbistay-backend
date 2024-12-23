@@ -8,15 +8,19 @@ import dev.haguel.orbistay.repository.AppUserRepository;
 import dev.haguel.orbistay.service.JwtService;
 import dev.haguel.orbistay.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -38,9 +42,6 @@ class AuthControllerTest {
     static RedisContainer redis = new RedisContainer("redis:6.2-alpine");
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
-
-    @Autowired
     private AppUserRepository appUserRepository;
 
     @Autowired
@@ -49,9 +50,13 @@ class AuthControllerTest {
     @Autowired
     private JwtService jwtService;
 
-    @BeforeEach
-    void setUp() {
-        appUserRepository.deleteAll();
+    @LocalServerPort
+    int port;
+
+    private final RestTemplate restTemplate;
+
+    public AuthControllerTest() {
+        restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
     }
 
     @Test
@@ -62,7 +67,9 @@ class AuthControllerTest {
                 .password(TestDataGenerator.generateRandomPassword())
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-up", HttpMethod.POST,
+                new HttpEntity<>(signUpRequestDTO), JwtResponseDTO.class);
         AppUser appUser = appUserRepository.findAppUserByEmail(signUpRequestDTO.getEmail()).orElse(null);
         JwtResponseDTO jwtResponseDTO = response.getBody();
 
@@ -77,37 +84,33 @@ class AuthControllerTest {
     @Test
     void whenExistedUserSignUp_thenReturnError() {
         SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
-                .email(TestDataGenerator.generateRandomEmail())
-                .password(TestDataGenerator.generateRandomPassword())
+                .username("john_doe")
+                .email("john.doe@example.com")
+                .password("password123")
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
-
-        ResponseEntity<ErrorResponse> errorResponse = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, ErrorResponse.class);
-        assertEquals(400, errorResponse.getStatusCode().value());
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/sign-up", HttpMethod.POST,
+                    new HttpEntity<>(signUpRequestDTO), JwtResponseDTO.class);
+            fail("Should have thrown 400 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("400"));
+        }
     }
 
     @Test
     void whenExistedUserSignInWithCorrectData_thenReturnValidJwtTokens() {
-        String username = TestDataGenerator.generateRandomUsername();
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(username)
-                .email(email)
-                .password(password)
-                .build();
+        String email = "john.doe@example.com";
+        String password = "password123";
         SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
-
-        response = testRestTemplate.postForEntity("/auth/sign-in", signInRequestDTO, JwtResponseDTO.class);
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);;
         AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
         JwtResponseDTO jwtResponseDTO = response.getBody();
 
@@ -120,41 +123,35 @@ class AuthControllerTest {
 
     @Test
     void whenExistedUserSignInWithIncorrectData_thenReturnError() {
-        String username = TestDataGenerator.generateRandomUsername();
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        String incorrectPassword;
-        do {
-            incorrectPassword = TestDataGenerator.generateRandomPassword();
-        } while (incorrectPassword.equals(password));
-        String incorrectEmail;
-        do {
-            incorrectEmail = TestDataGenerator.generateRandomEmail();
-        } while (incorrectEmail.equals(email));
-
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(username)
-                .email(email)
-                .password(password)
-                .build();
-
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
-
-
+        String correctEmail = "john.doe@example.com";
+        String correctPassword = "password123";
         SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                .email(email)
-                .password(incorrectPassword)
+                .email(TestDataGenerator.generateRandomEmail())
+                .password(correctPassword)
                 .build();
-        ResponseEntity<ErrorResponse> errorResponse = testRestTemplate.postForEntity("/auth/sign-in", signInRequestDTO, ErrorResponse.class);
-        assertEquals(400, errorResponse.getStatusCode().value());
+
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                    new HttpEntity<>(signInRequestDTO), ErrorResponse.class);
+            fail("Should have thrown 404 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("404"));
+        }
 
         signInRequestDTO = SignInRequestDTO.builder()
-                .email(incorrectEmail)
-                .password(password)
+                .email(correctEmail)
+                .password(TestDataGenerator.generateRandomPassword())
                 .build();
-        errorResponse = testRestTemplate.postForEntity("/auth/sign-in", signInRequestDTO, ErrorResponse.class);
-        assertEquals(404, errorResponse.getStatusCode().value());
+
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                    new HttpEntity<>(signInRequestDTO), ErrorResponse.class);
+            fail("Should have thrown 400 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("400"));
+        }
     }
 
     @Test
@@ -164,23 +161,31 @@ class AuthControllerTest {
                 .password(TestDataGenerator.generateRandomPassword())
                 .build();
 
-        ResponseEntity<ErrorResponse> errorResponse = testRestTemplate.postForEntity("/auth/sign-in", signInRequestDTO, ErrorResponse.class);
-        assertEquals(404, errorResponse.getStatusCode().value());
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                    new HttpEntity<>(signInRequestDTO), ErrorResponse.class);
+            fail("Should have thrown 404 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("404"));
+        }
     }
 
     @Test
     void whenUserLogout_thenRemoveEmailFromRedis() {
-        String email = TestDataGenerator.generateRandomEmail();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
+        String email = "john.doe@example.com";
+        String password = "password123";
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
-                .password(TestDataGenerator.generateRandomPassword())
+                .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
         JwtResponseDTO jwtResponseDTO = response.getBody();
 
-        assertEquals(201, response.getStatusCode().value());
+        assertEquals(200, response.getStatusCode().value());
         assertTrue(redisService.hasKey(email));
         assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
         assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
@@ -188,22 +193,26 @@ class AuthControllerTest {
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
                 .refreshToken(jwtResponseDTO.getRefreshToken())
                 .build();
-        testRestTemplate.postForEntity("/auth/log-out", jwtRefreshTokenDTO, Void.class);
+        restTemplate.exchange(
+                "http://localhost:" + port + "/auth/log-out", HttpMethod.POST,
+                new HttpEntity<>(jwtRefreshTokenDTO), Void.class);
         assertFalse(redisService.hasKey(email));
     }
 
     @Test
+    @Rollback
     void whenUserChangePasswordWithCorrectData_thenChangePassword() {
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
+        String email = "john.doe@example.com";
+        String password = "password123";
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+        assertEquals(200, response.getStatusCode().value());
 
         String accessToken = response.getBody().getAccessToken();
         String newPassword;
@@ -216,31 +225,47 @@ class AuthControllerTest {
                 .newPassword(newPassword)
                 .build();
 
-        response = testRestTemplate.postForEntity("/auth/change-password", changePasswordRequestDTO, JwtResponseDTO.class);
+        response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/change-password", HttpMethod.POST,
+                new HttpEntity<>(changePasswordRequestDTO), JwtResponseDTO.class);
         assertEquals(200, response.getStatusCode().value());
 
-
-        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
+        signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(newPassword)
                 .build();
 
-        response = testRestTemplate.postForEntity("/auth/sign-in", signInRequestDTO, JwtResponseDTO.class);
+        response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+        assertEquals(200, response.getStatusCode().value());
+
+        // revert changes
+        changePasswordRequestDTO = ChangePasswordRequestDTO.builder()
+                .accessToken(accessToken)
+                .oldPassword(newPassword)
+                .newPassword(password)
+                .build();
+
+        response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/change-password", HttpMethod.POST,
+                new HttpEntity<>(changePasswordRequestDTO), JwtResponseDTO.class);
         assertEquals(200, response.getStatusCode().value());
     }
 
     @Test
     void whenUserChangePasswordWithIncorrectData_thenReturnError() {
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
+        String email = "john.doe@example.com";
+        String password = "password123";
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+        assertEquals(200, response.getStatusCode().value());
 
         String accessToken = response.getBody().getAccessToken();
         String incorrectPassword;
@@ -257,31 +282,43 @@ class AuthControllerTest {
                 .newPassword(newPassword)
                 .build();
 
-        ResponseEntity<ErrorResponse> errorResponse = testRestTemplate.postForEntity("/auth/change-password", changePasswordRequestDTO, ErrorResponse.class);
-        assertEquals(400, errorResponse.getStatusCode().value());
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/change-password", HttpMethod.POST,
+                    new HttpEntity<>(changePasswordRequestDTO), ErrorResponse.class);
+            fail("Should have thrown 400 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("400"));
+        }
 
-
-        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
+        signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(newPassword)
                 .build();
 
-        errorResponse = testRestTemplate.postForEntity("/auth/sign-in", signInRequestDTO, ErrorResponse.class);
-        assertEquals(400, errorResponse.getStatusCode().value());
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                    new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+            fail("Should have thrown 400 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("400"));
+        }
     }
 
     @Test
     void whenUserRefreshTokensWithValidRefreshToken_thenReturnNewTokens() {
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
+        String email = "john.doe@example.com";
+        String password = "password123";
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+        assertEquals(200, response.getStatusCode().value());
 
         String refreshToken = response.getBody().getRefreshToken();
         String accessToken = response.getBody().getAccessToken();
@@ -289,7 +326,9 @@ class AuthControllerTest {
                 .refreshToken(refreshToken)
                 .build();
 
-        response = testRestTemplate.postForEntity("/auth/refresh-tokens", jwtRefreshTokenDTO, JwtResponseDTO.class);
+        response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/refresh-tokens", HttpMethod.POST,
+                new HttpEntity<>(jwtRefreshTokenDTO), JwtResponseDTO.class);;
         assertEquals(200, response.getStatusCode().value());
 
         String newRefreshToken = response.getBody().getRefreshToken();
@@ -304,37 +343,45 @@ class AuthControllerTest {
 
     @Test
     void whenUserRefreshTokensWithInvalidRefreshToken_thenReturnError() {
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
+        String email = "john.doe@example.com";
+        String password = "password123";
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+        assertEquals(200, response.getStatusCode().value());
 
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
                 .refreshToken(TestDataGenerator.generateRandomJwtToken())
                 .build();
 
-        ResponseEntity<ErrorResponse> errorResponse = testRestTemplate.postForEntity("/auth/refresh-tokens", jwtRefreshTokenDTO, ErrorResponse.class);
-        assertEquals(400, errorResponse.getStatusCode().value());
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/refresh-tokens", HttpMethod.POST,
+                    new HttpEntity<>(jwtRefreshTokenDTO), ErrorResponse.class);
+            fail("Should have thrown 400 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("400"));
+        }
     }
 
     @Test
     void whenUserRefreshTokensWithUnbindRefreshToken_thenReturnError() {
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
+        String email = "john.doe@example.com";
+        String password = "password123";
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+        assertEquals(200, response.getStatusCode().value());
 
         redisService.deleteValue(email);
 
@@ -343,22 +390,29 @@ class AuthControllerTest {
                 .refreshToken(refreshToken)
                 .build();
 
-        ResponseEntity<ErrorResponse> errorResponse = testRestTemplate.postForEntity("/auth/refresh-tokens", jwtRefreshTokenDTO, ErrorResponse.class);
-        assertEquals(400, errorResponse.getStatusCode().value());
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/refresh-tokens", HttpMethod.POST,
+                    new HttpEntity<>(jwtRefreshTokenDTO), ErrorResponse.class);
+            fail("Should have thrown 400 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("400"));
+        }
     }
 
     @Test
     void whenUserRefreshAccessTokenWithValidRefreshToken_thenReturnNewAccessToken() {
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
+        String email = "john.doe@example.com";
+        String password = "password123";
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+        assertEquals(200, response.getStatusCode().value());
 
         String refreshToken = response.getBody().getRefreshToken();
         String accessToken = response.getBody().getAccessToken();
@@ -366,7 +420,9 @@ class AuthControllerTest {
                 .refreshToken(refreshToken)
                 .build();
 
-        response = testRestTemplate.postForEntity("/auth/refresh-access-token", jwtRefreshTokenDTO, JwtResponseDTO.class);
+        response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/refresh-access-token", HttpMethod.POST,
+                new HttpEntity<>(jwtRefreshTokenDTO), JwtResponseDTO.class);
         assertEquals(200, response.getStatusCode().value());
 
         String newAccessToken = response.getBody().getAccessToken();
@@ -377,37 +433,45 @@ class AuthControllerTest {
 
     @Test
     void whenUserRefreshAccessTokenWithInvalidRefreshToken_thenReturnError() {
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
+        String email = "john.doe@example.com";
+        String password = "password123";
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+        assertEquals(200, response.getStatusCode().value());
 
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
                 .refreshToken(TestDataGenerator.generateRandomJwtToken())
                 .build();
 
-        ResponseEntity<ErrorResponse> errorResponse = testRestTemplate.postForEntity("/auth/refresh-access-token", jwtRefreshTokenDTO, ErrorResponse.class);
-        assertEquals(400, errorResponse.getStatusCode().value());
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/refresh-access-token", HttpMethod.POST,
+                    new HttpEntity<>(jwtRefreshTokenDTO), ErrorResponse.class);
+            fail("Should have thrown 400 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("400"));
+        }
     }
 
     @Test
     void whenUserRefreshAccessTokenWithUnbindRefreshToken_thenReturnError() {
-        String email = TestDataGenerator.generateRandomEmail();
-        String password = TestDataGenerator.generateRandomPassword();
-        SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                .username(TestDataGenerator.generateRandomUsername())
+        String email = "john.doe@example.com";
+        String password = "password123";
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = testRestTemplate.postForEntity("/auth/sign-up", signUpRequestDTO, JwtResponseDTO.class);
-        assertEquals(201, response.getStatusCode().value());
+        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
+                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
+                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
+        assertEquals(200, response.getStatusCode().value());
 
         redisService.deleteValue(email);
 
@@ -416,7 +480,13 @@ class AuthControllerTest {
                 .refreshToken(refreshToken)
                 .build();
 
-        ResponseEntity<ErrorResponse> errorResponse = testRestTemplate.postForEntity("/auth/refresh-access-token", jwtRefreshTokenDTO, ErrorResponse.class);
-        assertEquals(404, errorResponse.getStatusCode().value());
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/auth/refresh-access-token", HttpMethod.POST,
+                    new HttpEntity<>(jwtRefreshTokenDTO), ErrorResponse.class);
+            fail("Should have thrown 404 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("404"));
+        }
     }
 }

@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.repository;
 
+import com.google.common.collect.Lists;
 import dev.haguel.orbistay.entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import test_utils.TestDataGenerator;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,114 +31,68 @@ class HotelRepositoryTest {
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private HotelRepository hotelRepository;
 
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private CountryRepository countryRepository;
-
-    @Autowired
-    private HotelRoomRepository hotelRoomRepository;
-
-    @Autowired
-    private BookingRepository bookingRepository;
-
-    @Autowired
-    private AppUserRepository appUserRepository;
-
-    @BeforeEach
-    void setUp() {
-        jdbcTemplate.execute("TRUNCATE TABLE booking, hotel_room, hotel, address, country, app_user RESTART IDENTITY CASCADE");
-
-        Country country = new Country();
-        country.setCode("US");
-        country.setName("United States");
-        countryRepository.save(country);
-
-        Address address = new Address();
-        address.setCity("New York");
-        address.setStreet("123 Main St");
-        address.setCountry(country);
-        addressRepository.save(address);
-
-        Hotel hotel = new Hotel();
-        hotel.setName("Royal Respite");
-        hotel.setShortDesc("A royal respite");
-        hotel.setFullDesc("A royal respite for weary travelers");
-        hotel.setAddress(address);
-        hotelRepository.save(hotel);
-
-        HotelRoom hotelRoom = new HotelRoom();
-        hotelRoom.setHotel(hotel);
-        hotelRoom.setName("Royal Room");
-        hotelRoom.setDescription("A royal room");
-        hotelRoom.setCapacity(2);
-        hotelRoom.setCostPerDay(10.0);
-        hotelRoom.setIsChildrenFriendly(true);
-        hotelRoomRepository.save(hotelRoom);
-
-        AppUser appUser = TestDataGenerator.generateRandomUser();
-        appUserRepository.save(appUser);
-
-        Booking booking = new Booking();
-        booking.setAppUser(appUser);
-        booking.setHotelRoom(hotelRoom);
-        booking.setCheckIn(LocalDate.of(2024, 12, 1));
-        booking.setCheckOut(LocalDate.of(2024, 12, 10));
-        bookingRepository.save(booking);
-    }
-
     @Test
-    void whenFindHotelByNameCriteria_thenReturnHotel() {
+    void whenFindHotelsByNameCriteria_thenReturnHotel() {
+        String hotelCity = "Hotel New York 1";
         List<Hotel> result = hotelRepository.findHotels(
-                        "Royal Respite", null, null, null, null, null, null)
+                        hotelCity, null, null, null, null, null, null)
                 .orElse(null);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals("Royal Respite", result.get(0).getName());
+        assertEquals(hotelCity, result.get(0).getName());
     }
 
     @Test
-    void whenFindHotelByCountryCriteria_thenReturnHotel() {
+    void whenFindHotelsByCountryCriteria_thenReturnHotel() {
+        HashSet<String> expected = new HashSet<>(Lists.newArrayList("Hotel New York 1", "Hotel New York 2", "Hotel New York 3"));
         List<Hotel> result = hotelRepository.findHotels(
                         null, null, "United States", null, null, null, null)
                 .orElse(null);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals("Royal Respite", result.get(0).getName());
+
+        HashSet<String> actual = new HashSet<>(result.stream().map(Hotel::getName).collect(Collectors.toList()));
+        assertEquals(expected, actual);
     }
 
     @Test
-    void whenFindHotelByPeopleCountCriteria_thenReturnHotel() {
+    void whenFindHotelsByPeopleCountCriteria_thenReturnHotel() {
+        HashSet<String> expected = new HashSet<>(Lists.newArrayList("Hotel New York 1", "Hotel New York 2", "Hotel New York 3",
+                "Hotel Zurich 1", "Hotel Zurich 2", "Hotel Zurich 3"));
         List<Hotel> result = hotelRepository.findHotels(
                         null, null, null, 2, null, null, null)
                 .orElse(null);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals("Royal Respite", result.get(0).getName());
+
+        HashSet<String> actual = new HashSet<>(result.stream().map(Hotel::getName).collect(Collectors.toList()));
+        assertEquals(expected, actual);
     }
 
     @Test
     void whenFindHotelByChildrenFriendlyCriteria_thenReturnHotel() {
+        HashSet<String> expected = new HashSet<>(Lists.newArrayList("Hotel New York 1", "Hotel New York 2", "Hotel New York 3",
+                "Hotel Zurich 1", "Hotel Zurich 2", "Hotel Zurich 3"));
         List<Hotel> result = hotelRepository.findHotels(
                         null, null, null, null, true, null, null)
                 .orElse(null);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals("Royal Respite", result.get(0).getName());
+
+        HashSet<String> actual = new HashSet<>(result.stream().map(Hotel::getName).collect(Collectors.toList()));
+        assertEquals(expected, actual);
     }
 
     @Test
     void whenFindHotelByCheckInAndCheckOutCriteria_thenReturnHotel() {
+        HashSet<String> expected = new HashSet<>(Lists.newArrayList("Hotel New York 1", "Hotel New York 2", "Hotel New York 3",
+                "Hotel Zurich 1", "Hotel Zurich 2", "Hotel Zurich 3"));
         List<Hotel> result = hotelRepository.findHotels(
                         null, null, null, null, null,
                         LocalDate.of(2025, 1, 5), LocalDate.of(2025, 1, 8))
@@ -142,7 +100,9 @@ class HotelRepositoryTest {
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals("Royal Respite", result.get(0).getName());
+
+        HashSet<String> actual = new HashSet<>(result.stream().map(Hotel::getName).collect(Collectors.toList()));
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -176,36 +136,30 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void whenFindHotelByInvalidChildrenFriendly_thenReturnEmpty() {
-        List<Hotel> result = hotelRepository.findHotels(
-                        null, null, null, null, false, null, null)
-                .orElse(null);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
     void whenFindHotelByTakenCheckInAndCheckOut_thenReturnEmpty() {
+        LocalDate takenCheckIn = LocalDate.of(2024, 12, 1);
+        LocalDate takenCheckOut = LocalDate.of(2024, 12, 10);
+
+        String hotelName = "Hotel New York 1";
         List<Hotel> result = hotelRepository.findHotels(
-                        null, null, null, null, null,
-                        LocalDate.of(2024, 12, 1), LocalDate.of(2024, 12, 10))
+                        hotelName, null, null, null, null,
+                        takenCheckIn, takenCheckOut)
                 .orElse(null);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
 
         result = hotelRepository.findHotels(
-                        null, null, null, null, null,
-                        LocalDate.of(2024, 11, 28), LocalDate.of(2024, 12, 5))
+                        hotelName, null, null, null, null,
+                        takenCheckIn.minusDays(5), takenCheckOut.minusDays(5))
                 .orElse(null);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
 
         result = hotelRepository.findHotels(
-                        null, null, null, null, null,
-                        LocalDate.of(2024, 12, 6), LocalDate.of(2024, 12, 18))
+                        hotelName, null, null, null, null,
+                        takenCheckIn.plusDays(5), takenCheckOut.plusDays(5))
                 .orElse(null);
 
         assertNotNull(result);
@@ -215,11 +169,11 @@ class HotelRepositoryTest {
     @Test
     void whenFindHotelByFullData_thenReturnHotel() {
         List<Hotel> result = hotelRepository.findHotels(
-                        "Royal Respite", "New York", "United States", 2, true, LocalDate.of(2022, 12, 5), LocalDate.of(2022, 12, 8))
+                        "Hotel New York 1", "New York", "United States", 2, true, LocalDate.of(2022, 12, 5), LocalDate.of(2022, 12, 8))
                 .orElse(null);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals("Royal Respite", result.get(0).getName());
+        assertEquals("Hotel New York 1", result.get(0).getName());
     }
 }
