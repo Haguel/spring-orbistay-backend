@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,9 @@ public class AuthService {
         } catch (DataIntegrityViolationException exception) {
             if(exception.getMessage().contains("email")) {
                 throw new UniquenessViolationException("Email already exists");
+            }
+            if(exception.getMessage().contains("username")) {
+                throw new UniquenessViolationException("Username already exists");
             }
         }
 
