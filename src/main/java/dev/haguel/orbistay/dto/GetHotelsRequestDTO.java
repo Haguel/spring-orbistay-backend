@@ -34,4 +34,22 @@ public class GetHotelsRequestDTO {
 
     @Schema(description = "Check-out date", example = "2022-12-10")
     private LocalDate checkOut;
+
+    @Schema(description = "The minimum price of the hotel", example = "5.0")
+    private Double minPrice;
+
+    @Schema(description = "The maximum price of the hotel", example = "25.0")
+    private Double maxPrice;
+
+    @Schema(description = "The minimum rating of the hotel", example = "3")
+    private Integer minRating;
+
+    @Schema(description = "The maximum rating of the hotel", example = "5")
+    private Integer maxRating;
+
+    @Schema(description = "The minimum number of stars of the hotel", example = "3")
+    private Integer minStars;
+
+    @Schema(description = "The maximum number of stars of the hotel", example = "5")
+    private Integer maxStars;
 }

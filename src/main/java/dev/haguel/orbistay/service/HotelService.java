@@ -6,8 +6,6 @@ import dev.haguel.orbistay.dto.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
-import dev.haguel.orbistay.entity.HotelRoom;
-import dev.haguel.orbistay.entity.HotelRoomImage;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
 import dev.haguel.orbistay.exception.HotelsNotFoundException;
 import dev.haguel.orbistay.repository.HotelRepository;
@@ -31,7 +29,13 @@ public class HotelService {
                 getHotelsRequestDTO.getPeopleCount(),
                 getHotelsRequestDTO.getIsChildrenFriendly(),
                 getHotelsRequestDTO.getCheckIn(),
-                getHotelsRequestDTO.getCheckOut()).orElse(null);
+                getHotelsRequestDTO.getCheckOut(),
+                getHotelsRequestDTO.getMinPrice(),
+                getHotelsRequestDTO.getMaxPrice(),
+                getHotelsRequestDTO.getMinRating(),
+                getHotelsRequestDTO.getMaxRating(),
+                getHotelsRequestDTO.getMinStars(),
+                getHotelsRequestDTO.getMaxStars()).orElse(null);
 
         if (hotels == null || hotels.isEmpty()) {
             throw new HotelsNotFoundException("No hotels found for given criteria");
