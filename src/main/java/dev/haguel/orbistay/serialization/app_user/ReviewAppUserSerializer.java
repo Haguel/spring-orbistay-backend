@@ -1,4 +1,4 @@
-package dev.haguel.orbistay.serializer;
+package dev.haguel.orbistay.serialization.app_user;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
