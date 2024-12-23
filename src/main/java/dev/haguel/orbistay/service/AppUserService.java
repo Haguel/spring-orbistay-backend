@@ -20,13 +20,25 @@ public class AppUserService {
         return appUser;
     }
 
-   public AppUser findByEmail(String email) {
+    public AppUser findByEmail(String email) {
         AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
 
         if(appUser == null) {
             log.warn("User couldn't be found in database by provided email");
         } else {
             log.info("User found in database by provided email");
+        }
+
+        return appUser;
+    }
+
+    public AppUser findById(Long id) {
+        AppUser appUser = appUserRepository.findById(id).orElse(null);
+
+        if(appUser == null) {
+            log.warn("User couldn't be found in database by provided id");
+        } else {
+            log.info("User found in database by provided id");
         }
 
         return appUser;
