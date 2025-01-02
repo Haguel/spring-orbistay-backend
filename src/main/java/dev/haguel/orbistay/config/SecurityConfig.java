@@ -28,7 +28,7 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final dev.haguel.orbistay.filter.JwtFilter jwtFilter;
+    private final JwtFilter jwtFilter;
 
     @Bean
     public UserDetailsService userDetailsService() {
