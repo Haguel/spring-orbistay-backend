@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import dev.haguel.orbistay.entity.enumeration.Role;
 import lombok.*;
@@ -27,6 +28,7 @@ public class AppUser implements UserDetails {
     private String username;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String passwordHash;
 
     @Column
@@ -40,6 +42,7 @@ public class AppUser implements UserDetails {
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
+    @JsonIgnore
     private Role role;
 
     @ManyToOne
@@ -51,11 +54,11 @@ public class AppUser implements UserDetails {
     private Address residency;
 
     @OneToOne(mappedBy = "appUser")
-    @JsonManagedReference
+    @JsonIgnore
     private Passport passport;
 
     @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Review> reviews;
 
     @Override
