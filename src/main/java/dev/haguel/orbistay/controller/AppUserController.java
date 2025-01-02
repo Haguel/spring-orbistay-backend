@@ -4,9 +4,9 @@ import dev.haguel.orbistay.dto.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.AppUserNotFoundException;
 import dev.haguel.orbistay.exception.InvalidJwtTokenException;
+import dev.haguel.orbistay.mapper.AppUserMapper;
 import dev.haguel.orbistay.service.AppUserService;
 import dev.haguel.orbistay.service.JwtService;
-import dev.haguel.orbistay.mapper.AppUserMapperImpl;
 import dev.haguel.orbistay.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class AppUserController {
     private final AppUserService appUserService;
     private final JwtService jwtService;
+    private final AppUserMapper appUserMapper;
 
     @Operation(summary = "Get current app user info by jwt access token")
     @ApiResponses(value = {
@@ -56,6 +57,6 @@ public class AppUserController {
             throw new AppUserNotFoundException("App user couldn't be found in database by provided email");
         }
 
-        return ResponseEntity.status(200).body(AppUserMapperImpl.INSTANCE.appUserToAppUserInfoDTO(appUser));
+        return ResponseEntity.status(200).body(appUserMapper.appUserToAppUserInfoDTO(appUser));
     }
 }

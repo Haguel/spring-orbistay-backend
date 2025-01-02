@@ -1,10 +1,10 @@
 package dev.haguel.orbistay.service;
 
-import com.google.common.collect.Lists;
 import dev.haguel.orbistay.dto.*;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
 import dev.haguel.orbistay.exception.HotelsNotFoundException;
+import dev.haguel.orbistay.mapper.HotelMapper;
 import dev.haguel.orbistay.repository.HotelRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HotelService {
     public final HotelRepository hotelRepository;
+    public final HotelMapper hotelMapper;
 
     public List<GetHotelsResponseDTO> getHotels(GetHotelsRequestDTO getHotelsRequestDTO) throws HotelsNotFoundException {
         List<Hotel> hotels = hotelRepository.findHotels(getHotelsRequestDTO.getName(),
@@ -42,17 +43,7 @@ public class HotelService {
         hotels = hotels.subList(0, Math.min(hotels.size(), 50));
 
         List<GetHotelsResponseDTO> hotelsResponses = hotels.stream()
-                .map(hotel -> GetHotelsResponseDTO.builder()
-                        .id(hotel.getId())
-                        .name(hotel.getName())
-                        .shortDesc(hotel.getShortDesc())
-                        .fullDesc(hotel.getFullDesc())
-                        .stars(hotel.getStars())
-                        .mainImageUrl(hotel.getMainImageUrl())
-                        .hotelHighlights(hotel.getHotelHighlights())
-                        .reviewsCount(hotel.getReviews().size())
-                        .avgRate(hotel.getReviews().stream().mapToDouble(review -> review.getRate()).average().orElse(0))
-                        .build())
+                .map(hotelMapper::hotelToHotelsResponseDTO)
                 .collect(Collectors.toList());
 
         log.info("Returning {} hotels", hotelsResponses.size());
@@ -67,40 +58,7 @@ public class HotelService {
             throw new HotelNotFoundException("No hotel found with the given ID");
         }
 
-        String address = hotel.getAddress().toString();
-        double reviewsAvgRate = hotel.getReviews().stream().mapToDouble(review -> review.getRate()).average().orElse(0);
-
-        List<String> imagesUrls = Lists.newArrayList(hotel.getMainImageUrl());
-        imagesUrls.addAll(hotel.getHotelRooms()
-                .stream()
-                .flatMap(hotelRoom -> hotelRoom.getImagesUrls().stream())
-                .limit(19)
-                .collect(Collectors.toList()));
-
-        List<GetBrieflyHotelRoomsResponseDTO> getBrieflyHotelRoomsResponseDTOs = hotel.getHotelRooms()
-                .stream()
-                .map(hotelRoom -> GetBrieflyHotelRoomsResponseDTO.builder()
-                        .id(hotelRoom.getId())
-                        .name(hotelRoom.getName())
-                        .peopleCount(hotelRoom.getCapacity())
-                        .costPerNight(hotelRoom.getCostPerDay())
-                        .build())
-                .collect(Collectors.toList());
-
-        GetHotelResponseDTO getHotelResponseDTO = GetHotelResponseDTO.builder()
-                .id(hotel.getId())
-                .name(hotel.getName())
-                .shortDesc(hotel.getShortDesc())
-                .fullDesc(hotel.getFullDesc())
-                .address(address)
-                .stars(hotel.getStars())
-                .imagesUrls(imagesUrls)
-                .hotelHighlights(hotel.getHotelHighlights())
-                .reviewsCount(hotel.getReviews().size())
-                .avgRate(reviewsAvgRate)
-                .reviews(hotel.getReviews())
-                .hotelRooms(getBrieflyHotelRoomsResponseDTOs)
-                .build();
+        GetHotelResponseDTO getHotelResponseDTO = hotelMapper.hotelToHotelResponseDTO(hotel);
 
         return getHotelResponseDTO;
     }
