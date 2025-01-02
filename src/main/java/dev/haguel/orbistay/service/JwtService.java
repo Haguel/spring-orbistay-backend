@@ -34,14 +34,14 @@ public class JwtService {
 
     public String generateAccessToken(UserDetails userDetails) {
         final LocalDateTime now = LocalDateTime.now();
+        final Instant accessIssuedInstant = now.atZone(ZoneId.systemDefault()).toInstant();
         final Instant accessExpirationInstant = now.plusMinutes(10).atZone(ZoneId.systemDefault()).toInstant();
-        final Date accessExpiration = Date.from(accessExpirationInstant);
 
         if(userDetails instanceof AppUser appUser) {
             String token = Jwts.builder()
                     .setSubject(appUser.getEmail())
-                    .setExpiration(accessExpiration)
-                    .setIssuedAt(new Date(System.currentTimeMillis()))
+                    .setExpiration(Date.from(accessExpirationInstant))
+                    .setIssuedAt(Date.from(accessIssuedInstant))
                     .signWith(jwtAccessSecret)
                     .claim("role", appUser.getRole())
                     .claim("username", appUser.getUsername())
@@ -60,14 +60,14 @@ public class JwtService {
 
     public String generateRefreshToken(UserDetails userDetails) {
         final LocalDateTime now = LocalDateTime.now();
+        final Instant refreshIssuedInstant = now.atZone(ZoneId.systemDefault()).toInstant();
         final Instant refreshExpirationInstant = now.plusDays(30).atZone(ZoneId.systemDefault()).toInstant();
-        final Date refreshExpiration = Date.from(refreshExpirationInstant);
 
         if(userDetails instanceof AppUser appUser) {
             String token = Jwts.builder()
                     .setSubject(appUser.getEmail())
-                    .setIssuedAt(new Date(System.currentTimeMillis()))
-                    .setExpiration(refreshExpiration)
+                    .setIssuedAt(Date.from(refreshIssuedInstant))
+                    .setExpiration(Date.from(refreshExpirationInstant))
                     .signWith(jwtRefreshSecret)
                     .claim("uuid", UUID.randomUUID().toString())
                     .compact();
