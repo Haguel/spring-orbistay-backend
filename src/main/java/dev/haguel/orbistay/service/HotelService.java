@@ -1,10 +1,7 @@
 package dev.haguel.orbistay.service;
 
 import com.google.common.collect.Lists;
-import dev.haguel.orbistay.dto.GetBrieflyHotelRoomsResponseDTO;
-import dev.haguel.orbistay.dto.GetHotelResponseDTO;
-import dev.haguel.orbistay.dto.GetHotelsRequestDTO;
-import dev.haguel.orbistay.dto.GetHotelsResponseDTO;
+import dev.haguel.orbistay.dto.*;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
 import dev.haguel.orbistay.exception.HotelsNotFoundException;

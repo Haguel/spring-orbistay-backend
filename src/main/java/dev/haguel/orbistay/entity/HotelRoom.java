@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -39,7 +39,7 @@ public class HotelRoom {
 
     @ManyToOne
     @JoinColumn(name = "hotel_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnore
     private Hotel hotel;
 
     @OneToMany(mappedBy = "hotelRoom")
