@@ -1,11 +1,15 @@
 package dev.haguel.orbistay.controller;
 
 import dev.haguel.orbistay.dto.GetHotelResponseDTO;
+import dev.haguel.orbistay.dto.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.GetHotelsResponseDTO;
+import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
+import dev.haguel.orbistay.exception.HotelRoomsNotFoundException;
 import dev.haguel.orbistay.exception.HotelsNotFoundException;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
+import dev.haguel.orbistay.service.HotelRoomService;
 import dev.haguel.orbistay.service.HotelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,6 +32,7 @@ import java.util.List;
 @Tag(name = "Hotel")
 public class HotelController {
     private final HotelService hotelService;
+    private final HotelRoomService hotelRoomService;
 
     @Operation(summary = "Get hotels by criteria")
     @ApiResponses(value = {
@@ -63,5 +68,25 @@ public class HotelController {
 
         log.info("Hotel returned");
         return ResponseEntity.status(200).body(hotel);
+    }
+
+    @Operation(summary = "Get hotel rooms by criteria")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Hotel rooms found successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = HotelRoom.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "No hotel rooms found for given criteria",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/room/get/filter")
+    public ResponseEntity<?> getHotelRooms(@RequestBody @Valid GetHotelRoomsRequestDTO getHotelRoomsRequestDTO) throws HotelRoomsNotFoundException {
+        log.info("Get hotel rooms request received");
+        List<HotelRoom> hotelRooms = hotelRoomService.getHotelRoomsRequestDTO(getHotelRoomsRequestDTO);
+
+        log.info("Hotel rooms returned");
+        return ResponseEntity.status(200).body(hotelRooms);
     }
 }

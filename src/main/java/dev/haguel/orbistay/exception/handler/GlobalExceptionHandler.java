@@ -122,6 +122,20 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(HotelRoomsNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleHotelRoomsNotFoundException(HotelRoomsNotFoundException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "No hotel rooms could be found in database"
+        );
+
+        log.error("No hotel rooms could be found in database", exception);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(HotelNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleHotelNotFoundException(HotelNotFoundException exception) {
         ErrorResponse errorResponse = new ErrorResponse(

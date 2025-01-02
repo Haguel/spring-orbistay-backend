@@ -1,8 +1,10 @@
 package dev.haguel.orbistay.controller;
 
 import dev.haguel.orbistay.dto.GetHotelResponseDTO;
+import dev.haguel.orbistay.dto.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.GetHotelsResponseDTO;
+import dev.haguel.orbistay.entity.HotelRoom;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -201,6 +203,73 @@ class HotelControllerTest {
         try {
             restTemplate.exchange(
                     "http://localhost:" + port + "/hotel/get/" + invalidHotelId, HttpMethod.GET, HttpEntity.EMPTY, GetHotelResponseDTO.class);
+            fail("Should have thrown 404 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("404"));
+        }
+    }
+
+    @Test
+    void whenGetHotelRoomsWithValidCriteria_thenReturnHotelRooms() {
+        GetHotelRoomsRequestDTO requestDTO = GetHotelRoomsRequestDTO.builder()
+                .hotelId(1L)
+                .peopleCount(2)
+                .isChildrenFriendly(true)
+                .checkIn(LocalDate.of(2024, 1, 1))
+                .checkOut(LocalDate.of(2024, 1, 10))
+                .minPrice(5.0)
+                .maxPrice(25.0)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<GetHotelRoomsRequestDTO> entity = new HttpEntity<>(requestDTO, headers);
+
+        ResponseEntity<HotelRoom[]> response = restTemplate.exchange(
+                "http://localhost:" + port + "/hotel/room/get/filter", HttpMethod.GET,
+                entity, HotelRoom[].class);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().length > 0);
+    }
+
+    @Test
+    void whenGetHotelRoomsWithInvalidCriteria_thenReturnError() {
+        // Case 1: Invalid hotel ID
+        GetHotelRoomsRequestDTO requestDTO1 = GetHotelRoomsRequestDTO.builder()
+                .hotelId(999L)
+                .peopleCount(2)
+                .isChildrenFriendly(true)
+                .checkIn(LocalDate.of(2024, 1, 1))
+                .checkOut(LocalDate.of(2024, 1, 10))
+                .minPrice(5.0)
+                .maxPrice(25.0)
+                .build();
+
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/hotel/room/get/filter", HttpMethod.GET,
+                    new HttpEntity<>(requestDTO1), HotelRoom[].class);
+            fail("Should have thrown 404 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("404"));
+        }
+
+        // Case 2: Invalid people count
+        GetHotelRoomsRequestDTO requestDTO2 = GetHotelRoomsRequestDTO.builder()
+                .hotelId(1L)
+                .peopleCount(10)
+                .isChildrenFriendly(true)
+                .checkIn(LocalDate.of(2024, 1, 1))
+                .checkOut(LocalDate.of(2024, 1, 10))
+                .minPrice(5.0)
+                .maxPrice(25.0)
+                .build();
+
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/hotel/room/get/filter", HttpMethod.GET,
+                    new HttpEntity<>(requestDTO2), HotelRoom[].class);
             fail("Should have thrown 404 exception");
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("404"));
