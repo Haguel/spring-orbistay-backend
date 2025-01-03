@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.service;
 
 import dev.haguel.orbistay.entity.AppUser;
+import dev.haguel.orbistay.exception.AppUserNotFoundException;
 import dev.haguel.orbistay.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,13 +33,14 @@ public class AppUserService {
         return appUser;
     }
 
-    public AppUser findById(Long id) {
+    public AppUser findById(Long id) throws AppUserNotFoundException {
         AppUser appUser = appUserRepository.findById(id).orElse(null);
 
         if(appUser == null) {
-            log.warn("User couldn't be found in database by provided id");
+            log.warn("User couldn't be found in database by provided id: {}", id);
+            throw new AppUserNotFoundException("User with provided id not found in database");
         } else {
-            log.info("User found in database by provided id");
+            log.info("User with id {} found in database", id);
         }
 
         return appUser;
