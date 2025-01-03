@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -19,6 +21,9 @@ public class GetAppUserInfoResponseDTO {
 
     @Schema(description = "The app user's username", example = "JohnDoe")
     private String username;
+
+    @Schema(description = "The app user's birth date", example = "2000-01-01")
+    private LocalDate birthDate;
 
     @Schema(description = "The app user's email", example = "example@gmail.com")
     private String email;

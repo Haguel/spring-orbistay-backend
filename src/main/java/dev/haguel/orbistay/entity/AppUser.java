@@ -1,7 +1,6 @@
 package dev.haguel.orbistay.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import dev.haguel.orbistay.entity.enumeration.Role;
 import lombok.*;
 import jakarta.persistence.*;
@@ -9,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,6 +39,9 @@ public class AppUser implements UserDetails {
 
     @Column
     private String avatarUrl;
+
+    @Column
+    private LocalDate birthDate;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
