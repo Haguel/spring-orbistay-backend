@@ -6,6 +6,7 @@ import dev.haguel.orbistay.dto.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
+import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
 import dev.haguel.orbistay.exception.HotelRoomsNotFoundException;
 import dev.haguel.orbistay.exception.HotelsNotFoundException;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
@@ -63,7 +64,7 @@ public class HotelController {
     })
     @GetMapping("/get/{id}")
     public ResponseEntity<?> getHotel(@PathVariable Long id) throws HotelNotFoundException {
-        log.info("Get hotel request received");
+        log.info("Get hotel by id request received");
         GetHotelResponseDTO hotel = hotelService.getHotelById(id);
 
         log.info("Hotel returned");
@@ -88,5 +89,23 @@ public class HotelController {
 
         log.info("Hotel rooms returned");
         return ResponseEntity.status(200).body(hotelRooms);
+    }
+
+    @Operation(summary = "Get hotel room by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Hotel room found successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = HotelRoom.class))),
+            @ApiResponse(responseCode = "404", description = "Hotel room not found",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/room/get/{id}")
+    public ResponseEntity<?> getHotelRoom(@PathVariable Long id) throws HotelRoomNotFoundException {
+        log.info("Get hotel room by id request received");
+        HotelRoom hotelRoom = hotelRoomService.getHotelRoomById(id);
+
+        log.info("Hotel room returned");
+        return ResponseEntity.status(200).body(hotelRoom);
     }
 }

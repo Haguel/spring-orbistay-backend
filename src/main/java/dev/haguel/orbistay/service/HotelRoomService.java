@@ -2,6 +2,7 @@ package dev.haguel.orbistay.service;
 
 import dev.haguel.orbistay.dto.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
+import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
 import dev.haguel.orbistay.exception.HotelRoomsNotFoundException;
 import dev.haguel.orbistay.repository.HotelRoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,18 @@ public class HotelRoomService {
         log.info("Found {} hotel rooms", hotelRooms.size());
 
         return hotelRooms;
+    }
+
+    public HotelRoom getHotelRoomById(Long id) throws HotelRoomNotFoundException {
+        HotelRoom hotelRoom = hotelRoomRepository.findById(id).orElse(null);
+
+        if(hotelRoom == null) {
+            log.warn("Hotel room couldn't be found in database by provided id: {}", id);
+            throw new HotelRoomNotFoundException("Hotel room with provided id not found in database");
+        } else {
+            log.info("Hotel room with id {} found in database", id);
+        }
+
+        return hotelRoom;
     }
 }

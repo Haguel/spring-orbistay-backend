@@ -275,4 +275,29 @@ class HotelControllerTest {
             assertTrue(e.getMessage().contains("404"));
         }
     }
+
+    @Test
+    void whenGetHotelRoomWithValidId_thenReturnHotelRoom() {
+        Long validHotelRoomId = 1L;
+
+        ResponseEntity<HotelRoom> response = restTemplate.exchange(
+                "http://localhost:" + port + "/hotel/room/get/" + validHotelRoomId, HttpMethod.GET,
+                HttpEntity.EMPTY, HotelRoom.class);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(validHotelRoomId, response.getBody().getId());
+    }
+
+    @Test
+    void whenGetHotelRoomWithInvalidId_thenReturnError() {
+        Long invalidHotelRoomId = 999L;
+
+        try {
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/hotel/room/get/" + invalidHotelRoomId, HttpMethod.GET, HttpEntity.EMPTY, HotelRoom.class);
+            fail("Should have thrown 404 exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("404"));
+        }
+    }
 }
