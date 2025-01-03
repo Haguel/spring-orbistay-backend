@@ -6,5 +6,6 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public abstract class HotelRoomMapper {
+    @Mapping(target = "peopleCount", source = "capacity")
     public abstract GetBrieflyHotelRoomsResponseDTO hotelRoomToBrieflyHotelRoomsDTO(HotelRoom hotelRoom);
 }
