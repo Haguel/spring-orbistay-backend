@@ -37,17 +37,13 @@ CREATE TABLE app_user (
 
 CREATE TABLE passport (
     id BIGSERIAL PRIMARY KEY,
-    country_of_issuance_id BIGINT NOT NULL,
-    date_of_issue DATE NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    passport_number VARCHAR(255) NOT NULL,
     expiration_date DATE NOT NULL,
-    holder_full_name VARCHAR(255) NOT NULL,
-    date_of_birth DATE NOT NULL,
-    nationality VARCHAR(255) NOT NULL,
-    place_of_birth_id BIGINT NOT NULL,
-    gender VARCHAR(50) NOT NULL,
+    country_of_issuance_id BIGINT NOT NULL,
     app_user_id BIGINT,
     FOREIGN KEY (country_of_issuance_id) REFERENCES country(id),
-    FOREIGN KEY (place_of_birth_id) REFERENCES place_of_birth(id),
     FOREIGN KEY (app_user_id) REFERENCES app_user(id)
 );
 

@@ -1,8 +1,11 @@
 package dev.haguel.orbistay.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import dev.haguel.orbistay.entity.enumeration.Gender;
 import lombok.*;
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -15,31 +18,21 @@ public class Passport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false)
+    private String passportNumber;
+
+    @Column(nullable = false)
+    private LocalDate expirationDate;
+
     @ManyToOne
     @JoinColumn(name = "country_of_issuance_id", nullable = false)
     private Country countryOfIssuance;
-
-    @Column(nullable = false)
-    private Date dateOfIssue;
-
-    @Column(nullable = false)
-    private Date expirationDate;
-
-    @Column(nullable = false)
-    private String holderFullName;
-
-    @Column(nullable = false)
-    private Date dateOfBirth;
-
-    @Column(nullable = false)
-    private String nationality;
-
-    @Column(nullable = false)
-    private String gender;
-
-    @ManyToOne
-    @JoinColumn(name = "place_of_birth_id")
-    private PlaceOfBirth placeOfBirth;
 
     @OneToOne
     @JoinColumn(name = "app_user_id")
