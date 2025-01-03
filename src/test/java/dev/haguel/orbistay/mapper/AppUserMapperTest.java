@@ -40,6 +40,7 @@ class AppUserMapperTest {
         assertEquals(appUser.getEmail(), responseDTO.getEmail());
         assertEquals(appUser.getPhone(), responseDTO.getPhone());
         assertEquals(appUser.getBirthDate(), responseDTO.getBirthDate());
+        assertEquals(appUser.getGender().name(), responseDTO.getGender().name());
         assertEquals(appUser.getUsername(), responseDTO.getUsername());
         assertEquals(appUser.getAvatarUrl(), responseDTO.getAvatarUrl());
         assertEquals(appUser.getId(), responseDTO.getId());

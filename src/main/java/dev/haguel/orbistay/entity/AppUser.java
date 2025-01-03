@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.haguel.orbistay.entity.enumeration.Gender;
 import dev.haguel.orbistay.entity.enumeration.Role;
 import lombok.*;
 import jakarta.persistence.*;
@@ -47,6 +48,9 @@ public class AppUser implements UserDetails {
     @Column(nullable = false)
     @JsonIgnore
     private Role role;
+
+    @Enumerated(value = EnumType.STRING)
+    private Gender gender;
 
     @ManyToOne
     @JoinColumn(name = "citizenship_id")

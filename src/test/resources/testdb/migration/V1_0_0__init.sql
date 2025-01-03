@@ -26,6 +26,7 @@ CREATE TABLE app_user (
     phone VARCHAR(50),
     email VARCHAR(255) NOT NULL UNIQUE,
     birth_date DATE,
+    gender VARCHAR(50),
     avatar_url VARCHAR(255),
     citizenship_id BIGINT,
     residency_id BIGINT,

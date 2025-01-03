@@ -2,6 +2,7 @@ package dev.haguel.orbistay.dto;
 
 import dev.haguel.orbistay.entity.Address;
 import dev.haguel.orbistay.entity.Country;
+import dev.haguel.orbistay.entity.enumeration.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,9 @@ public class GetAppUserInfoResponseDTO {
 
     @Schema(description = "The app user's birth date", example = "2000-01-01")
     private LocalDate birthDate;
+
+    @Schema(description = "Gender of the app user", implementation = Gender.class)
+    private Gender gender;
 
     @Schema(description = "The app user's email", example = "example@gmail.com")
     private String email;
