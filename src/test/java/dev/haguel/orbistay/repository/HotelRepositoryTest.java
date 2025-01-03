@@ -110,7 +110,7 @@ class HotelRepositoryTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertTrue(result.stream().allMatch(
-                hotel -> hotel.getHotelRooms().stream().anyMatch(room -> room.getCostPerDay() >= 5.0 && room.getCostPerDay() <= 50.0)));
+                hotel -> hotel.getHotelRooms().stream().anyMatch(room -> room.getCostPerNight() >= 5.0 && room.getCostPerNight() <= 50.0)));
     }
 
     @Test

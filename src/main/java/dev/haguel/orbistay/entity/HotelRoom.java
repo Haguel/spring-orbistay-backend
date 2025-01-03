@@ -29,7 +29,7 @@ public class HotelRoom {
     private String description;
 
     @Column(nullable = false)
-    private Double costPerDay;
+    private Double costPerNight;
 
     @Column(nullable = false)
     private Boolean isChildrenFriendly;

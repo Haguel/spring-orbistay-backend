@@ -21,7 +21,7 @@ INSERT INTO hotel (name, address_id, short_desc, full_desc, stars, main_image_ur
                    ('Hotel Zurich 2', 5, 'Premium hotel in Zurich', 'A premium hotel in Zurich offering luxurious rooms, top-notch amenities, and exceptional service.', 5, 'hotel_zurich2.jpg'),
                    ('Hotel Zurich 3', 6, 'Affordable hotel in Zurich', 'An affordable hotel in Zurich with clean rooms, friendly staff, and a convenient location.', 3, 'hotel_zurich3.jpg');
 
-INSERT INTO hotel_room (name, description, cost_per_day, is_children_friendly, capacity, hotel_id) VALUES
+INSERT INTO hotel_room (name, description, cost_per_night, is_children_friendly, capacity, hotel_id) VALUES
                -- Hotel New York 1
                ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 1),
                ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 1),

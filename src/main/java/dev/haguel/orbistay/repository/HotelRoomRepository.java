@@ -21,8 +21,8 @@ public interface HotelRoomRepository extends JpaRepository<HotelRoom, Long> {
                    OR b.id IS NULL
                    OR (CAST(:checkIn AS DATE) < b.check_in AND CAST(:checkOut AS DATE) < b.check_in)
                    OR (CAST(:checkIn AS DATE) > b.check_out AND CAST(:checkOut AS DATE) > b.check_out))
-          AND (:minPrice IS NULL OR hr.cost_per_day >= :minPrice)
-          AND (:maxPrice IS NULL OR hr.cost_per_day <= :maxPrice)
+          AND (:minPrice IS NULL OR hr.cost_per_night >= :minPrice)
+          AND (:maxPrice IS NULL OR hr.cost_per_night <= :maxPrice)
     """, nativeQuery = true)
     Optional<List<HotelRoom>> findHotelRooms(@Param("hotelId") Long hotelId,
                                      @Param("peopleCount") Integer peopleCount,

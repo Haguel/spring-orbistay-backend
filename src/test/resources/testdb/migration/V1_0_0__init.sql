@@ -64,7 +64,7 @@ CREATE TABLE hotel_room (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    cost_per_day NUMERIC(10, 2) NOT NULL,
+    cost_per_night NUMERIC(10, 2) NOT NULL,
     is_children_friendly BOOLEAN NOT NULL DEFAULT FALSE,
     capacity INT NOT NULL,
     images_url TEXT[],
