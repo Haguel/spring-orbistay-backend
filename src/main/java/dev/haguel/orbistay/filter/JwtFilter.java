@@ -43,6 +43,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("Authorization header is valid");
         String jwt = authHeader.substring(BEARER_PREFIX.length());
 
         if (jwt != null && jwtService.validateAccessToken(jwt)) {
@@ -57,6 +58,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
+        } else {
+            log.warn("Jwt token is invalid");
         }
 
         filterChain.doFilter(request, response);
