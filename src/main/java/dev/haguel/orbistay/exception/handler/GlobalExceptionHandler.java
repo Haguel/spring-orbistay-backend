@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException exception) {
         List<String> errors = new ArrayList<>();
         for (FieldError error : exception.getBindingResult().getFieldErrors()) {
-            errors.add(error.getDefaultMessage());
+            errors.add(error.getField() + ": " + error.getDefaultMessage());
         }
 
         String errorMessage = Joiner.on(", ").join(errors);
