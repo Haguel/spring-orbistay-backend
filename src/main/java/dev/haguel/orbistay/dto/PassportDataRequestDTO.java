@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.dto;
 
+import dev.haguel.orbistay.annotation.ValidDate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -39,6 +40,6 @@ public class PassportDataRequestDTO {
     @Schema(description = "Date of issuance of the passport", example = "2024-01-20")
     @NotNull
     @NotBlank
-    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Invalid date format, expected yyyy-mm-dd")
+    @ValidDate
     private String expirationDate;
 }

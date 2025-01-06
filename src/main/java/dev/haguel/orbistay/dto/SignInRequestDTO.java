@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 public class SignInRequestDTO {
     @Schema(description = "The email of the user", example = "example@gmail.com")
     @NotNull(message = "Email cannot be null")
-    @NotBlank(message = "Email cannot be blank")
     @Email(message = "Email must be valid")
     private String email;
 

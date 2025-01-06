@@ -1,11 +1,12 @@
 package dev.haguel.orbistay.dto;
 
+import dev.haguel.orbistay.annotation.ValidBoolean;
+import dev.haguel.orbistay.annotation.ValidDate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Data
 @Builder
@@ -16,23 +17,32 @@ public class GetHotelRoomsRequestDTO {
     @Schema(description = "The ID of the hotel", example = "1")
     @NotNull
     @NotBlank
-    private Long hotelId;
+    private String hotelId;
 
     @Schema(description = "The count of people the hotel's rooms can accommodate", example = "2")
-    private Integer peopleCount;
+    @PositiveOrZero
+    @NotBlank
+    private String peopleCount;
 
     @Schema(description = "Whether the hotel is children-friendly", example = "true")
-    private Boolean isChildrenFriendly;
+    @ValidBoolean
+    private String isChildrenFriendly;
 
     @Schema(description = "Check-in date", example = "2022-12-01")
-    private LocalDate checkIn;
+    @ValidDate
+    private String checkIn;
 
     @Schema(description = "Check-out date", example = "2022-12-10")
-    private LocalDate checkOut;
+    @ValidDate
+    private String checkOut;
 
-    @Schema(description = "The minimum price of the hotel", example = "5.0")
-    private Double minPrice;
+    @Schema(description = "The minimum price of hotel room price", example = "5.0")
+    @PositiveOrZero
+    @NotBlank
+    private String minPrice;
 
-    @Schema(description = "The maximum price of the hotel", example = "25.0")
-    private Double maxPrice;
+    @Schema(description = "The maximum price of hotel room price", example = "25.0")
+    @PositiveOrZero
+    @NotBlank
+    private String maxPrice;
 }

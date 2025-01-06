@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -18,13 +20,23 @@ public class HotelRoomService {
     private final HotelRoomRepository hotelRoomRepository;
 
     public List<HotelRoom> getHotelRoomsRequestDTO(GetHotelRoomsRequestDTO getHotelRoomsRequestDTO) throws HotelRoomsNotFoundException {
-        List<HotelRoom> hotelRooms = hotelRoomRepository.findHotelRooms(getHotelRoomsRequestDTO.getHotelId(),
-                getHotelRoomsRequestDTO.getPeopleCount(),
-                getHotelRoomsRequestDTO.getIsChildrenFriendly(),
-                getHotelRoomsRequestDTO.getCheckIn(),
-                getHotelRoomsRequestDTO.getCheckOut(),
-                getHotelRoomsRequestDTO.getMinPrice(),
-                getHotelRoomsRequestDTO.getMaxPrice()).orElse(null);
+        Long hotelId = Long.parseLong(getHotelRoomsRequestDTO.getHotelId());
+        Integer peopleCount = Optional.ofNullable(getHotelRoomsRequestDTO.getPeopleCount()).map(Integer::parseInt).orElse(null);
+        Boolean isChildrenFriendly = Optional.ofNullable(getHotelRoomsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
+        LocalDate checkIn = Optional.ofNullable(getHotelRoomsRequestDTO.getCheckIn()).map(LocalDate::parse).orElse(null);
+        LocalDate checkOut = Optional.ofNullable(getHotelRoomsRequestDTO.getCheckOut()).map(LocalDate::parse).orElse(null);
+        Double minPrice = Optional.ofNullable(getHotelRoomsRequestDTO.getMinPrice()).map(Double::parseDouble).orElse(null);
+        Double maxPrice = Optional.ofNullable(getHotelRoomsRequestDTO.getMaxPrice()).map(Double::parseDouble).orElse(null);
+
+        List<HotelRoom> hotelRooms = hotelRoomRepository.findHotelRooms(
+                hotelId,
+                peopleCount,
+                isChildrenFriendly,
+                checkIn,
+                checkOut,
+                minPrice,
+                maxPrice
+        ).orElse(null);
 
         if (hotelRooms == null || hotelRooms.isEmpty()) {
             throw new HotelRoomsNotFoundException("No hotel rooms found for given criteria");

@@ -1,5 +1,7 @@
 package dev.haguel.orbistay.dto;
 
+import dev.haguel.orbistay.annotation.ValidDate;
+import dev.haguel.orbistay.entity.enumeration.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -16,27 +18,35 @@ import lombok.NoArgsConstructor;
 @Builder
 @Schema(name = "EditAppUserDataRequestDTO", description = "Data Transfer Object for editing app user's data")
 public class EditAppUserDataRequestDTO {
+    @Schema(description = "The app user's username", example = "JohnDoe")
     @NotBlank
     private String username;
 
+    @Schema(description = "The app user's email", example = "test@gmail.com")
     @Email
     private String email;
 
+    @Schema(description = "The app user's phone", example = "1234567890")
     @Pattern(regexp="(^$|[0-9]{10})", message = "Invalid phone number")
     private String phone;
 
-    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Invalid date format, expected yyyy-mm-dd")
+    @Schema(description = "The app user's birth date", example = "2000-01-01")
+    @ValidDate
     private String birthDate;
 
+    @Schema(description = "The app user's gender", implementation = Gender.class)
     @NotBlank
     private String gender;
 
+    @Schema(description = "The app user's citizenship country ID", example = "1")
     @NotBlank
     private String citizenshipCountryId;
 
+    @Schema(description = "The app user's residency address data", implementation = AddressDataRequestDTO.class)
     @Valid
     private AddressDataRequestDTO address;
 
+    @Schema(description = "The app user's passport data", implementation = PassportDataRequestDTO.class)
     @Valid
     private PassportDataRequestDTO passport;
 }
