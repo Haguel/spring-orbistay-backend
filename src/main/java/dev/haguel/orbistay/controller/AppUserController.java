@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -81,7 +80,8 @@ public class AppUserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/edit/current")
-    public ResponseEntity<?> editAppUserData(@RequestHeader(name="Authorization") String authorizationHeader, @Valid @RequestBody EditAppUserDataRequestDTO data)
+    public ResponseEntity<?> editAppUserData(@RequestHeader(name="Authorization") String authorizationHeader,
+                                             @Valid @RequestBody EditAppUserDataRequestDTO data)
             throws AppUserNotFoundException, CountryNotFoundException, InvalidJwtTokenException {
         log.info("Edit app user data request received");
         String jwtToken = SecurityUtil.getTokenFromAuthorizationHeader(authorizationHeader);
