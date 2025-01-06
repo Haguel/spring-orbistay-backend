@@ -1,9 +1,13 @@
 package dev.haguel.orbistay.controller;
 
 import dev.haguel.orbistay.dto.*;
+import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
+import dev.haguel.orbistay.service.AppUserService;
 import dev.haguel.orbistay.service.AuthService;
+import dev.haguel.orbistay.service.JwtService;
+import dev.haguel.orbistay.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,10 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Authentication")
 public class AuthController {
     private final AuthService authService;
+    private final JwtService jwtService;
+    private final AppUserService appUserService;
 
     @Operation(summary = "Sign up")
     @ApiResponses(value = {
@@ -143,10 +146,23 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequestDTO changePasswordRequestDTO)
+    public ResponseEntity<?> changePassword(@RequestHeader(name="Authorization") String authorizationHeader, @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO)
             throws AppUserNotFoundException, InvalidJwtTokenException, IncorrectPasswordException {
+        String jwtToken = SecurityUtil.getTokenFromAuthorizationHeader(authorizationHeader);
+        String appUserEmail = jwtService.getAccessClaims(jwtToken).getSubject();
+
+        if(appUserEmail == null) {
+            throw new InvalidJwtTokenException("Access token doesn't contain user email");
+        }
+
+        AppUser appUser = appUserService.findByEmail(appUserEmail);
+
+        if (appUser == null) {
+            throw new AppUserNotFoundException("App user couldn't be found in database by provided email");
+        }
+
         log.info("Change password request received");
-        authService.changePassword(changePasswordRequestDTO);
+        authService.changePassword(appUser, changePasswordRequestDTO);
 
         log.info("Password changed successfully");
         return ResponseEntity.status(HttpStatus.OK).build();

@@ -82,7 +82,7 @@ public class AppUserController {
     })
     @PutMapping("/edit/current")
     public ResponseEntity<?> editAppUserData(@RequestHeader(name="Authorization") String authorizationHeader, @Valid @RequestBody EditAppUserDataRequestDTO data)
-            throws AppUserNotFoundException, CountryNotFoundException, InvalidJwtTokenException, MethodArgumentNotValidException {
+            throws AppUserNotFoundException, CountryNotFoundException, InvalidJwtTokenException {
         log.info("Edit app user data request received");
         String jwtToken = SecurityUtil.getTokenFromAuthorizationHeader(authorizationHeader);
         String appUserEmail = jwtService.getAccessClaims(jwtToken).getSubject();

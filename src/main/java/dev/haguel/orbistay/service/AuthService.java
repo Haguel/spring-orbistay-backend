@@ -140,21 +140,8 @@ public class AuthService {
         }
     }
 
-    public void changePassword(ChangePasswordRequestDTO changePasswordRequestDTO)
-            throws AppUserNotFoundException, InvalidJwtTokenException, IncorrectPasswordException {
-        String accessToken = changePasswordRequestDTO.getAccessToken();
-        if(!jwtService.validateAccessToken(accessToken)) {
-            throw new InvalidJwtTokenException("Invalid access token");
-        };
-
-        Claims claims = jwtService.getAccessClaims(accessToken);
-        String email = claims.getSubject();
-
-        final AppUser appUser = appUserService.findByEmail(email);
-        if (appUser == null) {
-            throw new AppUserNotFoundException("User not found");
-        }
-
+    public void changePassword(AppUser appUser, ChangePasswordRequestDTO changePasswordRequestDTO)
+            throws IncorrectPasswordException {
         if (passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), appUser.getPasswordHash())) {
             appUser.setPasswordHash(passwordEncoder.encode(changePasswordRequestDTO.getNewPassword()));
 
