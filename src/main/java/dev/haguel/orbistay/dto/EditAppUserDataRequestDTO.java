@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Schema(name = "EditAppUserDataRequestDTO", description = "Data Transfer Object for editing app user's data")
 public class EditAppUserDataRequestDTO {
     @Schema(description = "The app user's username", example = "JohnDoe")
-    @NotBlank
+    @Size(min = 3, message = "Username must be at least 3 characters long")
     private String username;
 
     @Schema(description = "The app user's email", example = "test@gmail.com")
@@ -35,11 +36,9 @@ public class EditAppUserDataRequestDTO {
     private String birthDate;
 
     @Schema(description = "The app user's gender", implementation = Gender.class)
-    @NotBlank
     private String gender;
 
     @Schema(description = "The app user's citizenship country ID", example = "1")
-    @NotBlank
     private String citizenshipCountryId;
 
     @Schema(description = "The app user's residency address data", implementation = AddressDataRequestDTO.class)

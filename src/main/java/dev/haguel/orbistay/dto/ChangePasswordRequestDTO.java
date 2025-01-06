@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Schema(name = "ChangePasswordRequestDTO", description = "Data Transfer Object for changing user's password")
 public class ChangePasswordRequestDTO {
     @Schema(description = "The old password of the user", example = "oldPassword123")
