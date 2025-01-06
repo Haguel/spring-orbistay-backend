@@ -3,24 +3,20 @@ package dev.haguel.orbistay.controller;
 import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.*;
 import dev.haguel.orbistay.entity.AppUser;
-import dev.haguel.orbistay.exception.error.ErrorResponse;
 import dev.haguel.orbistay.repository.AppUserRepository;
 import dev.haguel.orbistay.service.JwtService;
 import dev.haguel.orbistay.service.RedisService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -31,7 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@SpringBootTest
+@Transactional
 class AuthControllerTest {
     @Container
     @ServiceConnection
@@ -50,14 +48,8 @@ class AuthControllerTest {
     @Autowired
     private JwtService jwtService;
 
-    @LocalServerPort
-    int port;
-
-    private final RestTemplate restTemplate;
-
-    public AuthControllerTest() {
-        restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-    }
+    @Autowired
+    private WebTestClient webTestClient;
 
     @Test
     void whenNewUserSignUp_thenSaveUserToDB_and_returnValidJwtTokens() {
@@ -67,13 +59,18 @@ class AuthControllerTest {
                 .password(TestDataGenerator.generateRandomPassword())
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-up", HttpMethod.POST,
-                new HttpEntity<>(signUpRequestDTO), JwtResponseDTO.class);
-        AppUser appUser = appUserRepository.findAppUserByEmail(signUpRequestDTO.getEmail()).orElse(null);
-        JwtResponseDTO jwtResponseDTO = response.getBody();
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-up")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signUpRequestDTO)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
-        assertEquals(201, response.getStatusCode().value());
+        AppUser appUser = appUserRepository.findAppUserByEmail(signUpRequestDTO.getEmail()).orElse(null);
+
         assertNotNull(appUser);
         assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
         assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
@@ -89,14 +86,12 @@ class AuthControllerTest {
                 .password("password123")
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/sign-up", HttpMethod.POST,
-                    new HttpEntity<>(signUpRequestDTO), JwtResponseDTO.class);
-            fail("Should have thrown 400 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("400"));
-        }
+        webTestClient.post()
+                .uri("/auth/sign-up")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signUpRequestDTO)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -108,13 +103,18 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);;
-        AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
-        JwtResponseDTO jwtResponseDTO = response.getBody();
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
-        assertEquals(200, response.getStatusCode().value());
+        AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
+
         assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
         assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
         assertEquals(jwtService.getAccessClaims(jwtResponseDTO.getAccessToken()).getSubject(), appUser.getEmail());
@@ -130,28 +130,24 @@ class AuthControllerTest {
                 .password(correctPassword)
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                    new HttpEntity<>(signInRequestDTO), ErrorResponse.class);
-            fail("Should have thrown 404 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("404"));
-        }
+        webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isNotFound();
 
         signInRequestDTO = SignInRequestDTO.builder()
                 .email(correctEmail)
                 .password(TestDataGenerator.generateRandomPassword())
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                    new HttpEntity<>(signInRequestDTO), ErrorResponse.class);
-            fail("Should have thrown 400 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("400"));
-        }
+        webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -161,14 +157,12 @@ class AuthControllerTest {
                 .password(TestDataGenerator.generateRandomPassword())
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                    new HttpEntity<>(signInRequestDTO), ErrorResponse.class);
-            fail("Should have thrown 404 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("404"));
-        }
+        webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isNotFound();
     }
 
     @Test
@@ -180,12 +174,16 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        JwtResponseDTO jwtResponseDTO = response.getBody();
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
-        assertEquals(200, response.getStatusCode().value());
         assertTrue(redisService.hasKey(email));
         assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
         assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
@@ -193,9 +191,14 @@ class AuthControllerTest {
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
                 .refreshToken(jwtResponseDTO.getRefreshToken())
                 .build();
-        restTemplate.exchange(
-                "http://localhost:" + port + "/auth/log-out", HttpMethod.POST,
-                new HttpEntity<>(jwtRefreshTokenDTO), Void.class);
+
+        webTestClient.post()
+                .uri("/auth/log-out")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(jwtRefreshTokenDTO)
+                .exchange()
+                .expectStatus().isOk();
+
         assertFalse(redisService.hasKey(email));
     }
 
@@ -209,48 +212,46 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
-        String accessToken = response.getBody().getAccessToken();
+        String accessToken = jwtResponseDTO.getAccessToken();
         String newPassword;
         do {
             newPassword = TestDataGenerator.generateRandomPassword();
         } while (newPassword.equals(password));
+
         ChangePasswordRequestDTO changePasswordRequestDTO = ChangePasswordRequestDTO.builder()
-                .accessToken(accessToken)
                 .oldPassword(password)
                 .newPassword(newPassword)
                 .build();
 
-        response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/change-password", HttpMethod.POST,
-                new HttpEntity<>(changePasswordRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        webTestClient.post()
+                .uri("/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + accessToken)
+                .bodyValue(changePasswordRequestDTO)
+                .exchange()
+                .expectStatus().isOk();
 
         signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(newPassword)
                 .build();
 
-        response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
-
-        // revert changes
-        changePasswordRequestDTO = ChangePasswordRequestDTO.builder()
-                .accessToken(accessToken)
-                .oldPassword(newPassword)
-                .newPassword(password)
-                .build();
-
-        response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/change-password", HttpMethod.POST,
-                new HttpEntity<>(changePasswordRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk();
     }
 
     @Test
@@ -262,12 +263,17 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
-        String accessToken = response.getBody().getAccessToken();
+        String accessToken = jwtResponseDTO.getAccessToken();
         String incorrectPassword;
         do {
             incorrectPassword = TestDataGenerator.generateRandomPassword();
@@ -276,34 +282,31 @@ class AuthControllerTest {
         do {
             newPassword = TestDataGenerator.generateRandomPassword();
         } while (newPassword.equals(password));
+
         ChangePasswordRequestDTO changePasswordRequestDTO = ChangePasswordRequestDTO.builder()
-                .accessToken(accessToken)
                 .oldPassword(incorrectPassword)
                 .newPassword(newPassword)
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/change-password", HttpMethod.POST,
-                    new HttpEntity<>(changePasswordRequestDTO), ErrorResponse.class);
-            fail("Should have thrown 400 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("400"));
-        }
+        webTestClient.post()
+                .uri("/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + accessToken)
+                .bodyValue(changePasswordRequestDTO)
+                .exchange()
+                .expectStatus().isBadRequest();
 
         signInRequestDTO = SignInRequestDTO.builder()
                 .email(email)
                 .password(newPassword)
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                    new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-            fail("Should have thrown 400 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("400"));
-        }
+        webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -315,30 +318,35 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
-        String refreshToken = response.getBody().getRefreshToken();
-        String accessToken = response.getBody().getAccessToken();
+        String refreshToken = jwtResponseDTO.getRefreshToken();
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
                 .refreshToken(refreshToken)
                 .build();
 
-        response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/refresh-tokens", HttpMethod.POST,
-                new HttpEntity<>(jwtRefreshTokenDTO), JwtResponseDTO.class);;
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO newJwtResponseDTO = webTestClient.post()
+                .uri("/auth/refresh-tokens")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(jwtRefreshTokenDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
-        String newRefreshToken = response.getBody().getRefreshToken();
-        String newAccessToken = response.getBody().getAccessToken();
-
-        assertNotEquals(refreshToken, newRefreshToken);
-        assertNotEquals(accessToken, newAccessToken);
-        assertTrue(jwtService.validateAccessToken(newAccessToken));
-        assertTrue(jwtService.validateRefreshToken(newRefreshToken));
-        assertEquals(redisService.getValue(email), newRefreshToken);
+        assertNotEquals(refreshToken, newJwtResponseDTO.getRefreshToken());
+        assertTrue(jwtService.validateAccessToken(newJwtResponseDTO.getAccessToken()));
+        assertTrue(jwtService.validateRefreshToken(newJwtResponseDTO.getRefreshToken()));
+        assertEquals(redisService.getValue(email), newJwtResponseDTO.getRefreshToken());
     }
 
     @Test
@@ -350,23 +358,26 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
                 .refreshToken(TestDataGenerator.generateRandomJwtToken())
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/refresh-tokens", HttpMethod.POST,
-                    new HttpEntity<>(jwtRefreshTokenDTO), ErrorResponse.class);
-            fail("Should have thrown 400 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("400"));
-        }
+        webTestClient.post()
+                .uri("/auth/refresh-tokens")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(jwtRefreshTokenDTO)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -378,26 +389,28 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
         redisService.deleteValue(email);
 
-        String refreshToken = response.getBody().getRefreshToken();
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
-                .refreshToken(refreshToken)
+                .refreshToken(jwtResponseDTO.getRefreshToken())
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/refresh-tokens", HttpMethod.POST,
-                    new HttpEntity<>(jwtRefreshTokenDTO), ErrorResponse.class);
-            fail("Should have thrown 400 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("400"));
-        }
+        webTestClient.post()
+                .uri("/auth/refresh-tokens")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(jwtRefreshTokenDTO)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -409,26 +422,32 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
-        String refreshToken = response.getBody().getRefreshToken();
-        String accessToken = response.getBody().getAccessToken();
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
-                .refreshToken(refreshToken)
+                .refreshToken(jwtResponseDTO.getRefreshToken())
                 .build();
 
-        response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/refresh-access-token", HttpMethod.POST,
-                new HttpEntity<>(jwtRefreshTokenDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO newJwtResponseDTO = webTestClient.post()
+                .uri("/auth/refresh-access-token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(jwtRefreshTokenDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
-        String newAccessToken = response.getBody().getAccessToken();
-
-        assertNotEquals(accessToken, newAccessToken);
-        assertTrue(jwtService.validateAccessToken(newAccessToken));
+        assertNotEquals(jwtResponseDTO.getAccessToken(), newJwtResponseDTO.getAccessToken());
+        assertTrue(jwtService.validateAccessToken(newJwtResponseDTO.getAccessToken()));
     }
 
     @Test
@@ -440,23 +459,26 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
                 .refreshToken(TestDataGenerator.generateRandomJwtToken())
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/refresh-access-token", HttpMethod.POST,
-                    new HttpEntity<>(jwtRefreshTokenDTO), ErrorResponse.class);
-            fail("Should have thrown 400 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("400"));
-        }
+        webTestClient.post()
+                .uri("/auth/refresh-access-token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(jwtRefreshTokenDTO)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -468,25 +490,27 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        ResponseEntity<JwtResponseDTO> response = restTemplate.exchange(
-                "http://localhost:" + port + "/auth/sign-in", HttpMethod.POST,
-                new HttpEntity<>(signInRequestDTO), JwtResponseDTO.class);
-        assertEquals(200, response.getStatusCode().value());
+        JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                .uri("/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(signInRequestDTO)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(JwtResponseDTO.class)
+                .returnResult()
+                .getResponseBody();
 
         redisService.deleteValue(email);
 
-        String refreshToken = response.getBody().getRefreshToken();
         JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
-                .refreshToken(refreshToken)
+                .refreshToken(jwtResponseDTO.getRefreshToken())
                 .build();
 
-        try {
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/auth/refresh-access-token", HttpMethod.POST,
-                    new HttpEntity<>(jwtRefreshTokenDTO), ErrorResponse.class);
-            fail("Should have thrown 404 exception");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("404"));
-        }
+        webTestClient.post()
+                .uri("/auth/refresh-access-token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(jwtRefreshTokenDTO)
+                .exchange()
+                .expectStatus().isNotFound();
     }
 }

@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import test_utils.SharedTestUtil;
 import test_utils.TestDataGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,28 +58,11 @@ class AppUserControllerTest {
     @Autowired
     private WebTestClient webTestClient;
 
-    private JwtResponseDTO signInAndGetTokens(String email, String password) {
-        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                .email(email)
-                .password(password)
-                .build();
-
-        return webTestClient.post()
-                .uri("/auth/sign-in")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(signInRequestDTO)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(JwtResponseDTO.class)
-                .returnResult()
-                .getResponseBody();
-    }
-
     @Test
     void whenGetCurrentAppUser_thenReturnInfo() {
         String email = "john.doe@example.com";
         String password = "password123";
-        JwtResponseDTO jwtResponseDTO = signInAndGetTokens(email, password);
+        JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens(email, password, webTestClient);
 
         webTestClient.get()
                 .uri("/app-user/get/current")
@@ -96,7 +80,7 @@ class AppUserControllerTest {
     void whenEditAppUserWithFullData_thenReturnUpdatedUser() {
         String email = "john.doe@example.com";
         String password = "password123";
-        JwtResponseDTO jwtResponseDTO = signInAndGetTokens(email, password);
+        JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens(email, password, webTestClient);
 
         AddressDataRequestDTO addressDataRequestDTO = AddressDataRequestDTO.builder()
                 .countryId(TestDataGenerator.generateRandomCountryId())
