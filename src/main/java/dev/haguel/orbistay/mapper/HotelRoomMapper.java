@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.mapper;
 
-import dev.haguel.orbistay.dto.GetBrieflyHotelRoomsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetBrieflyHotelRoomsResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import org.mapstruct.*;
 

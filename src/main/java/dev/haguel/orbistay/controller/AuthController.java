@@ -1,24 +1,29 @@
 package dev.haguel.orbistay.controller;
 
-import dev.haguel.orbistay.dto.*;
+import dev.haguel.orbistay.dto.request.ChangePasswordRequestDTO;
+import dev.haguel.orbistay.dto.request.JwtRefreshTokenRequestDTO;
+import dev.haguel.orbistay.dto.request.SignInRequestDTO;
+import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
+import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
+import dev.haguel.orbistay.service.AppUserService;
 import dev.haguel.orbistay.service.AuthService;
+import dev.haguel.orbistay.service.JwtService;
+import dev.haguel.orbistay.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Authentication")
 public class AuthController {
     private final AuthService authService;
+    private final JwtService jwtService;
+    private final AppUserService appUserService;
 
     @Operation(summary = "Sign up")
     @ApiResponses(value = {
@@ -38,7 +45,7 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/sign-up")
-    public ResponseEntity<JwtResponseDTO> signUp(@RequestBody @Validated SignUpRequestDTO signUpRequestDTO)
+    public ResponseEntity<JwtResponseDTO> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO)
             throws UniquenessViolationException {
         log.info("Sign up request received");
         JwtResponseDTO jwtResponseDTO = authService.signUp(signUpRequestDTO);
@@ -59,7 +66,7 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/sign-in")
-    public ResponseEntity<?> signIn(@RequestBody @Validated SignInRequestDTO signInRequestDTO)
+    public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO)
             throws AppUserNotFoundException, IncorrectAuthDataException {
         log.info("Sign in request received");
         JwtResponseDTO jwtResponseDTO = authService.signIn(signInRequestDTO);
@@ -80,10 +87,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/refresh-tokens")
-    public ResponseEntity<?> getNewTokens(@RequestBody JwtRefreshTokenDTO jwtRefreshTokenDTO)
+    public ResponseEntity<?> getNewTokens(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
             throws InvalidJwtTokenException, AppUserNotFoundException {
         log.info("Refresh token request received");
-        JwtResponseDTO jwtResponseDTO = authService.refresh(jwtRefreshTokenDTO.getRefreshToken());
+        JwtResponseDTO jwtResponseDTO = authService.refresh(jwtRefreshTokenRequestDTO.getRefreshToken());
 
         log.info("Token refreshed successfully");
         return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
@@ -101,10 +108,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/refresh-access-token")
-    public ResponseEntity<?> getNewAccessToken(@RequestBody JwtRefreshTokenDTO jwtRefreshTokenDTO)
+    public ResponseEntity<?> getNewAccessToken(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
             throws AppUserNotFoundException, InvalidJwtTokenException {
         log.info("Refresh access token request received");
-        JwtResponseDTO jwtResponseDTO = authService.getAccessToken(jwtRefreshTokenDTO.getRefreshToken());
+        JwtResponseDTO jwtResponseDTO = authService.getAccessToken(jwtRefreshTokenRequestDTO.getRefreshToken());
 
         log.info("Access token refreshed successfully");
         return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
@@ -119,10 +126,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/log-out")
-    public ResponseEntity<?> logOut(@RequestBody JwtRefreshTokenDTO jwtRefreshTokenDTO)
+    public ResponseEntity<?> logOut(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
             throws InvalidJwtTokenException {
         log.info("Log out request received");
-        authService.logOut(jwtRefreshTokenDTO.getRefreshToken());
+        authService.logOut(jwtRefreshTokenRequestDTO.getRefreshToken());
 
         log.info("User logged out successfully");
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -143,10 +150,24 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequestDTO changePasswordRequestDTO)
+    public ResponseEntity<?> changePassword(@RequestHeader(name="Authorization") String authorizationHeader,
+                                            @RequestBody @Valid ChangePasswordRequestDTO changePasswordRequestDTO)
             throws AppUserNotFoundException, InvalidJwtTokenException, IncorrectPasswordException {
+        String jwtToken = SecurityUtil.getTokenFromAuthorizationHeader(authorizationHeader);
+        String appUserEmail = jwtService.getAccessClaims(jwtToken).getSubject();
+
+        if(appUserEmail == null) {
+            throw new InvalidJwtTokenException("Access token doesn't contain user email");
+        }
+
+        AppUser appUser = appUserService.findByEmail(appUserEmail);
+
+        if (appUser == null) {
+            throw new AppUserNotFoundException("App user couldn't be found in database by provided email");
+        }
+
         log.info("Change password request received");
-        authService.changePassword(changePasswordRequestDTO);
+        authService.changePassword(appUser, changePasswordRequestDTO);
 
         log.info("Password changed successfully");
         return ResponseEntity.status(HttpStatus.OK).build();

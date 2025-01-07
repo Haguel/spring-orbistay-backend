@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException exception) {
         List<String> errors = new ArrayList<>();
         for (FieldError error : exception.getBindingResult().getFieldErrors()) {
-            errors.add(error.getDefaultMessage());
+            errors.add(error.getField() + ": " + error.getDefaultMessage());
         }
 
         String errorMessage = Joiner.on(", ").join(errors);
@@ -159,6 +159,20 @@ public class GlobalExceptionHandler {
         );
 
         log.error("Hotel room can't be found in database", exception);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(CountryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCountryNotFoundException(CountryNotFoundException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Country can't be found in database"
+        );
+
+        log.error("Country can't be found in database", exception);
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(errorResponse);

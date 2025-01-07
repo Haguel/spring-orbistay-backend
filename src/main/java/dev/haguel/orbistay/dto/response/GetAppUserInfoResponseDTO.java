@@ -1,4 +1,4 @@
-package dev.haguel.orbistay.dto;
+package dev.haguel.orbistay.dto.response;
 
 import dev.haguel.orbistay.entity.Address;
 import dev.haguel.orbistay.entity.Country;

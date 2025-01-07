@@ -1,6 +1,9 @@
 package dev.haguel.orbistay.service;
 
-import dev.haguel.orbistay.dto.*;
+import dev.haguel.orbistay.dto.request.ChangePasswordRequestDTO;
+import dev.haguel.orbistay.dto.request.SignInRequestDTO;
+import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
+import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.enumeration.Role;
 import dev.haguel.orbistay.exception.*;
@@ -11,7 +14,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -140,21 +142,8 @@ public class AuthService {
         }
     }
 
-    public void changePassword(ChangePasswordRequestDTO changePasswordRequestDTO)
-            throws AppUserNotFoundException, InvalidJwtTokenException, IncorrectPasswordException {
-        String accessToken = changePasswordRequestDTO.getAccessToken();
-        if(!jwtService.validateAccessToken(accessToken)) {
-            throw new InvalidJwtTokenException("Invalid access token");
-        };
-
-        Claims claims = jwtService.getAccessClaims(accessToken);
-        String email = claims.getSubject();
-
-        final AppUser appUser = appUserService.findByEmail(email);
-        if (appUser == null) {
-            throw new AppUserNotFoundException("User not found");
-        }
-
+    public void changePassword(AppUser appUser, ChangePasswordRequestDTO changePasswordRequestDTO)
+            throws IncorrectPasswordException {
         if (passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), appUser.getPasswordHash())) {
             appUser.setPasswordHash(passwordEncoder.encode(changePasswordRequestDTO.getNewPassword()));
 

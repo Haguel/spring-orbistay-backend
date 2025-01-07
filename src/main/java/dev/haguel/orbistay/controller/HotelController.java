@@ -1,9 +1,9 @@
 package dev.haguel.orbistay.controller;
 
-import dev.haguel.orbistay.dto.GetHotelResponseDTO;
-import dev.haguel.orbistay.dto.GetHotelRoomsRequestDTO;
-import dev.haguel.orbistay.dto.GetHotelsRequestDTO;
-import dev.haguel.orbistay.dto.GetHotelsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
+import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
+import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
 import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
@@ -85,7 +85,7 @@ public class HotelController {
     @GetMapping("/room/get/filter")
     public ResponseEntity<?> getHotelRooms(@RequestBody @Valid GetHotelRoomsRequestDTO getHotelRoomsRequestDTO) throws HotelRoomsNotFoundException {
         log.info("Get hotel rooms request received");
-        List<HotelRoom> hotelRooms = hotelRoomService.getHotelRoomsRequestDTO(getHotelRoomsRequestDTO);
+        List<HotelRoom> hotelRooms = hotelRoomService.getHotelRooms(getHotelRoomsRequestDTO);
 
         log.info("Hotel rooms returned");
         return ResponseEntity.status(200).body(hotelRooms);

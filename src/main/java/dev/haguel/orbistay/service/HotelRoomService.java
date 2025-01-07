@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.service;
 
-import dev.haguel.orbistay.dto.GetHotelRoomsRequestDTO;
+import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
 import dev.haguel.orbistay.exception.HotelRoomsNotFoundException;
@@ -8,8 +8,11 @@ import dev.haguel.orbistay.repository.HotelRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -17,14 +20,26 @@ import java.util.List;
 public class HotelRoomService {
     private final HotelRoomRepository hotelRoomRepository;
 
-    public List<HotelRoom> getHotelRoomsRequestDTO(GetHotelRoomsRequestDTO getHotelRoomsRequestDTO) throws HotelRoomsNotFoundException {
-        List<HotelRoom> hotelRooms = hotelRoomRepository.findHotelRooms(getHotelRoomsRequestDTO.getHotelId(),
-                getHotelRoomsRequestDTO.getPeopleCount(),
-                getHotelRoomsRequestDTO.getIsChildrenFriendly(),
-                getHotelRoomsRequestDTO.getCheckIn(),
-                getHotelRoomsRequestDTO.getCheckOut(),
-                getHotelRoomsRequestDTO.getMinPrice(),
-                getHotelRoomsRequestDTO.getMaxPrice()).orElse(null);
+    @Transactional(readOnly = true)
+    public List<HotelRoom> getHotelRooms(GetHotelRoomsRequestDTO getHotelRoomsRequestDTO)
+            throws HotelRoomsNotFoundException {
+        Long hotelId = Long.parseLong(getHotelRoomsRequestDTO.getHotelId());
+        Integer peopleCount = Optional.ofNullable(getHotelRoomsRequestDTO.getPeopleCount()).map(Integer::parseInt).orElse(null);
+        Boolean isChildrenFriendly = Optional.ofNullable(getHotelRoomsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
+        LocalDate checkIn = Optional.ofNullable(getHotelRoomsRequestDTO.getCheckIn()).map(LocalDate::parse).orElse(null);
+        LocalDate checkOut = Optional.ofNullable(getHotelRoomsRequestDTO.getCheckOut()).map(LocalDate::parse).orElse(null);
+        Double minPrice = Optional.ofNullable(getHotelRoomsRequestDTO.getMinPrice()).map(Double::parseDouble).orElse(null);
+        Double maxPrice = Optional.ofNullable(getHotelRoomsRequestDTO.getMaxPrice()).map(Double::parseDouble).orElse(null);
+
+        List<HotelRoom> hotelRooms = hotelRoomRepository.findHotelRooms(
+                hotelId,
+                peopleCount,
+                isChildrenFriendly,
+                checkIn,
+                checkOut,
+                minPrice,
+                maxPrice
+        ).orElse(null);
 
         if (hotelRooms == null || hotelRooms.isEmpty()) {
             throw new HotelRoomsNotFoundException("No hotel rooms found for given criteria");
@@ -35,7 +50,39 @@ public class HotelRoomService {
         return hotelRooms;
     }
 
-    public HotelRoom getHotelRoomById(Long id) throws HotelRoomNotFoundException {
+    @Transactional(readOnly = true)
+    public HotelRoom getHotelRoom(GetHotelRoomsRequestDTO getHotelRoomsRequestDTO)
+            throws HotelRoomNotFoundException {
+        Long hotelId = Long.parseLong(getHotelRoomsRequestDTO.getHotelId());
+        Integer peopleCount = Optional.ofNullable(getHotelRoomsRequestDTO.getPeopleCount()).map(Integer::parseInt).orElse(null);
+        Boolean isChildrenFriendly = Optional.ofNullable(getHotelRoomsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
+        LocalDate checkIn = Optional.ofNullable(getHotelRoomsRequestDTO.getCheckIn()).map(LocalDate::parse).orElse(null);
+        LocalDate checkOut = Optional.ofNullable(getHotelRoomsRequestDTO.getCheckOut()).map(LocalDate::parse).orElse(null);
+        Double minPrice = Optional.ofNullable(getHotelRoomsRequestDTO.getMinPrice()).map(Double::parseDouble).orElse(null);
+        Double maxPrice = Optional.ofNullable(getHotelRoomsRequestDTO.getMaxPrice()).map(Double::parseDouble).orElse(null);
+
+        HotelRoom hotelRoom = hotelRoomRepository.findHotelRoom(
+                hotelId,
+                peopleCount,
+                isChildrenFriendly,
+                checkIn,
+                checkOut,
+                minPrice,
+                maxPrice
+        ).orElse(null);
+
+        if (hotelRoom == null) {
+            throw new HotelRoomNotFoundException("No hotel rooms found for given criteria");
+        }
+
+        log.info("Found hotel room");
+
+        return hotelRoom;
+    }
+
+    @Transactional(readOnly = true)
+    public HotelRoom getHotelRoomById(Long id)
+            throws HotelRoomNotFoundException {
         HotelRoom hotelRoom = hotelRoomRepository.findById(id).orElse(null);
 
         if(hotelRoom == null) {

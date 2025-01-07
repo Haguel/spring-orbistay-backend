@@ -1,15 +1,13 @@
 package dev.haguel.orbistay.mapper;
 
-import dev.haguel.orbistay.dto.GetHotelResponseDTO;
-import dev.haguel.orbistay.dto.GetHotelsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.repository.HotelRepository;
 import dev.haguel.orbistay.util.mapper.HotelMapperUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;

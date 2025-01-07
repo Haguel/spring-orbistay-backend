@@ -1,7 +1,7 @@
 package dev.haguel.orbistay.util.mapper;
 
 import com.google.common.collect.Lists;
-import dev.haguel.orbistay.dto.GetBrieflyHotelRoomsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetBrieflyHotelRoomsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.mapper.HotelRoomMapper;
 import lombok.RequiredArgsConstructor;

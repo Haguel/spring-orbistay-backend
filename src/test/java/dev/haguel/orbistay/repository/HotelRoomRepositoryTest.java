@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.repository;
 
 import dev.haguel.orbistay.entity.HotelRoom;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -12,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,95 +28,178 @@ class HotelRoomRepositoryTest {
     @Autowired
     private HotelRoomRepository hotelRoomRepository;
 
-    @Test
-    void whenFindHotelRoomsByHotelId_thenReturnHotelRooms() {
-        Long hotelId = 1L;
-        List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, null, null, null, null)
-                .orElse(null);
+    @Nested
+    class FindHotelRooms {
+        @Test
+        void whenFindHotelRoomsByHotelId_thenReturnHotelRooms() {
+            Long hotelId = 1L;
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, null, null, null, null)
+                    .orElse(null);
 
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertTrue(result.stream().allMatch(room -> room.getHotel().getId().equals(hotelId)));
+            assertNotNull(result);
+            assertFalse(result.isEmpty());
+            assertTrue(result.stream().allMatch(room -> room.getHotel().getId().equals(hotelId)));
+        }
+
+        @Test
+        void whenFindHotelRoomsByPeopleCount_thenReturnHotelRooms() {
+            Long hotelId = 1L;
+            int peopleCount = 2;
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, peopleCount, null, null, null, null, null)
+                    .orElse(null);
+
+            assertNotNull(result);
+            assertFalse(result.isEmpty());
+            assertTrue(result.stream().allMatch(room -> room.getCapacity() >= peopleCount));
+        }
+
+        @Test
+        void whenFindHotelRoomsByPriceRange_thenReturnHotelRooms() {
+            Long hotelId = 1L;
+            double minPrice = 5.0;
+            double maxPrice = 50.0;
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, null, null, minPrice, maxPrice)
+                    .orElse(null);
+
+            assertNotNull(result);
+            assertFalse(result.isEmpty());
+            assertTrue(result.stream().allMatch(room -> room.getCostPerNight() >= minPrice && room.getCostPerNight() <= maxPrice));
+        }
+
+        @Test
+        void whenFindHotelRoomsByAvailability_thenReturnHotelRooms() {
+            Long hotelId = 1L;
+            LocalDate checkIn = LocalDate.of(2024, 1, 1);
+            LocalDate checkOut = LocalDate.of(2024, 1, 10);
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, checkIn, checkOut, null, null)
+                    .orElse(null);
+
+            assertNotNull(result);
+            assertFalse(result.isEmpty());
+        }
+
+        @Test
+        void whenFindHotelRoomsByInvalidHotelId_thenReturnEmpty() {
+            Long invalidHotelId = 999L;
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(invalidHotelId, null, null, null, null, null, null)
+                    .orElse(null);
+
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void whenFindHotelRoomsByInvalidPeopleCount_thenReturnEmpty() {
+            Long hotelId = 2L;
+            int invalidPeopleCount = 10;
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, invalidPeopleCount, null, null, null, null, null).orElse(null);
+
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void whenFindHotelRoomsByInvalidPriceRange_thenReturnEmpty() {
+            Long hotelId = 1L;
+            double minPrice = 1000.0;
+            double maxPrice = 2000.0;
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, null, null, minPrice, maxPrice)
+                    .orElse(null);
+
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void whenFindHotelRoomsByInvalidAvailability_thenReturnEmpty() {
+            Long hotelId = 1L;
+            LocalDate checkIn = LocalDate.of(2024, 12, 1);
+            LocalDate checkOut = LocalDate.of(2024, 12, 10);
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, checkIn, checkOut, null, null)
+                    .orElse(null);
+
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+        }
     }
 
-    @Test
-    void whenFindHotelRoomsByPeopleCount_thenReturnHotelRooms() {
-        Long hotelId = 1L;
-        int peopleCount = 2;
-        List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, peopleCount, null, null, null, null, null)
-                .orElse(null);
+    @Nested
+    class FindHotelRoom {
+        @Test
+        void whenFindHotelRoomByHotelId_thenReturnHotelRoom() {
+            Long hotelId = 1L;
+            Optional<HotelRoom> result = hotelRoomRepository.findHotelRoom(hotelId, null, null, null, null, null, null);
 
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertTrue(result.stream().allMatch(room -> room.getCapacity() >= peopleCount));
-    }
+            assertTrue(result.isPresent());
+            assertEquals(hotelId, result.get().getHotel().getId());
+        }
 
-    @Test
-    void whenFindHotelRoomsByPriceRange_thenReturnHotelRooms() {
-        Long hotelId = 1L;
-        double minPrice = 5.0;
-        double maxPrice = 50.0;
-        List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, null, null, minPrice, maxPrice)
-                .orElse(null);
+        @Test
+        void whenFindHotelRoomByPeopleCount_thenReturnHotelRoom() {
+            Long hotelId = 1L;
+            int peopleCount = 2;
+            Optional<HotelRoom> result = hotelRoomRepository.findHotelRoom(hotelId, peopleCount, null, null, null, null, null);
 
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertTrue(result.stream().allMatch(room -> room.getCostPerNight() >= minPrice && room.getCostPerNight() <= maxPrice));
-    }
+            assertTrue(result.isPresent());
+            assertTrue(result.get().getCapacity() >= peopleCount);
+        }
 
-    @Test
-    void whenFindHotelRoomsByAvailability_thenReturnHotelRooms() {
-        Long hotelId = 1L;
-        LocalDate checkIn = LocalDate.of(2024, 1, 1);
-        LocalDate checkOut = LocalDate.of(2024, 1, 10);
-        List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, checkIn, checkOut, null, null)
-                .orElse(null);
+        @Test
+        void whenFindHotelRoomByPriceRange_thenReturnHotelRoom() {
+            Long hotelId = 1L;
+            double minPrice = 5.0;
+            double maxPrice = 50.0;
+            Optional<HotelRoom> result = hotelRoomRepository.findHotelRoom(hotelId, null, null, null, null, minPrice, maxPrice);
 
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-    }
+            assertTrue(result.isPresent());
+            assertTrue(result.get().getCostPerNight() >= minPrice && result.get().getCostPerNight() <= maxPrice);
+        }
 
-    @Test
-    void whenFindHotelRoomsByInvalidHotelId_thenReturnEmpty() {
-        Long invalidHotelId = 999L;
-        List<HotelRoom> result = hotelRoomRepository.findHotelRooms(invalidHotelId, null, null, null, null, null, null)
-                .orElse(null);
+        @Test
+        void whenFindHotelRoomByAvailability_thenReturnHotelRoom() {
+            Long hotelId = 1L;
+            LocalDate checkIn = LocalDate.of(2024, 1, 1);
+            LocalDate checkOut = LocalDate.of(2024, 1, 10);
+            Optional<HotelRoom> result = hotelRoomRepository.findHotelRoom(hotelId, null, null, checkIn, checkOut, null, null);
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
+            assertTrue(result.isPresent());
+        }
 
-    @Test
-    void whenFindHotelRoomsByInvalidPeopleCount_thenReturnEmpty() {
-        Long hotelId = 2L;
-        int invalidPeopleCount = 10;
-        List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, invalidPeopleCount, null, null, null, null, null).orElse(null);
+        @Test
+        void whenFindHotelRoomByInvalidHotelId_thenReturnEmpty() {
+            Long invalidHotelId = 999L;
+            Optional<HotelRoom> result = hotelRoomRepository.findHotelRoom(invalidHotelId, null, null, null, null, null, null);
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
+            assertTrue(result.isEmpty());
+        }
 
-    @Test
-    void whenFindHotelRoomsByInvalidPriceRange_thenReturnEmpty() {
-        Long hotelId = 1L;
-        double minPrice = 1000.0;
-        double maxPrice = 2000.0;
-        List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, null, null, minPrice, maxPrice)
-                .orElse(null);
+        @Test
+        void whenFindHotelRoomByInvalidPeopleCount_thenReturnEmpty() {
+            Long hotelId = 2L;
+            int invalidPeopleCount = 10;
+            Optional<HotelRoom> result = hotelRoomRepository.findHotelRoom(hotelId, invalidPeopleCount, null, null, null, null, null);
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
+            assertTrue(result.isEmpty());
+        }
 
-    @Test
-    void whenFindHotelRoomsByInvalidAvailability_thenReturnEmpty() {
-        Long hotelId = 1L;
-        LocalDate checkIn = LocalDate.of(2024, 12, 1);
-        LocalDate checkOut = LocalDate.of(2024, 12, 10);
-        List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, checkIn, checkOut, null, null)
-                .orElse(null);
+        @Test
+        void whenFindHotelRoomByInvalidPriceRange_thenReturnEmpty() {
+            Long hotelId = 1L;
+            double minPrice = 1000.0;
+            double maxPrice = 2000.0;
+            Optional<HotelRoom> result = hotelRoomRepository.findHotelRoom(hotelId, null, null, null, null, minPrice, maxPrice);
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void whenFindHotelRoomByInvalidAvailability_thenReturnEmpty() {
+            Long hotelId = 1L;
+            LocalDate checkIn = LocalDate.of(2024, 12, 1);
+            LocalDate checkOut = LocalDate.of(2024, 12, 10);
+            Optional<HotelRoom> result = hotelRoomRepository.findHotelRoom(hotelId, null, null, checkIn, checkOut, null, null);
+
+            assertTrue(result.isEmpty());
+        }
     }
 }

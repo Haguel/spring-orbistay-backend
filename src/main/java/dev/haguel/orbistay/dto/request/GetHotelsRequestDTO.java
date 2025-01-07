@@ -1,12 +1,13 @@
-package dev.haguel.orbistay.dto;
+package dev.haguel.orbistay.dto.request;
 
+import dev.haguel.orbistay.annotation.ValidBoolean;
+import dev.haguel.orbistay.annotation.ValidDate;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @Builder
@@ -24,32 +25,42 @@ public class GetHotelsRequestDTO {
     private String country;
 
     @Schema(description = "The count of people the hotel's rooms can accommodate", example = "2")
-    private Integer peopleCount;
+    @PositiveOrZero
+    private String peopleCount;
 
     @Schema(description = "Whether the hotel is children-friendly", example = "true")
-    private Boolean isChildrenFriendly;
+    @ValidBoolean
+    private String isChildrenFriendly;
 
     @Schema(description = "Check-in date", example = "2022-12-01")
-    private LocalDate checkIn;
+    @ValidDate
+    private String checkIn;
 
     @Schema(description = "Check-out date", example = "2022-12-10")
-    private LocalDate checkOut;
+    @ValidDate
+    private String checkOut;
 
     @Schema(description = "The minimum price of the hotel", example = "5.0")
-    private Double minPrice;
+    @PositiveOrZero
+    private String minPrice;
 
-    @Schema(description = "The maximum price of the hotel", example = "25.0")
-    private Double maxPrice;
+    @Schema(description = "The maximum price of hotel room price", example = "25.0")
+    @PositiveOrZero
+    private String maxPrice;
 
-    @Schema(description = "The minimum rating of the hotel", example = "3")
-    private Integer minRating;
+    @Schema(description = "The minimum rating of hotel room price", example = "3")
+    @PositiveOrZero
+    private String minRating;
 
     @Schema(description = "The maximum rating of the hotel", example = "5")
-    private Integer maxRating;
+    @PositiveOrZero
+    private String maxRating;
 
     @Schema(description = "The minimum number of stars of the hotel", example = "3")
-    private Integer minStars;
+    @PositiveOrZero
+    private String minStars;
 
     @Schema(description = "The maximum number of stars of the hotel", example = "5")
-    private Integer maxStars;
+    @PositiveOrZero
+    private String maxStars;
 }

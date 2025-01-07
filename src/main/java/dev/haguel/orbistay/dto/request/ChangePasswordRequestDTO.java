@@ -1,18 +1,16 @@
-package dev.haguel.orbistay.dto;
+package dev.haguel.orbistay.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
-@EqualsAndHashCode(callSuper = true)
-@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Schema(name = "ChangePasswordRequestDTO", description = "Data Transfer Object for changing user's password")
-public class ChangePasswordRequestDTO extends JwtAccessTokenDTO{
+public class ChangePasswordRequestDTO {
     @Schema(description = "The old password of the user", example = "oldPassword123")
     @NotNull
     @NotBlank
