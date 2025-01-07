@@ -51,6 +51,36 @@ public class HotelRoomService {
     }
 
     @Transactional(readOnly = true)
+    public HotelRoom getHotelRoom(GetHotelRoomsRequestDTO getHotelRoomsRequestDTO)
+            throws HotelRoomNotFoundException {
+        Long hotelId = Long.parseLong(getHotelRoomsRequestDTO.getHotelId());
+        Integer peopleCount = Optional.ofNullable(getHotelRoomsRequestDTO.getPeopleCount()).map(Integer::parseInt).orElse(null);
+        Boolean isChildrenFriendly = Optional.ofNullable(getHotelRoomsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
+        LocalDate checkIn = Optional.ofNullable(getHotelRoomsRequestDTO.getCheckIn()).map(LocalDate::parse).orElse(null);
+        LocalDate checkOut = Optional.ofNullable(getHotelRoomsRequestDTO.getCheckOut()).map(LocalDate::parse).orElse(null);
+        Double minPrice = Optional.ofNullable(getHotelRoomsRequestDTO.getMinPrice()).map(Double::parseDouble).orElse(null);
+        Double maxPrice = Optional.ofNullable(getHotelRoomsRequestDTO.getMaxPrice()).map(Double::parseDouble).orElse(null);
+
+        HotelRoom hotelRoom = hotelRoomRepository.findHotelRoom(
+                hotelId,
+                peopleCount,
+                isChildrenFriendly,
+                checkIn,
+                checkOut,
+                minPrice,
+                maxPrice
+        ).orElse(null);
+
+        if (hotelRoom == null) {
+            throw new HotelRoomNotFoundException("No hotel rooms found for given criteria");
+        }
+
+        log.info("Found hotel room");
+
+        return hotelRoom;
+    }
+
+    @Transactional(readOnly = true)
     public HotelRoom getHotelRoomById(Long id)
             throws HotelRoomNotFoundException {
         HotelRoom hotelRoom = hotelRoomRepository.findById(id).orElse(null);
