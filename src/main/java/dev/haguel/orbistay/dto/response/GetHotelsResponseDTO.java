@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.dto.response;
 
 import dev.haguel.orbistay.entity.HotelHighlight;
+import dev.haguel.orbistay.entity.HotelRoom;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -43,4 +44,7 @@ public class GetHotelsResponseDTO {
 
     @Schema(description = "The hotel's average rate", example = "4.5")
     private double avgRate;
+
+    @Schema(description = "Suitable room", implementation = HotelRoom.class)
+    private HotelRoom hotelRoom;
 }
