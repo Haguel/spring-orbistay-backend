@@ -16,6 +16,7 @@ public abstract class HotelMapper {
     @Mapping(target = "avgRate", expression = "java(hotelMapperUtil.getReviewsAvgRate(hotel))")
     public abstract GetHotelsResponseDTO hotelToHotelsResponseDTO(Hotel hotel);
 
+    // Does not map hotel room
     @Mapping(target = "address", expression = "java(hotel.getAddress().toString())")
     @Mapping(target = "reviewsCount", expression = "java(hotel.getReviews().size())")
     @Mapping(target = "avgRate", expression = "java(hotelMapperUtil.getReviewsAvgRate(hotel))")

@@ -1,17 +1,21 @@
 package dev.haguel.orbistay.service;
 
+import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
+import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
 import dev.haguel.orbistay.exception.HotelsNotFoundException;
 import dev.haguel.orbistay.mapper.HotelMapper;
 import dev.haguel.orbistay.repository.HotelRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,8 +26,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class HotelService {
-    public final HotelRepository hotelRepository;
-    public final HotelMapper hotelMapper;
+    private final HotelRepository hotelRepository;
+    private final HotelMapper hotelMapper;
+    private final HotelRoomService hotelRoomService;
 
     @Transactional(readOnly = true)
     public List<GetHotelsResponseDTO> getHotels(GetHotelsRequestDTO getHotelsRequestDTO)
@@ -65,6 +70,27 @@ public class HotelService {
         List<GetHotelsResponseDTO> hotelsResponses = hotels.stream()
                 .map(hotelMapper::hotelToHotelsResponseDTO)
                 .collect(Collectors.toList());
+
+        // Set suitable hotel room for each hotel
+        for (GetHotelsResponseDTO hotelResponse : hotelsResponses) {
+            GetHotelRoomsRequestDTO getHotelRoomsRequestDTO = GetHotelRoomsRequestDTO.builder()
+                    .hotelId(hotelResponse.getId().toString())
+                    .peopleCount(getHotelsRequestDTO.getPeopleCount())
+                    .isChildrenFriendly(getHotelsRequestDTO.getIsChildrenFriendly())
+                    .checkIn(getHotelsRequestDTO.getCheckIn())
+                    .checkOut(getHotelsRequestDTO.getCheckOut())
+                    .minPrice(getHotelsRequestDTO.getMinPrice())
+                    .maxPrice(getHotelsRequestDTO.getMaxPrice())
+                    .build();
+
+            try {
+                hotelResponse.setHotelRoom(hotelRoomService.getHotelRoom(getHotelRoomsRequestDTO));
+            } catch (HotelRoomNotFoundException e) {
+                log.error("No hotel room found for the given criteria but hotel is found");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+        }
 
         log.info("Returning {} hotels", hotelsResponses.size());
         return hotelsResponses;
