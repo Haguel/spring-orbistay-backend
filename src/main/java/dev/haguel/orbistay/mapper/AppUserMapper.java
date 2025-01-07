@@ -1,5 +1,5 @@
 package dev.haguel.orbistay.mapper;
-import dev.haguel.orbistay.dto.GetAppUserInfoResponseDTO;
+import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import org.mapstruct.*;
 

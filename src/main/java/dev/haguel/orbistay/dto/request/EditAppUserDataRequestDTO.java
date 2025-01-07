@@ -1,11 +1,10 @@
-package dev.haguel.orbistay.dto;
+package dev.haguel.orbistay.dto.request;
 
 import dev.haguel.orbistay.annotation.ValidDate;
 import dev.haguel.orbistay.entity.enumeration.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

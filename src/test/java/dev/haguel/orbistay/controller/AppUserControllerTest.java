@@ -1,30 +1,23 @@
 package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
-import dev.haguel.orbistay.dto.*;
+import dev.haguel.orbistay.dto.request.AddressDataRequestDTO;
+import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
+import dev.haguel.orbistay.dto.request.PassportDataRequestDTO;
+import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
+import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
-import dev.haguel.orbistay.exception.AppUserNotFoundException;
-import dev.haguel.orbistay.exception.CountryNotFoundException;
-import dev.haguel.orbistay.exception.InvalidJwtTokenException;
 import dev.haguel.orbistay.service.AppUserService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.*;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -33,9 +26,6 @@ import test_utils.TestDataGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 @Slf4j
 @Testcontainers

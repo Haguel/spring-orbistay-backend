@@ -1,7 +1,7 @@
 package test_utils;
 
-import dev.haguel.orbistay.dto.JwtResponseDTO;
-import dev.haguel.orbistay.dto.SignInRequestDTO;
+import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.request.SignInRequestDTO;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 

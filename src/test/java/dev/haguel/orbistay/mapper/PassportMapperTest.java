@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.mapper;
 
-import dev.haguel.orbistay.dto.PassportDataRequestDTO;
+import dev.haguel.orbistay.dto.request.PassportDataRequestDTO;
 import dev.haguel.orbistay.entity.Passport;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;

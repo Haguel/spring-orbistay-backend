@@ -1,7 +1,7 @@
 package dev.haguel.orbistay.controller;
 
-import dev.haguel.orbistay.dto.EditAppUserDataRequestDTO;
-import dev.haguel.orbistay.dto.GetAppUserInfoResponseDTO;
+import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
+import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.AppUserNotFoundException;
 import dev.haguel.orbistay.exception.CountryNotFoundException;

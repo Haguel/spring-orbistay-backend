@@ -1,4 +1,4 @@
-package dev.haguel.orbistay.dto;
+package dev.haguel.orbistay.dto.request;
 
 import dev.haguel.orbistay.annotation.ValidDate;
 import io.swagger.v3.oas.annotations.media.Schema;

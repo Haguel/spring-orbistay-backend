@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.service;
 
-import dev.haguel.orbistay.dto.EditAppUserDataRequestDTO;
+import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
 import dev.haguel.orbistay.entity.Address;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.Country;

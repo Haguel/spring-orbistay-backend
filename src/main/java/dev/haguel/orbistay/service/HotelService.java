@@ -1,6 +1,8 @@
 package dev.haguel.orbistay.service;
 
-import dev.haguel.orbistay.dto.*;
+import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
+import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
 import dev.haguel.orbistay.exception.HotelsNotFoundException;

@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.mapper;
 
-import dev.haguel.orbistay.dto.GetAppUserInfoResponseDTO;
+import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.repository.AppUserRepository;
 import lombok.extern.slf4j.Slf4j;

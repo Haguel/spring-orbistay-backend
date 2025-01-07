@@ -1,6 +1,10 @@
 package dev.haguel.orbistay.controller;
 
-import dev.haguel.orbistay.dto.*;
+import dev.haguel.orbistay.dto.request.ChangePasswordRequestDTO;
+import dev.haguel.orbistay.dto.request.JwtRefreshTokenRequestDTO;
+import dev.haguel.orbistay.dto.request.SignInRequestDTO;
+import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
+import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
@@ -83,10 +87,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/refresh-tokens")
-    public ResponseEntity<?> getNewTokens(@RequestBody @Valid JwtRefreshTokenDTO jwtRefreshTokenDTO)
+    public ResponseEntity<?> getNewTokens(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
             throws InvalidJwtTokenException, AppUserNotFoundException {
         log.info("Refresh token request received");
-        JwtResponseDTO jwtResponseDTO = authService.refresh(jwtRefreshTokenDTO.getRefreshToken());
+        JwtResponseDTO jwtResponseDTO = authService.refresh(jwtRefreshTokenRequestDTO.getRefreshToken());
 
         log.info("Token refreshed successfully");
         return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
@@ -104,10 +108,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/refresh-access-token")
-    public ResponseEntity<?> getNewAccessToken(@RequestBody @Valid JwtRefreshTokenDTO jwtRefreshTokenDTO)
+    public ResponseEntity<?> getNewAccessToken(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
             throws AppUserNotFoundException, InvalidJwtTokenException {
         log.info("Refresh access token request received");
-        JwtResponseDTO jwtResponseDTO = authService.getAccessToken(jwtRefreshTokenDTO.getRefreshToken());
+        JwtResponseDTO jwtResponseDTO = authService.getAccessToken(jwtRefreshTokenRequestDTO.getRefreshToken());
 
         log.info("Access token refreshed successfully");
         return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
@@ -122,10 +126,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/log-out")
-    public ResponseEntity<?> logOut(@RequestBody @Valid JwtRefreshTokenDTO jwtRefreshTokenDTO)
+    public ResponseEntity<?> logOut(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
             throws InvalidJwtTokenException {
         log.info("Log out request received");
-        authService.logOut(jwtRefreshTokenDTO.getRefreshToken());
+        authService.logOut(jwtRefreshTokenRequestDTO.getRefreshToken());
 
         log.info("User logged out successfully");
         return ResponseEntity.status(HttpStatus.OK).build();

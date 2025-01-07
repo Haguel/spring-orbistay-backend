@@ -1,9 +1,8 @@
-package dev.haguel.orbistay.dto;
+package dev.haguel.orbistay.dto.request;
 
 import dev.haguel.orbistay.annotation.ValidBoolean;
 import dev.haguel.orbistay.annotation.ValidDate;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

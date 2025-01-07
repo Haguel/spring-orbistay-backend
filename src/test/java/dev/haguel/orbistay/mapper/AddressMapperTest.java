@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.mapper;
 
-import dev.haguel.orbistay.dto.AddressDataRequestDTO;
+import dev.haguel.orbistay.dto.request.AddressDataRequestDTO;
 import dev.haguel.orbistay.entity.Address;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;

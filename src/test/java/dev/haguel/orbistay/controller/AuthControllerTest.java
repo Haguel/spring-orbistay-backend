@@ -1,7 +1,11 @@
 package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
-import dev.haguel.orbistay.dto.*;
+import dev.haguel.orbistay.dto.request.ChangePasswordRequestDTO;
+import dev.haguel.orbistay.dto.request.JwtRefreshTokenRequestDTO;
+import dev.haguel.orbistay.dto.request.SignInRequestDTO;
+import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
+import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.repository.AppUserRepository;
 import dev.haguel.orbistay.service.JwtService;
@@ -188,14 +192,14 @@ class AuthControllerTest {
         assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
         assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
 
-        JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
+        JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
                 .refreshToken(jwtResponseDTO.getRefreshToken())
                 .build();
 
         webTestClient.post()
                 .uri("/auth/log-out")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(jwtRefreshTokenDTO)
+                .bodyValue(jwtRefreshTokenRequestDTO)
                 .exchange()
                 .expectStatus().isOk();
 
@@ -329,14 +333,14 @@ class AuthControllerTest {
                 .getResponseBody();
 
         String refreshToken = jwtResponseDTO.getRefreshToken();
-        JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
+        JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
                 .refreshToken(refreshToken)
                 .build();
 
         JwtResponseDTO newJwtResponseDTO = webTestClient.post()
                 .uri("/auth/refresh-tokens")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(jwtRefreshTokenDTO)
+                .bodyValue(jwtRefreshTokenRequestDTO)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(JwtResponseDTO.class)
@@ -368,14 +372,14 @@ class AuthControllerTest {
                 .returnResult()
                 .getResponseBody();
 
-        JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
+        JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
                 .refreshToken(TestDataGenerator.generateRandomJwtToken())
                 .build();
 
         webTestClient.post()
                 .uri("/auth/refresh-tokens")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(jwtRefreshTokenDTO)
+                .bodyValue(jwtRefreshTokenRequestDTO)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
@@ -401,14 +405,14 @@ class AuthControllerTest {
 
         redisService.deleteValue(email);
 
-        JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
+        JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
                 .refreshToken(jwtResponseDTO.getRefreshToken())
                 .build();
 
         webTestClient.post()
                 .uri("/auth/refresh-tokens")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(jwtRefreshTokenDTO)
+                .bodyValue(jwtRefreshTokenRequestDTO)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
@@ -432,14 +436,14 @@ class AuthControllerTest {
                 .returnResult()
                 .getResponseBody();
 
-        JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
+        JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
                 .refreshToken(jwtResponseDTO.getRefreshToken())
                 .build();
 
         JwtResponseDTO newJwtResponseDTO = webTestClient.post()
                 .uri("/auth/refresh-access-token")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(jwtRefreshTokenDTO)
+                .bodyValue(jwtRefreshTokenRequestDTO)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(JwtResponseDTO.class)
@@ -469,14 +473,14 @@ class AuthControllerTest {
                 .returnResult()
                 .getResponseBody();
 
-        JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
+        JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
                 .refreshToken(TestDataGenerator.generateRandomJwtToken())
                 .build();
 
         webTestClient.post()
                 .uri("/auth/refresh-access-token")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(jwtRefreshTokenDTO)
+                .bodyValue(jwtRefreshTokenRequestDTO)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
@@ -502,14 +506,14 @@ class AuthControllerTest {
 
         redisService.deleteValue(email);
 
-        JwtRefreshTokenDTO jwtRefreshTokenDTO = JwtRefreshTokenDTO.builder()
+        JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
                 .refreshToken(jwtResponseDTO.getRefreshToken())
                 .build();
 
         webTestClient.post()
                 .uri("/auth/refresh-access-token")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(jwtRefreshTokenDTO)
+                .bodyValue(jwtRefreshTokenRequestDTO)
                 .exchange()
                 .expectStatus().isNotFound();
     }
