@@ -8,6 +8,7 @@ import dev.haguel.orbistay.repository.HotelRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,7 +20,9 @@ import java.util.Optional;
 public class HotelRoomService {
     private final HotelRoomRepository hotelRoomRepository;
 
-    public List<HotelRoom> getHotelRoomsRequestDTO(GetHotelRoomsRequestDTO getHotelRoomsRequestDTO) throws HotelRoomsNotFoundException {
+    @Transactional(readOnly = true)
+    public List<HotelRoom> getHotelRooms(GetHotelRoomsRequestDTO getHotelRoomsRequestDTO)
+            throws HotelRoomsNotFoundException {
         Long hotelId = Long.parseLong(getHotelRoomsRequestDTO.getHotelId());
         Integer peopleCount = Optional.ofNullable(getHotelRoomsRequestDTO.getPeopleCount()).map(Integer::parseInt).orElse(null);
         Boolean isChildrenFriendly = Optional.ofNullable(getHotelRoomsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
@@ -47,7 +50,9 @@ public class HotelRoomService {
         return hotelRooms;
     }
 
-    public HotelRoom getHotelRoomById(Long id) throws HotelRoomNotFoundException {
+    @Transactional(readOnly = true)
+    public HotelRoom getHotelRoomById(Long id)
+            throws HotelRoomNotFoundException {
         HotelRoom hotelRoom = hotelRoomRepository.findById(id).orElse(null);
 
         if(hotelRoom == null) {
