@@ -8,7 +8,7 @@ import dev.haguel.orbistay.exception.CountryNotFoundException;
 import dev.haguel.orbistay.exception.InvalidJwtTokenException;
 import dev.haguel.orbistay.mapper.AppUserMapper;
 import dev.haguel.orbistay.service.AppUserService;
-import dev.haguel.orbistay.service.JwtService;
+import dev.haguel.orbistay.service.SecurityService;
 import dev.haguel.orbistay.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "App user")
 public class AppUserController {
     private final AppUserService appUserService;
-    private final JwtService jwtService;
+    private final SecurityService securityService;
     private final AppUserMapper appUserMapper;
 
     @Operation(summary = "Get current app user info by jwt access token")
@@ -48,18 +48,7 @@ public class AppUserController {
     public ResponseEntity<?> getCurrentAppUserInfo(@RequestHeader(name="Authorization") String authorizationHeader)
             throws AppUserNotFoundException, InvalidJwtTokenException {
         log.info("Get current app user info request received");
-        String jwtToken = SecurityUtil.getTokenFromAuthorizationHeader(authorizationHeader);
-        String appUserEmail = jwtService.getAccessClaims(jwtToken).getSubject();
-
-        if(appUserEmail == null) {
-            throw new InvalidJwtTokenException("Access token doesn't contain user email");
-        }
-
-        AppUser appUser = appUserService.findByEmail(appUserEmail);
-
-        if(appUser == null) {
-            throw new AppUserNotFoundException("App user couldn't be found in database by provided email");
-        }
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
 
         return ResponseEntity.status(200).body(appUserMapper.appUserToAppUserInfoDTO(appUser));
     }
@@ -84,19 +73,7 @@ public class AppUserController {
                                              @Valid @RequestBody EditAppUserDataRequestDTO data)
             throws AppUserNotFoundException, CountryNotFoundException, InvalidJwtTokenException {
         log.info("Edit app user data request received");
-        String jwtToken = SecurityUtil.getTokenFromAuthorizationHeader(authorizationHeader);
-        String appUserEmail = jwtService.getAccessClaims(jwtToken).getSubject();
-
-        if(appUserEmail == null) {
-            throw new InvalidJwtTokenException("Access token doesn't contain user email");
-        }
-
-        AppUser appUser = appUserService.findByEmail(appUserEmail);
-
-        if(appUser == null) {
-            throw new AppUserNotFoundException("App user couldn't be found in database by provided email");
-        }
-
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
         appUser = appUserService.editAppUserData(appUser, data);
 
         return ResponseEntity.status(200).body(appUserMapper.appUserToAppUserInfoDTO(appUser));

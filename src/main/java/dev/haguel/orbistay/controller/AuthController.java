@@ -8,10 +8,8 @@ import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
-import dev.haguel.orbistay.service.AppUserService;
 import dev.haguel.orbistay.service.AuthService;
-import dev.haguel.orbistay.service.JwtService;
-import dev.haguel.orbistay.util.SecurityUtil;
+import dev.haguel.orbistay.service.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,8 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication")
 public class AuthController {
     private final AuthService authService;
-    private final JwtService jwtService;
-    private final AppUserService appUserService;
+    private final SecurityService securityService;
 
     @Operation(summary = "Sign up")
     @ApiResponses(value = {
@@ -153,20 +150,9 @@ public class AuthController {
     public ResponseEntity<?> changePassword(@RequestHeader(name="Authorization") String authorizationHeader,
                                             @RequestBody @Valid ChangePasswordRequestDTO changePasswordRequestDTO)
             throws AppUserNotFoundException, InvalidJwtTokenException, IncorrectPasswordException {
-        String jwtToken = SecurityUtil.getTokenFromAuthorizationHeader(authorizationHeader);
-        String appUserEmail = jwtService.getAccessClaims(jwtToken).getSubject();
-
-        if(appUserEmail == null) {
-            throw new InvalidJwtTokenException("Access token doesn't contain user email");
-        }
-
-        AppUser appUser = appUserService.findByEmail(appUserEmail);
-
-        if (appUser == null) {
-            throw new AppUserNotFoundException("App user couldn't be found in database by provided email");
-        }
-
         log.info("Change password request received");
+
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
         authService.changePassword(appUser, changePasswordRequestDTO);
 
         log.info("Password changed successfully");
