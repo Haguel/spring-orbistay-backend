@@ -5,6 +5,8 @@ import dev.haguel.orbistay.service.CountryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 @RequiredArgsConstructor
 public class SharedMapperUtil {
@@ -16,5 +18,9 @@ public class SharedMapperUtil {
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    public LocalDate convertStringToLocalDate(String date) {
+        return LocalDate.parse(date);
     }
 }

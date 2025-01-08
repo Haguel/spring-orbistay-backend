@@ -18,4 +18,8 @@ public class PassportService {
         log.info("Passport saved to database");
         return passport;
     }
+
+    public void delete(Passport passport) {
+        passportRepository.delete(passport);
+    }
 }

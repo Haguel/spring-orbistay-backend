@@ -46,6 +46,20 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(BookingNotAvailableException.class)
+    public ResponseEntity<ErrorResponse> handleBookingNotAvailableException(BookingNotAvailableException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Booking not available"
+        );
+
+        log.error("Booking not available", exception);
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException exception) {
         List<String> errors = new ArrayList<>();
