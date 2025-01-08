@@ -205,7 +205,10 @@ INSERT INTO address (city, street, country_id) VALUES
                                                    ('New York', '789 Wall St', 1),
                                                    ('Zurich', '117 Bahnhofstrasse', 2),
                                                    ('Zurich', '118 Bahnhofstrasse', 2),
-                                                   ('Zurich', '119 Bahnhofstrasse', 2);
+                                                   ('Zurich', '119 Bahnhofstrasse', 2),
+                                                   ('Los Angeles', '101 Hollywood Blvd', 1),
+                                                   ('Chicago', '202 Michigan Ave', 1),
+                                                   ('San Francisco', '303 Market St', 1);
 
 -- Insert hotels for each address with updated descriptions
 INSERT INTO hotel (name, address_id, short_desc, full_desc, stars, main_image_url) VALUES
@@ -551,11 +554,11 @@ WHERE
 -- Insert new users with hashed passwords
 INSERT INTO app_user (username, email, password_hash, phone, birth_date, gender, avatar_url, citizenship_id, residency_id, role) VALUES
                                  -- password: password123
-                                 ('john_doe', 'john.doe@example.com', '$2a$10$LZVUP317ZxapsUy/96hqWOze6cRMOQUUReJq3Xg.PjEoUJTfLI2Pm', '123-456-7890', '1994-10-20', 'MALE', 'avatar_john.jpg', 1, 1, 'ROLE_USER'),
+                                 ('john_doe', 'john.doe@example.com', '$2a$10$LZVUP317ZxapsUy/96hqWOze6cRMOQUUReJq3Xg.PjEoUJTfLI2Pm', '123-456-7890', '1994-10-20', 'MALE', 'avatar_john.jpg', 1, 7, 'ROLE_USER'),
                                  -- password: qwerty
-                                 ('jane_smith', 'jane.smith@example.com', '$2a$10$7FVWIPdfieQcAivdeoYY3eD55MCRUuPNnjkqnxDOGO7MWl5PnhMDm', '098-765-4321', '2010-06-10', 'MALE', 'avatar_jane.jpg', 2, 2, 'ROLE_USER'),
+                                 ('jane_smith', 'jane.smith@example.com', '$2a$10$7FVWIPdfieQcAivdeoYY3eD55MCRUuPNnjkqnxDOGO7MWl5PnhMDm', '098-765-4321', '2010-06-10', 'MALE', 'avatar_jane.jpg', 2, 8, 'ROLE_USER'),
                                  -- password: admin_pass
-                                 ('admin_user', 'admin@example.com', '$2a$10$SNsWC4N2oCuh4fmBxCqeaerDVbxHIZ.C.cwXaFoirp7LeVMXx68ny', '555-555-5555', '2001-01-25', 'FEMALE', 'avatar_admin.jpg', 1, 3, 'ROLE_ADMIN');
+                                 ('admin_user', 'admin@example.com', '$2a$10$SNsWC4N2oCuh4fmBxCqeaerDVbxHIZ.C.cwXaFoirp7LeVMXx68ny', '555-555-5555', '2001-01-25', 'FEMALE', 'avatar_admin.jpg', 1, 9, 'ROLE_ADMIN');
 
 -- Insert reviews from the first two users
 INSERT INTO review (rate, content, app_user_id, hotel_id) VALUES
@@ -564,15 +567,15 @@ INSERT INTO review (rate, content, app_user_id, hotel_id) VALUES
                                   (3.5, 'Good value for money, but could improve cleanliness.', 2, 3),
                                   (5.0, 'Absolutely loved the experience, highly recommend!', 2, 4);
 
-INSERT INTO booking (app_user_id, hotel_room_id, check_in, check_out) VALUES
+INSERT INTO booking (app_user_id, hotel_room_id, check_in, check_out, first_name, last_name, email, phone_number) VALUES
                                   -- Bookings for Hotel New York 1
-                                  (1, 1, '2024-12-01', '2024-12-10'),
-                                  (1, 2, '2024-12-01', '2024-12-10'),
-                                  (1, 3, '2024-12-01', '2024-12-10'),
-                                  (1, 4, '2024-12-01', '2024-12-10'),
+                                  (1, 1, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 2, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 3, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 4, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
 
                                   -- Additional bookings for other hotels
-                                  (2, 5, '2024-12-15', '2024-12-20'),
-                                  (2, 6, '2024-12-15', '2024-12-20'),
-                                  (2, 7, '2024-12-15', '2024-12-20'),
-                                  (2, 8, '2024-12-15', '2024-12-20');
+                                  (2, 5, '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
+                                  (2, 6, '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
+                                  (2, 7, '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
+                                  (2, 8, '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321');

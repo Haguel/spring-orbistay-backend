@@ -21,6 +21,18 @@ public class Booking {
     @Column(nullable = false)
     private LocalDate checkOut;
 
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String phoneNumber;
+
     @ManyToOne
     @JoinColumn(name = "app_user_id", nullable = false)
     private AppUser appUser;
