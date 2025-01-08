@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.dto.request;
 
 import dev.haguel.orbistay.annotation.ValidDate;
+import dev.haguel.orbistay.annotation.ValidPhoneNumber;
 import dev.haguel.orbistay.entity.enumeration.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -27,7 +28,7 @@ public class EditAppUserDataRequestDTO {
     private String email;
 
     @Schema(description = "The app user's phone", example = "1234567890")
-    @Pattern(regexp="(^$|[0-9]{10})", message = "Invalid phone number")
+    @ValidPhoneNumber
     private String phone;
 
     @Schema(description = "The app user's birth date", example = "2000-01-01")
