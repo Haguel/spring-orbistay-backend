@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -69,7 +70,12 @@ public class AppUser implements UserDetails {
     private List<Review> reviews;
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (role == null) {
+            return Collections.emptyList();
+        }
+
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
