@@ -567,15 +567,15 @@ INSERT INTO review (rate, content, app_user_id, hotel_id) VALUES
                                   (3.5, 'Good value for money, but could improve cleanliness.', 2, 3),
                                   (5.0, 'Absolutely loved the experience, highly recommend!', 2, 4);
 
-INSERT INTO booking (app_user_id, hotel_room_id, check_in, check_out, first_name, last_name, email, phone_number) VALUES
+INSERT INTO booking (app_user_id, hotel_room_id, country_id, check_in, check_out, first_name, last_name, email, phone_number) VALUES
                                   -- Bookings for Hotel New York 1
-                                  (1, 1, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
-                                  (1, 2, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
-                                  (1, 3, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
-                                  (1, 4, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 1, '1', '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 2, '1', '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 3, '1', '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 4, '1', '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
 
                                   -- Additional bookings for other hotels
-                                  (2, 5, '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
-                                  (2, 6, '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
-                                  (2, 7, '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
-                                  (2, 8, '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321');
+                                  (2, 5, '1', '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
+                                  (2, 6, '1', '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
+                                  (2, 7, '1', '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
+                                  (2, 8, '1', '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321');

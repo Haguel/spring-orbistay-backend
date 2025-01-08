@@ -128,6 +128,8 @@ CREATE TABLE booking (
     phone_number VARCHAR(255) NOT NULL,
     app_user_id BIGINT NOT NULL,
     hotel_room_id BIGINT NOT NULL,
+    country_id BIGINT NOT NULL,
+    FOREIGN KEY (country_id) REFERENCES country(id),
     FOREIGN KEY (app_user_id) REFERENCES app_user(id),
     FOREIGN KEY (hotel_room_id) REFERENCES hotel_room(id)
 );

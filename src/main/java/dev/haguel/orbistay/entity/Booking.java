@@ -34,6 +34,10 @@ public class Booking {
     private String phoneNumber;
 
     @ManyToOne
+    @JoinColumn(name = "country_id", nullable = false)
+    private Country country;
+
+    @ManyToOne
     @JoinColumn(name = "app_user_id", nullable = false)
     private AppUser appUser;
 
