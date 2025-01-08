@@ -100,10 +100,14 @@ public class AppUserService {
         Optional.ofNullable(country).ifPresent(appUser::setCitizenship);
         Optional.ofNullable(address).ifPresent((Address a) -> {
             addressService.save(a);
+
+            Optional.ofNullable(appUser.getResidency()).ifPresent(addressService::delete);
             appUser.setResidency(a);
         });
         Optional.ofNullable(passport).ifPresent((Passport p) -> {
             passportService.save(p);
+
+            Optional.ofNullable(appUser.getPassport()).ifPresent(passportService::delete);
             appUser.setPassport(p);
         });
 

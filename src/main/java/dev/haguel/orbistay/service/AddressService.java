@@ -18,4 +18,8 @@ public class AddressService {
         log.info("Address saved to database");
         return address;
     }
+
+    public void delete(Address address) {
+        addressRepository.delete(address);
+    }
 }
