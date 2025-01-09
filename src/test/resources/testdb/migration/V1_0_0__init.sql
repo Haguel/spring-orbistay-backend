@@ -137,9 +137,12 @@ CREATE TABLE booking (
 CREATE TABLE review (
     id BIGSERIAL PRIMARY KEY,
     rate NUMERIC(2, 1) NOT NULL,
-    content TEXT,
+    content TEXT NOT NULL,
+    good_sides VARCHAR(255),
+    bad_sides VARCHAR(255),
     app_user_id BIGINT NOT NULL,
     hotel_id BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     FOREIGN KEY (app_user_id) REFERENCES app_user(id),
     FOREIGN KEY (hotel_id) REFERENCES hotel(id)
 );
