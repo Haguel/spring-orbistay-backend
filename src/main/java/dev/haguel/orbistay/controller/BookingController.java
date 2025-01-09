@@ -6,6 +6,7 @@ import dev.haguel.orbistay.entity.Booking;
 import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.service.BookingService;
 import dev.haguel.orbistay.service.SecurityService;
+import dev.haguel.orbistay.util.EndPoints;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,7 +20,6 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/booking")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Booking")
@@ -44,7 +44,7 @@ public class BookingController {
             @ApiResponse(responseCode = "409", description = "Booking not available",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @PostMapping("/book")
+    @PostMapping(EndPoints.Booking.BOOK_HOTEL_ROOM)
     public ResponseEntity<?> bookHotelRoom(@RequestHeader(name="Authorization") String authorizationHeader,
                                            @Valid @RequestBody BookHotelRoomRequestDTO bookHotelRoomRequestDTO)
             throws InvalidJwtTokenException, AppUserNotFoundException, HotelRoomNotFoundException, BookingNotAvailableException, CountryNotFoundException {

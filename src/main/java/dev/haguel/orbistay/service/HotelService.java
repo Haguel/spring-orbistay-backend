@@ -1,7 +1,7 @@
 package dev.haguel.orbistay.service;
 
-import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
-import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
+import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
+import dev.haguel.orbistay.dto.request.GetFilteredHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
@@ -32,23 +32,23 @@ public class HotelService {
     private final HotelRoomService hotelRoomService;
 
     @Transactional(readOnly = true)
-    public List<GetHotelsIncludeRoomResponseDTO> getHotels(GetHotelsRequestDTO getHotelsRequestDTO)
+    public List<GetHotelsIncludeRoomResponseDTO> getFilteredHotels(GetFilteredHotelsRequestDTO getFilteredHotelsRequestDTO)
             throws HotelsNotFoundException {
-        Integer peopleCount = Optional.ofNullable(getHotelsRequestDTO.getPeopleCount()).map(Integer::parseInt).orElse(null);
-        Boolean isChildrenFriendly = Optional.ofNullable(getHotelsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
-        LocalDate checkIn = Optional.ofNullable(getHotelsRequestDTO.getCheckIn()).map(LocalDate::parse).orElse(null);
-        LocalDate checkOut = Optional.ofNullable(getHotelsRequestDTO.getCheckOut()).map(LocalDate::parse).orElse(null);
-        Double minPrice = Optional.ofNullable(getHotelsRequestDTO.getMinPrice()).map(Double::parseDouble).orElse(null);
-        Double maxPrice = Optional.ofNullable(getHotelsRequestDTO.getMaxPrice()).map(Double::parseDouble).orElse(null);
-        Integer minRating = Optional.ofNullable(getHotelsRequestDTO.getMinRating()).map(Integer::parseInt).orElse(null);
-        Integer maxRating = Optional.ofNullable(getHotelsRequestDTO.getMaxRating()).map(Integer::parseInt).orElse(null);
-        Integer minStars = Optional.ofNullable(getHotelsRequestDTO.getMinStars()).map(Integer::parseInt).orElse(null);
-        Integer maxStars = Optional.ofNullable(getHotelsRequestDTO.getMaxStars()).map(Integer::parseInt).orElse(null);
+        Integer peopleCount = Optional.ofNullable(getFilteredHotelsRequestDTO.getPeopleCount()).map(Integer::parseInt).orElse(null);
+        Boolean isChildrenFriendly = Optional.ofNullable(getFilteredHotelsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
+        LocalDate checkIn = Optional.ofNullable(getFilteredHotelsRequestDTO.getCheckIn()).map(LocalDate::parse).orElse(null);
+        LocalDate checkOut = Optional.ofNullable(getFilteredHotelsRequestDTO.getCheckOut()).map(LocalDate::parse).orElse(null);
+        Double minPrice = Optional.ofNullable(getFilteredHotelsRequestDTO.getMinPrice()).map(Double::parseDouble).orElse(null);
+        Double maxPrice = Optional.ofNullable(getFilteredHotelsRequestDTO.getMaxPrice()).map(Double::parseDouble).orElse(null);
+        Integer minRating = Optional.ofNullable(getFilteredHotelsRequestDTO.getMinRating()).map(Integer::parseInt).orElse(null);
+        Integer maxRating = Optional.ofNullable(getFilteredHotelsRequestDTO.getMaxRating()).map(Integer::parseInt).orElse(null);
+        Integer minStars = Optional.ofNullable(getFilteredHotelsRequestDTO.getMinStars()).map(Integer::parseInt).orElse(null);
+        Integer maxStars = Optional.ofNullable(getFilteredHotelsRequestDTO.getMaxStars()).map(Integer::parseInt).orElse(null);
 
         List<Hotel> hotels = hotelRepository.findHotels(
-                getHotelsRequestDTO.getName(),
-                getHotelsRequestDTO.getCity(),
-                getHotelsRequestDTO.getCountry(),
+                getFilteredHotelsRequestDTO.getName(),
+                getFilteredHotelsRequestDTO.getCity(),
+                getFilteredHotelsRequestDTO.getCountry(),
                 peopleCount,
                 isChildrenFriendly,
                 checkIn,
@@ -74,18 +74,18 @@ public class HotelService {
 
         // Set suitable hotel room for each hotel
         for (GetHotelsIncludeRoomResponseDTO hotelResponse : hotelsResponses) {
-            GetHotelRoomsRequestDTO getHotelRoomsRequestDTO = GetHotelRoomsRequestDTO.builder()
+            GetFileredHotelRoomsRequestDTO getFileredHotelRoomsRequestDTO = GetFileredHotelRoomsRequestDTO.builder()
                     .hotelId(hotelResponse.getId().toString())
-                    .peopleCount(getHotelsRequestDTO.getPeopleCount())
-                    .isChildrenFriendly(getHotelsRequestDTO.getIsChildrenFriendly())
-                    .checkIn(getHotelsRequestDTO.getCheckIn())
-                    .checkOut(getHotelsRequestDTO.getCheckOut())
-                    .minPrice(getHotelsRequestDTO.getMinPrice())
-                    .maxPrice(getHotelsRequestDTO.getMaxPrice())
+                    .peopleCount(getFilteredHotelsRequestDTO.getPeopleCount())
+                    .isChildrenFriendly(getFilteredHotelsRequestDTO.getIsChildrenFriendly())
+                    .checkIn(getFilteredHotelsRequestDTO.getCheckIn())
+                    .checkOut(getFilteredHotelsRequestDTO.getCheckOut())
+                    .minPrice(getFilteredHotelsRequestDTO.getMinPrice())
+                    .maxPrice(getFilteredHotelsRequestDTO.getMaxPrice())
                     .build();
 
             try {
-                hotelResponse.setHotelRoom(hotelRoomService.getHotelRoom(getHotelRoomsRequestDTO));
+                hotelResponse.setHotelRoom(hotelRoomService.getHotelRoom(getFileredHotelRoomsRequestDTO));
             } catch (HotelRoomNotFoundException e) {
                 log.error("No hotel room found for the given criteria but hotel is found");
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);

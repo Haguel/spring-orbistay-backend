@@ -3,12 +3,13 @@ package dev.haguel.orbistay.controller;
 import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
-import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
-import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
+import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
+import dev.haguel.orbistay.dto.request.GetFilteredHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.entity.Review;
+import dev.haguel.orbistay.util.EndPoints;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Nested;
@@ -49,10 +50,10 @@ class HotelControllerTest {
     private WebTestClient webTestClient;
 
     @Nested
-    class GetHotels {
+    class GetFilteredHotels {
         @Test
-        void whenGetHotelsWithValidCriteria_thenReturnHotels() {
-            GetHotelsRequestDTO requestDTO = GetHotelsRequestDTO.builder()
+        void whenGetFilteredHotelsWithValidCriteria_thenReturnHotels() {
+            GetFilteredHotelsRequestDTO requestDTO = GetFilteredHotelsRequestDTO.builder()
                     .name("Hotel New York 1")
                     .city("New York")
                     .country("United States")
@@ -71,7 +72,7 @@ class HotelControllerTest {
             webTestClient.mutate()
                     .build()
                     .method(HttpMethod.GET)
-                    .uri("/hotel/get/filter")
+                    .uri(EndPoints.Hotels.GET_FILTERED_HOTELS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -84,8 +85,8 @@ class HotelControllerTest {
         }
 
         @Test
-        void whenGetHotelsWithInvalidCriteria_thenReturnError() {
-            GetHotelsRequestDTO requestDTO = GetHotelsRequestDTO.builder()
+        void whenGetFilteredHotelsWithInvalidCriteria_thenReturnError() {
+            GetFilteredHotelsRequestDTO requestDTO = GetFilteredHotelsRequestDTO.builder()
                     .name("Invalid Hotel")
                     .city("Invalid City")
                     .country("Invalid Country")
@@ -94,7 +95,7 @@ class HotelControllerTest {
             webTestClient.mutate()
                     .build()
                     .method(HttpMethod.GET)
-                    .uri("/hotel/get/filter")
+                    .uri(EndPoints.Hotels.GET_FILTERED_HOTELS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -111,7 +112,7 @@ class HotelControllerTest {
             webTestClient.mutate()
                     .build()
                     .get()
-                    .uri("/hotel/get/" + validHotelId)
+                    .uri(EndPoints.Hotels.GET_HOTEL + "/" + validHotelId)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody(GetHotelResponseDTO.class)
@@ -128,17 +129,17 @@ class HotelControllerTest {
             webTestClient.mutate()
                     .build()
                     .get()
-                    .uri("/hotel/get/" + invalidHotelId)
+                    .uri(EndPoints.Hotels.GET_HOTEL + "/" + invalidHotelId)
                     .exchange()
                     .expectStatus().isNotFound();
         }
     }
 
     @Nested
-    class GetHotelRooms {
+    class GetFilteredHotelRooms {
         @Test
-        void whenGetHotelRoomsWithValidCriteria_thenReturnHotelRooms() {
-            GetHotelRoomsRequestDTO requestDTO = GetHotelRoomsRequestDTO.builder()
+        void whenGetFilteredHotelRoomsWithValidCriteria_thenReturnHotelRooms() {
+            GetFileredHotelRoomsRequestDTO requestDTO = GetFileredHotelRoomsRequestDTO.builder()
                     .hotelId(String.valueOf(1L))
                     .peopleCount(String.valueOf(2))
                     .isChildrenFriendly(String.valueOf(true))
@@ -151,7 +152,7 @@ class HotelControllerTest {
             webTestClient.mutate()
                     .build()
                     .method(HttpMethod.GET)
-                    .uri("/hotel/room/get/filter")
+                    .uri(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -164,8 +165,8 @@ class HotelControllerTest {
         }
 
         @Test
-        void whenGetHotelRoomsWithInvalidCriteria_thenReturnError() {
-            GetHotelRoomsRequestDTO requestDTO = GetHotelRoomsRequestDTO.builder()
+        void whenGetFilteredHotelRoomsWithInvalidCriteria_thenReturnError() {
+            GetFileredHotelRoomsRequestDTO requestDTO = GetFileredHotelRoomsRequestDTO.builder()
                     .hotelId(String.valueOf(999L))
                     .peopleCount(String.valueOf(2))
                     .isChildrenFriendly(String.valueOf(true))
@@ -178,7 +179,7 @@ class HotelControllerTest {
             webTestClient.mutate()
                     .build()
                     .method(HttpMethod.GET)
-                    .uri("/hotel/room/get/filter")
+                    .uri(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -195,7 +196,7 @@ class HotelControllerTest {
             webTestClient.mutate()
                     .build()
                     .get()
-                    .uri("/hotel/room/get/" + validHotelRoomId)
+                    .uri(EndPoints.Hotels.GET_HOTEL_ROOM + "/" + validHotelRoomId)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody(HotelRoom.class)
@@ -212,7 +213,7 @@ class HotelControllerTest {
             webTestClient.mutate()
                     .build()
                     .get()
-                    .uri("/hotel/room/get/" + invalidHotelRoomId)
+                    .uri(EndPoints.Hotels.GET_HOTEL_ROOM + "/" + invalidHotelRoomId)
                     .exchange()
                     .expectStatus().isNotFound();
         }
@@ -222,9 +223,7 @@ class HotelControllerTest {
     class WriteReview {
         @Test
         void whenWriteReviewWithValidData_thenReturnReview() {
-            String email = "john.doe@example.com";
-            String password = "password123";
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens(email, password, webTestClient);
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
 
             WriteReviewRequestDTO requestDTO = WriteReviewRequestDTO.builder()
                     .hotelId(String.valueOf(1L))
@@ -235,7 +234,7 @@ class HotelControllerTest {
                     .build();
 
             webTestClient.post()
-                    .uri("/hotel/review")
+                    .uri(EndPoints.Hotels.WRITE_REVIEW)
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
@@ -254,9 +253,7 @@ class HotelControllerTest {
 
         @Test
         void whenWriteReviewWithInvalidHotelId_thenReturnError() {
-            String email = "john.doe@example.com";
-            String password = "password123";
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens(email, password, webTestClient);
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
 
             WriteReviewRequestDTO requestDTO = WriteReviewRequestDTO.builder()
                     .hotelId(String.valueOf(-1L))
@@ -267,7 +264,7 @@ class HotelControllerTest {
                     .build();
 
             webTestClient.post()
-                    .uri("/hotel/review")
+                    .uri(EndPoints.Hotels.WRITE_REVIEW)
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
@@ -281,7 +278,7 @@ class HotelControllerTest {
         @Test
         void whenGetPopularHotels_thenReturnHotels() {
             webTestClient.get()
-                    .uri("/hotel/popular")
+                    .uri(EndPoints.Hotels.GET_POPULAR_HOTELS)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(GetHotelsIncludeRoomResponseDTO.class);

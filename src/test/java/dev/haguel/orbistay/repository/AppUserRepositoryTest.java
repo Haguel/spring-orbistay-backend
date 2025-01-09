@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.repository;
 
 import dev.haguel.orbistay.entity.AppUser;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -24,13 +25,16 @@ class AppUserRepositoryTest {
     @Autowired
     private AppUserRepository appUserRepository;
 
-    @Test
-    void whenFindByEmail_thenReturnUser() {
-        String expected = "jane.smith@example.com";
-        AppUser result = appUserRepository.findAppUserByEmail(expected).orElse(null);
-        assertNotNull(result);
+    @Nested
+    class FindByEmail {
+        @Test
+        void whenFindByEmail_thenReturnUser() {
+            String expected = "jane.smith@example.com";
+            AppUser result = appUserRepository.findAppUserByEmail(expected).orElse(null);
+            assertNotNull(result);
 
-        String actual = result.getEmail();
-        assertEquals(expected, actual);
+            String actual = result.getEmail();
+            assertEquals(expected, actual);
+        }
     }
 }

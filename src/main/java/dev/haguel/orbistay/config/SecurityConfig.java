@@ -2,6 +2,7 @@ package dev.haguel.orbistay.config;
 
 import dev.haguel.orbistay.filter.JwtFilter;
 import dev.haguel.orbistay.service.UserDetailsCustomService;
+import dev.haguel.orbistay.util.EndPoints;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,10 +51,8 @@ public class SecurityConfig {
                 }))
                 // Endpoints configuration
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/hotel/get/**").permitAll()
-                        .requestMatchers("/hotel/room/get/**").permitAll()
-                        .requestMatchers("/hotel/popular").permitAll()
+                        .requestMatchers(EndPoints.getUnauthorizedEndpoints()).permitAll()
+                        .requestMatchers(EndPoints.getAuthorizedEndpoints()).authenticated()
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

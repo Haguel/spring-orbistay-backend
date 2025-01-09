@@ -2,6 +2,7 @@ package test_utils;
 
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.dto.request.SignInRequestDTO;
+import dev.haguel.orbistay.util.EndPoints;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -13,7 +14,7 @@ public class SharedTestUtil {
                 .build();
 
         return webTestClient.post()
-                .uri("/auth/sign-in")
+                .uri(EndPoints.Auth.SIGN_IN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(signInRequestDTO)
                 .exchange()
@@ -21,5 +22,9 @@ public class SharedTestUtil {
                 .expectBody(JwtResponseDTO.class)
                 .returnResult()
                 .getResponseBody();
+    }
+
+    public static JwtResponseDTO signInJohnDoeAndGetTokens(WebTestClient webTestClient) {
+        return signInAndGetTokens(TestDataStorage.JOHN_DOE_EMAIL, TestDataStorage.JOHN_DOE_PASSWORD, webTestClient);
     }
 }

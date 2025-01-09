@@ -10,6 +10,7 @@ import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
 import dev.haguel.orbistay.service.AuthService;
 import dev.haguel.orbistay.service.SecurityService;
+import dev.haguel.orbistay.util.EndPoints;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Authentication")
@@ -41,7 +41,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/sign-up")
+    @PostMapping(EndPoints.Auth.SIGN_UP)
     public ResponseEntity<JwtResponseDTO> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO)
             throws UniquenessViolationException {
         log.info("Sign up request received");
@@ -62,7 +62,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/sign-in")
+    @PostMapping(EndPoints.Auth.SIGN_IN)
     public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO)
             throws AppUserNotFoundException, IncorrectAuthDataException {
         log.info("Sign in request received");
@@ -83,7 +83,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/refresh-tokens")
+    @PostMapping(EndPoints.Auth.REFRESH_TOKENS)
     public ResponseEntity<?> getNewTokens(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
             throws InvalidJwtTokenException, AppUserNotFoundException {
         log.info("Refresh token request received");
@@ -104,7 +104,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/refresh-access-token")
+    @PostMapping(EndPoints.Auth.REFRESH_ACCESS_TOKEN)
     public ResponseEntity<?> getNewAccessToken(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
             throws AppUserNotFoundException, InvalidJwtTokenException {
         log.info("Refresh access token request received");
@@ -122,7 +122,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/log-out")
+    @PostMapping(EndPoints.Auth.LOG_OUT)
     public ResponseEntity<?> logOut(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
             throws InvalidJwtTokenException {
         log.info("Log out request received");
@@ -146,7 +146,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/change-password")
+    @PostMapping(EndPoints.Auth.CHANGE_PASSWORD)
     public ResponseEntity<?> changePassword(@RequestHeader(name="Authorization") String authorizationHeader,
                                             @RequestBody @Valid ChangePasswordRequestDTO changePasswordRequestDTO)
             throws AppUserNotFoundException, InvalidJwtTokenException, IncorrectPasswordException {
