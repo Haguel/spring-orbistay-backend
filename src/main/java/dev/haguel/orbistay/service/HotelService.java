@@ -96,18 +96,23 @@ public class HotelService {
         return hotelsResponses;
     }
 
-    @Transactional(readOnly = true)
     public GetHotelResponseDTO getHotelById(Long id)
             throws HotelNotFoundException {
-        Hotel hotel = hotelRepository.findById(id).orElse(null);
-
-        if(hotel == null) {
-            log.error("No hotel found with the given ID");
-            throw new HotelNotFoundException("No hotel found with the given ID");
-        }
-
+        Hotel hotel = findById(id);
         GetHotelResponseDTO getHotelResponseDTO = hotelMapper.hotelToHotelResponseDTO(hotel);
 
         return getHotelResponseDTO;
+    }
+
+    @Transactional(readOnly = true)
+    public Hotel findById(Long id) throws HotelNotFoundException {
+        Hotel hotel = hotelRepository.findById(id).orElse(null);
+
+        if (hotel == null) {
+            log.warn("Hotel with id {} not found", id);
+            throw new HotelNotFoundException("Hotel not found");
+        }
+
+        return hotel;
     }
 }

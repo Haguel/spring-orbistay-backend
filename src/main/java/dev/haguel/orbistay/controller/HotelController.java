@@ -1,17 +1,19 @@
 package dev.haguel.orbistay.controller;
 
+import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
+import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.HotelRoom;
-import dev.haguel.orbistay.exception.HotelNotFoundException;
-import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
-import dev.haguel.orbistay.exception.HotelRoomsNotFoundException;
-import dev.haguel.orbistay.exception.HotelsNotFoundException;
+import dev.haguel.orbistay.entity.Review;
+import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
 import dev.haguel.orbistay.service.HotelRoomService;
 import dev.haguel.orbistay.service.HotelService;
+import dev.haguel.orbistay.service.ReviewService;
+import dev.haguel.orbistay.service.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,6 +36,8 @@ import java.util.List;
 public class HotelController {
     private final HotelService hotelService;
     private final HotelRoomService hotelRoomService;
+    private final ReviewService reviewService;
+    private final SecurityService securityService;
 
     @Operation(summary = "Get hotels by criteria")
     @ApiResponses(value = {
@@ -107,5 +111,26 @@ public class HotelController {
 
         log.info("Hotel room returned");
         return ResponseEntity.status(200).body(hotelRoom);
+    }
+
+    @Operation(summary = "Write review")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Review written successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Review.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Hotel not found",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+    })
+    @PostMapping("/review")
+    public ResponseEntity<?> writeReview(@RequestHeader("Authorization") String token,
+                                         @RequestBody @Valid WriteReviewRequestDTO writeReviewRequestDTO)
+            throws InvalidJwtTokenException, AppUserNotFoundException, HotelNotFoundException {
+        log.info("Write review request received");
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(token);
+        Review review = reviewService.save(appUser, writeReviewRequestDTO);
+
+        log.info("Review returned");
+        return ResponseEntity.status(201).body(review);
     }
 }
