@@ -47,4 +47,16 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
                                      @Param("maxRating") Integer maxRating,
                                      @Param("minStars") Integer minStars,
                                      @Param("maxStars") Integer maxStars);
+
+    @Query(value = """
+        SELECT h.*
+        FROM hotel h
+        JOIN hotel_room hr ON hr.hotel_id = h.id
+        JOIN booking b ON b.hotel_room_id = hr.id
+        WHERE b.check_in >= :recentDate
+        GROUP BY h.id
+        ORDER BY COUNT(b.id) DESC
+        LIMIT 10
+    """, nativeQuery = true)
+    List<Hotel> findPopularHotels(@Param("recentDate") LocalDate recentDate);
 }

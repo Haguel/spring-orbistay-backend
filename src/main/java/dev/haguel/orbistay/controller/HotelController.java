@@ -5,6 +5,7 @@ import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.entity.Review;
@@ -132,5 +133,21 @@ public class HotelController {
 
         log.info("Review returned");
         return ResponseEntity.status(201).body(review);
+    }
+
+    @Operation(summary = "Get popular hotels")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Popular hotels found successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetHotelsResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/popular")
+    public ResponseEntity<?> getPopularHotels() {
+        log.info("Get popular hotels request received");
+        List<GetHotelsResponseDTO> hotels = hotelService.getPopularHotels();
+
+        log.info("Popular hotels returned");
+        return ResponseEntity.status(200).body(hotels);
     }
 }

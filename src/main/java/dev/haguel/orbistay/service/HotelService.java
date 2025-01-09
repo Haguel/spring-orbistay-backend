@@ -4,6 +4,7 @@ import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
 import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
@@ -114,5 +115,17 @@ public class HotelService {
         }
 
         return hotel;
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetHotelsResponseDTO> getPopularHotels() {
+        List<Hotel> hotels = hotelRepository.findPopularHotels(LocalDate.now().minusDays(30));
+
+        List<GetHotelsResponseDTO> getHotelsResponseDTOs = hotels.stream()
+                .map(hotelMapper::hotelToHotelsResponseDTO)
+                .collect(Collectors.toList());
+
+        log.info("Returning {} popular hotels", getHotelsResponseDTOs.size());
+        return getHotelsResponseDTOs;
     }
 }

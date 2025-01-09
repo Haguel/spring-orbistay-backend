@@ -2,6 +2,7 @@ package dev.haguel.orbistay.mapper;
 
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.util.mapper.HotelMapperUtil;
 import org.mapstruct.*;
@@ -16,7 +17,10 @@ public abstract class HotelMapper {
     @Mapping(target = "avgRate", expression = "java(hotelMapperUtil.getReviewsAvgRate(hotel))")
     public abstract GetHotelsIncludeRoomResponseDTO hotelToHotelsIncludeRoomResponseDTO(Hotel hotel);
 
-    // Does not map hotel room
+    @Mapping(target = "reviewsCount", expression = "java(hotel.getReviews().size())")
+    @Mapping(target = "avgRate", expression = "java(hotelMapperUtil.getReviewsAvgRate(hotel))")
+    public abstract GetHotelsResponseDTO hotelToHotelsResponseDTO(Hotel hotel);
+
     @Mapping(target = "address", expression = "java(hotel.getAddress().toString())")
     @Mapping(target = "reviewsCount", expression = "java(hotel.getReviews().size())")
     @Mapping(target = "avgRate", expression = "java(hotelMapperUtil.getReviewsAvgRate(hotel))")
