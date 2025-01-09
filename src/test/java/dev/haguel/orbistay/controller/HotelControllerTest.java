@@ -5,7 +5,7 @@ import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
-import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.entity.Review;
@@ -17,7 +17,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -74,7 +73,7 @@ class HotelControllerTest {
                 .bodyValue(requestDTO)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(GetHotelsResponseDTO.class)
+                .expectBodyList(GetHotelsIncludeRoomResponseDTO.class)
                 .value(hotels -> {
                     assertNotNull(hotels);
                     assertFalse(hotels.isEmpty());

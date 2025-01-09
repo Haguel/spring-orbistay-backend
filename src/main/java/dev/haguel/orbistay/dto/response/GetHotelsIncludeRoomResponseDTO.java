@@ -15,8 +15,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(name = "GetHotelsResponseDTO", description = "Get hotels response data transfer object")
-public class GetHotelsResponseDTO {
+@Schema(name = "GetHotelsIncludeRoomResponseDTO", description = "Get hotels response data transfer object")
+public class GetHotelsIncludeRoomResponseDTO {
     @Schema(description = "The hotel's ID", example = "1")
     private Long id;
 
@@ -42,7 +42,7 @@ public class GetHotelsResponseDTO {
     @Schema(description = "The hotel's reviews count", example = "10")
     private int reviewsCount;
 
-    @Schema(description = "The hotel's average rate", example = "4.5")
+    @Schema(description = "The hotel's average rate", example = "8.5")
     private double avgRate;
 
     @Schema(description = "Suitable room", implementation = HotelRoom.class)

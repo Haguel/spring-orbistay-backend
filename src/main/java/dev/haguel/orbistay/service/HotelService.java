@@ -3,7 +3,7 @@ package dev.haguel.orbistay.service;
 import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
-import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
 import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
@@ -31,7 +31,7 @@ public class HotelService {
     private final HotelRoomService hotelRoomService;
 
     @Transactional(readOnly = true)
-    public List<GetHotelsResponseDTO> getHotels(GetHotelsRequestDTO getHotelsRequestDTO)
+    public List<GetHotelsIncludeRoomResponseDTO> getHotels(GetHotelsRequestDTO getHotelsRequestDTO)
             throws HotelsNotFoundException {
         Integer peopleCount = Optional.ofNullable(getHotelsRequestDTO.getPeopleCount()).map(Integer::parseInt).orElse(null);
         Boolean isChildrenFriendly = Optional.ofNullable(getHotelsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
@@ -67,12 +67,12 @@ public class HotelService {
         log.info("Found {} hotels", hotels.size());
         hotels = hotels.subList(0, Math.min(hotels.size(), 50));
 
-        List<GetHotelsResponseDTO> hotelsResponses = hotels.stream()
-                .map(hotelMapper::hotelToHotelsResponseDTO)
+        List<GetHotelsIncludeRoomResponseDTO> hotelsResponses = hotels.stream()
+                .map(hotelMapper::hotelToHotelsIncludeRoomResponseDTO)
                 .collect(Collectors.toList());
 
         // Set suitable hotel room for each hotel
-        for (GetHotelsResponseDTO hotelResponse : hotelsResponses) {
+        for (GetHotelsIncludeRoomResponseDTO hotelResponse : hotelsResponses) {
             GetHotelRoomsRequestDTO getHotelRoomsRequestDTO = GetHotelRoomsRequestDTO.builder()
                     .hotelId(hotelResponse.getId().toString())
                     .peopleCount(getHotelsRequestDTO.getPeopleCount())

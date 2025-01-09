@@ -1,7 +1,7 @@
 package dev.haguel.orbistay.mapper;
 
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
-import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.repository.HotelRepository;
 import dev.haguel.orbistay.util.mapper.HotelMapperUtil;
@@ -38,9 +38,9 @@ class HotelMapperTest {
 
     @Test
     @Transactional
-    void whenHotelToHotelsResponseDTO_thenReturnGetHotelsResponseDTO() {
+    void whenHotelToHotelsIncludeRoomResponseDTO_thenReturnGetHotelsIncludeRoomResponseDTO() {
         Hotel hotel = hotelRepository.findById(1L).orElse(null);
-        GetHotelsResponseDTO responseDTO = hotelMapper.hotelToHotelsResponseDTO(hotel);
+        GetHotelsIncludeRoomResponseDTO responseDTO = hotelMapper.hotelToHotelsIncludeRoomResponseDTO(hotel);
 
         assertNotNull(responseDTO);
         assertEquals(hotel.getId(), responseDTO.getId());
@@ -56,7 +56,7 @@ class HotelMapperTest {
 
     @Test
     @Transactional
-    void whenHotelToHotelResponseDTO_thenReturnGetHotelResponseDTO() {
+    void whenHotelToHotelIncludeRoomResponseDTO_thenReturnGetHotelResponseDTO() {
         Hotel hotel = hotelRepository.findById(1L).orElse(null);
         GetHotelResponseDTO responseDTO = hotelMapper.hotelToHotelResponseDTO(hotel);
 
@@ -75,7 +75,7 @@ class HotelMapperTest {
 
     @Test
     void whenHotelIsNull_thenReturnNull() {
-        GetHotelsResponseDTO hotelsResponseDTO = hotelMapper.hotelToHotelsResponseDTO(null);
+        GetHotelsIncludeRoomResponseDTO hotelsResponseDTO = hotelMapper.hotelToHotelsIncludeRoomResponseDTO(null);
         GetHotelResponseDTO hotelResponseDTO = hotelMapper.hotelToHotelResponseDTO(null);
 
         assertNull(hotelsResponseDTO);
