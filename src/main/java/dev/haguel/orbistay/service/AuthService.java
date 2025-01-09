@@ -7,6 +7,7 @@ import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.enumeration.Role;
 import dev.haguel.orbistay.exception.*;
+import dev.haguel.orbistay.repository.AppUserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final RedisService redisService;
     private final AuthenticationManager authenticationManager;
+    private final AppUserRepository appUserRepository;
 
     public JwtResponseDTO signUp(SignUpRequestDTO signUpRequestDTO)
             throws UniquenessViolationException {
@@ -58,6 +62,7 @@ public class AuthService {
 
     public JwtResponseDTO signIn(SignInRequestDTO signInRequestDTO)
             throws AppUserNotFoundException, IncorrectAuthDataException {
+        List<AppUser> appUsers = appUserRepository.findAll();
         String email = signInRequestDTO.getEmail();
         UserDetails appUser = userDetailsCustomService.loadUserByUsername(email);
         if(appUser == null) {

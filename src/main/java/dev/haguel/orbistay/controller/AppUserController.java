@@ -9,7 +9,7 @@ import dev.haguel.orbistay.exception.InvalidJwtTokenException;
 import dev.haguel.orbistay.mapper.AppUserMapper;
 import dev.haguel.orbistay.service.AppUserService;
 import dev.haguel.orbistay.service.SecurityService;
-import dev.haguel.orbistay.util.SecurityUtil;
+import dev.haguel.orbistay.util.EndPoints;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +24,6 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/app-user")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "App user")
@@ -44,7 +43,7 @@ public class AppUserController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/get/current")
+    @GetMapping(EndPoints.AppUsers.GET_CURRENT_APP_USER)
     public ResponseEntity<?> getCurrentAppUserInfo(@RequestHeader(name="Authorization") String authorizationHeader)
             throws AppUserNotFoundException, InvalidJwtTokenException {
         log.info("Get current app user info request received");
@@ -68,7 +67,7 @@ public class AppUserController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PutMapping("/edit/current")
+    @PutMapping(EndPoints.AppUsers.EDIT_CURRENT_APP_USER)
     public ResponseEntity<?> editAppUserData(@RequestHeader(name="Authorization") String authorizationHeader,
                                              @Valid @RequestBody EditAppUserDataRequestDTO data)
             throws AppUserNotFoundException, CountryNotFoundException, InvalidJwtTokenException {

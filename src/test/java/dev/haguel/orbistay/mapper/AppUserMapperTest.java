@@ -4,6 +4,7 @@ import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.repository.AppUserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -30,28 +31,31 @@ class AppUserMapperTest {
     @Autowired
     private AppUserMapper appUserMapper;
 
-    @Test
-    void whenAppUserToAppUserInfoDTO_thenReturnGetAppUserInfoResponseDTO() {
-        AppUser appUser = appUserRepository.findById(1L).orElse(null);
-        GetAppUserInfoResponseDTO responseDTO = appUserMapper.appUserToAppUserInfoDTO(appUser);
+    @Nested
+    class GetAppUserInfoResponseDTOMapping {
+        @Test
+        void whenAppUserToAppUserInfoDTO_thenReturnGetAppUserInfoResponseDTO() {
+            AppUser appUser = appUserRepository.findById(1L).orElse(null);
+            GetAppUserInfoResponseDTO responseDTO = appUserMapper.appUserToAppUserInfoDTO(appUser);
 
-        assertNotNull(responseDTO);
-        assertEquals(appUser.getId(), responseDTO.getId());
-        assertEquals(appUser.getEmail(), responseDTO.getEmail());
-        assertEquals(appUser.getPhone(), responseDTO.getPhone());
-        assertEquals(appUser.getBirthDate(), responseDTO.getBirthDate());
-        assertEquals(appUser.getGender().name(), responseDTO.getGender().name());
-        assertEquals(appUser.getUsername(), responseDTO.getUsername());
-        assertEquals(appUser.getAvatarUrl(), responseDTO.getAvatarUrl());
-        assertEquals(appUser.getId(), responseDTO.getId());
-        assertEquals(appUser.getCitizenship().getId(), responseDTO.getCitizenship().getId());
-        assertEquals(appUser.getResidency().getId(), responseDTO.getResidency().getId());
-    }
+            assertNotNull(responseDTO);
+            assertEquals(appUser.getId(), responseDTO.getId());
+            assertEquals(appUser.getEmail(), responseDTO.getEmail());
+            assertEquals(appUser.getPhone(), responseDTO.getPhone());
+            assertEquals(appUser.getBirthDate(), responseDTO.getBirthDate());
+            assertEquals(appUser.getGender().name(), responseDTO.getGender().name());
+            assertEquals(appUser.getUsername(), responseDTO.getUsername());
+            assertEquals(appUser.getAvatarUrl(), responseDTO.getAvatarUrl());
+            assertEquals(appUser.getId(), responseDTO.getId());
+            assertEquals(appUser.getCitizenship().getId(), responseDTO.getCitizenship().getId());
+            assertEquals(appUser.getResidency().getId(), responseDTO.getResidency().getId());
+        }
 
-    @Test
-    void whenAppUserIsNull_thenReturnNull() {
-        GetAppUserInfoResponseDTO responseDTO = appUserMapper.appUserToAppUserInfoDTO(null);
+        @Test
+        void whenAppUserIsNull_thenReturnNull() {
+            GetAppUserInfoResponseDTO responseDTO = appUserMapper.appUserToAppUserInfoDTO(null);
 
-        assertNull(responseDTO);
+            assertNull(responseDTO);
+        }
     }
 }

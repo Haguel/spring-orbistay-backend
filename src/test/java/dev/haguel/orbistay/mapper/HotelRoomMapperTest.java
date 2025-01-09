@@ -4,6 +4,7 @@ import dev.haguel.orbistay.dto.response.GetBrieflyHotelRoomsResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.repository.HotelRoomRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -30,22 +31,25 @@ class HotelRoomMapperTest {
     @Autowired
     private HotelRoomMapper hotelRoomMapper;
 
-    @Test
-    void whenHotelRoomToBrieflyHotelRoomResponseDTO_thenReturnBrieflyHotelRoomResponseDTOO() {
-        HotelRoom hotelRoom = hotelRoomRepository.findById(1L).orElse(null);
-        GetBrieflyHotelRoomsResponseDTO responseDTO = hotelRoomMapper.hotelRoomToBrieflyHotelRoomsDTO(hotelRoom);
+    @Nested
+    class GetBrieflyHotelRoomsResponseDTOMapping {
+        @Test
+        void whenHotelRoomToBrieflyHotelRoomResponseDTO_thenReturnBrieflyHotelRoomResponseDTOO() {
+            HotelRoom hotelRoom = hotelRoomRepository.findById(1L).orElse(null);
+            GetBrieflyHotelRoomsResponseDTO responseDTO = hotelRoomMapper.hotelRoomToBrieflyHotelRoomsDTO(hotelRoom);
 
-        assertNotNull(responseDTO);
-        assertEquals(hotelRoom.getId(), responseDTO.getId());
-        assertEquals(hotelRoom.getName(), responseDTO.getName());
-        assertEquals(hotelRoom.getCostPerNight(), responseDTO.getCostPerNight());
-        assertEquals(hotelRoom.getCapacity(), responseDTO.getPeopleCount());
-    }
+            assertNotNull(responseDTO);
+            assertEquals(hotelRoom.getId(), responseDTO.getId());
+            assertEquals(hotelRoom.getName(), responseDTO.getName());
+            assertEquals(hotelRoom.getCostPerNight(), responseDTO.getCostPerNight());
+            assertEquals(hotelRoom.getCapacity(), responseDTO.getPeopleCount());
+        }
 
-    @Test
-    void whenHotelRoomIsNull_thenReturnNull() {
-        GetBrieflyHotelRoomsResponseDTO responseDTO = hotelRoomMapper.hotelRoomToBrieflyHotelRoomsDTO(null);
+        @Test
+        void whenHotelRoomIsNull_thenReturnNull() {
+            GetBrieflyHotelRoomsResponseDTO responseDTO = hotelRoomMapper.hotelRoomToBrieflyHotelRoomsDTO(null);
 
-        assertNull(responseDTO);
+            assertNull(responseDTO);
+        }
     }
 }

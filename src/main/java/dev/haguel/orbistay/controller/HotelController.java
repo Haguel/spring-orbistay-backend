@@ -2,8 +2,8 @@ package dev.haguel.orbistay.controller;
 
 import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
-import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
-import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
+import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
+import dev.haguel.orbistay.dto.request.GetFilteredHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
@@ -15,6 +15,7 @@ import dev.haguel.orbistay.service.HotelRoomService;
 import dev.haguel.orbistay.service.HotelService;
 import dev.haguel.orbistay.service.ReviewService;
 import dev.haguel.orbistay.service.SecurityService;
+import dev.haguel.orbistay.util.EndPoints;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/hotel")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Hotel")
@@ -49,10 +49,11 @@ public class HotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/get/filter")
-    public ResponseEntity<?> getHotels(@RequestBody @Valid GetHotelsRequestDTO getHotelsRequestDTO) throws HotelsNotFoundException {
+    @GetMapping(EndPoints.Hotels.GET_FILTERED_HOTELS)
+    public ResponseEntity<?> getFilteredHotels(@RequestBody @Valid GetFilteredHotelsRequestDTO getFilteredHotelsRequestDTO)
+            throws HotelsNotFoundException {
         log.info("Get hotels request received");
-        List<GetHotelsIncludeRoomResponseDTO> hotels = hotelService.getHotels(getHotelsRequestDTO);
+        List<GetHotelsIncludeRoomResponseDTO> hotels = hotelService.getFilteredHotels(getFilteredHotelsRequestDTO);
 
         log.info("Hotels returned");
         return ResponseEntity.status(200).body(hotels);
@@ -67,7 +68,7 @@ public class HotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/get/{id}")
+    @GetMapping(EndPoints.Hotels.GET_HOTEL + "/{id}")
     public ResponseEntity<?> getHotel(@PathVariable Long id) throws HotelNotFoundException {
         log.info("Get hotel by id request received");
         GetHotelResponseDTO hotel = hotelService.getHotelById(id);
@@ -87,10 +88,10 @@ public class HotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/room/get/filter")
-    public ResponseEntity<?> getHotelRooms(@RequestBody @Valid GetHotelRoomsRequestDTO getHotelRoomsRequestDTO) throws HotelRoomsNotFoundException {
+    @GetMapping(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
+    public ResponseEntity<?> getFilteredHotelRooms(@RequestBody @Valid GetFileredHotelRoomsRequestDTO getFileredHotelRoomsRequestDTO) throws HotelRoomsNotFoundException {
         log.info("Get hotel rooms request received");
-        List<HotelRoom> hotelRooms = hotelRoomService.getHotelRooms(getHotelRoomsRequestDTO);
+        List<HotelRoom> hotelRooms = hotelRoomService.getFilteredHotelRooms(getFileredHotelRoomsRequestDTO);
 
         log.info("Hotel rooms returned");
         return ResponseEntity.status(200).body(hotelRooms);
@@ -105,7 +106,7 @@ public class HotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/room/get/{id}")
+    @GetMapping(EndPoints.Hotels.GET_HOTEL_ROOM + "/{id}")
     public ResponseEntity<?> getHotelRoom(@PathVariable Long id) throws HotelRoomNotFoundException {
         log.info("Get hotel room by id request received");
         HotelRoom hotelRoom = hotelRoomService.getHotelRoomById(id);
@@ -123,7 +124,7 @@ public class HotelController {
             @ApiResponse(responseCode = "404", description = "Hotel not found",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @PostMapping("/review")
+    @PostMapping(EndPoints.Hotels.WRITE_REVIEW)
     public ResponseEntity<?> writeReview(@RequestHeader("Authorization") String token,
                                          @RequestBody @Valid WriteReviewRequestDTO writeReviewRequestDTO)
             throws InvalidJwtTokenException, AppUserNotFoundException, HotelNotFoundException {
@@ -142,7 +143,7 @@ public class HotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/popular")
+    @GetMapping(EndPoints.Hotels.GET_POPULAR_HOTELS)
     public ResponseEntity<?> getPopularHotels() {
         log.info("Get popular hotels request received");
         List<GetHotelsResponseDTO> hotels = hotelService.getPopularHotels();

@@ -3,6 +3,7 @@ package dev.haguel.orbistay.mapper;
 import dev.haguel.orbistay.dto.request.PassportDataRequestDTO;
 import dev.haguel.orbistay.entity.Passport;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -26,19 +27,21 @@ class PassportMapperTest {
     @Autowired
     private PassportMapper passportMapper;
 
-    @Test
-    void whenPassportDataRequestDTOToPassport_thenReturnPassport() {
-        PassportDataRequestDTO dto = new PassportDataRequestDTO();
-        dto.setPassportNumber("A12345678");
-        dto.setExpirationDate("2030-01-01");
-        dto.setCountryOfIssuanceId("1");
+    @Nested
+    class PassportDataRequestDTOMapping {
+        @Test
+        void whenPassportDataRequestDTOToPassport_thenReturnPassport() {
+            PassportDataRequestDTO dto = new PassportDataRequestDTO();
+            dto.setPassportNumber("A12345678");
+            dto.setExpirationDate("2030-01-01");
+            dto.setCountryOfIssuanceId("1");
 
-        Passport passport = passportMapper.passportDataRequestDTOToPassport(dto);
+            Passport passport = passportMapper.passportDataRequestDTOToPassport(dto);
 
-        assertNotNull(passport);
-        assertEquals(dto.getPassportNumber(), passport.getPassportNumber());
-        assertEquals(dto.getExpirationDate(), passport.getExpirationDate().toString());
-        assertEquals(Long.parseLong(dto.getCountryOfIssuanceId()), passport.getCountryOfIssuance().getId());
+            assertNotNull(passport);
+            assertEquals(dto.getPassportNumber(), passport.getPassportNumber());
+            assertEquals(dto.getExpirationDate(), passport.getExpirationDate().toString());
+            assertEquals(Long.parseLong(dto.getCountryOfIssuanceId()), passport.getCountryOfIssuance().getId());
+        }
     }
-
 }

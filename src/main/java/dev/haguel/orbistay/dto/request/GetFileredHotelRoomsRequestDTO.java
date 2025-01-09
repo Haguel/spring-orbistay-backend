@@ -12,8 +12,8 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(name = "GetHotelRoomsRequestDTO", description = "Get filtered hotel rooms request data transfer object")
-public class GetHotelRoomsRequestDTO {
+@Schema(name = "GetFilteredHotelRoomsRequestDTO", description = "Get filtered hotel rooms request data transfer object")
+public class GetFileredHotelRoomsRequestDTO {
     @Schema(description = "The ID of the hotel", example = "1")
     @NotNull
     @NotBlank

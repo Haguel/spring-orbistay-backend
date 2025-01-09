@@ -3,6 +3,7 @@ package dev.haguel.orbistay.mapper;
 import dev.haguel.orbistay.dto.request.AddressDataRequestDTO;
 import dev.haguel.orbistay.entity.Address;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -26,16 +27,19 @@ class AddressMapperTest {
     @Autowired
     private AddressMapper addressMapper;
 
-    @Test
-    void whenAddressDataRequestDTOToAddress_thenReturnAddress() {
-        AddressDataRequestDTO dto = new AddressDataRequestDTO();
-        dto.setCity("New York");
-        dto.setCountryId("1");
+    @Nested
+    class AddressDataRequestDTOMapping {
+        @Test
+        void whenAddressDataRequestDTOToAddress_thenReturnAddress() {
+            AddressDataRequestDTO dto = new AddressDataRequestDTO();
+            dto.setCity("New York");
+            dto.setCountryId("1");
 
-        Address address = addressMapper.addressDataRequestDTOToAddress(dto);
+            Address address = addressMapper.addressDataRequestDTOToAddress(dto);
 
-        assertNotNull(address);
-        assertEquals(dto.getCity(), address.getCity());
-        assertEquals(Long.parseLong(dto.getCountryId()), address.getCountry().getId());
+            assertNotNull(address);
+            assertEquals(dto.getCity(), address.getCity());
+            assertEquals(Long.parseLong(dto.getCountryId()), address.getCountry().getId());
+        }
     }
 }

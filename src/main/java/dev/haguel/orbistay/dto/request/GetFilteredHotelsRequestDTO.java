@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(name = "GetHotelsRequestDTO", description = "Get hotels request data transfer object")
-public class GetHotelsRequestDTO {
+@Schema(name = "GetFilteredHotelsRequestDTO", description = "Get filtered hotels request data transfer object")
+public class GetFilteredHotelsRequestDTO {
     @Schema(description = "The name of the hotel", example = "Royal Respite")
     private String name;
 
