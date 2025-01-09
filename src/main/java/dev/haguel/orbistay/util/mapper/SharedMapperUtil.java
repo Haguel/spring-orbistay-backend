@@ -23,4 +23,12 @@ public class SharedMapperUtil {
     public LocalDate convertStringToLocalDate(String date) {
         return LocalDate.parse(date);
     }
+
+    public Double convertStringToDouble(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
 }

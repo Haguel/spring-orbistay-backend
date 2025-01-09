@@ -1,42 +1,49 @@
 package dev.haguel.orbistay.controller;
 
+import com.redis.testcontainers.RedisContainer;
+import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
+import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
+import dev.haguel.orbistay.entity.Review;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import test_utils.SharedTestUtil;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
-@RunWith(SpringRunner.class)
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 class HotelControllerTest {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
+
+    @Container
+    @ServiceConnection
+    static RedisContainer redis = new RedisContainer("redis:6.2-alpine");
 
     @Autowired
     private WebTestClient webTestClient;
@@ -195,6 +202,61 @@ class HotelControllerTest {
                 .build()
                 .get()
                 .uri("/hotel/room/get/" + invalidHotelRoomId)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void whenWriteReviewWithValidData_thenReturnReview() {
+        String email = "john.doe@example.com";
+        String password = "password123";
+        JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens(email, password, webTestClient);
+
+        WriteReviewRequestDTO requestDTO = WriteReviewRequestDTO.builder()
+                .hotelId(String.valueOf(1L))
+                .content("Great hotel!")
+                .rate("8.6")
+                .goodSides("The staff was very friendly")
+                .badSides("The room was a bit small")
+                .build();
+
+        webTestClient.post()
+                .uri("/hotel/review")
+                .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDTO)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(Review.class)
+                .value(review -> {
+                    assertNotNull(review);
+                    assertEquals(Long.parseLong(requestDTO.getHotelId()), review.getHotel().getId());
+                    assertEquals(requestDTO.getContent(), review.getContent());
+                    assertEquals(Double.parseDouble(requestDTO.getRate()), review.getRate());
+                    assertEquals(requestDTO.getGoodSides(), review.getGoodSides());
+                    assertEquals(requestDTO.getBadSides(), review.getBadSides());
+                });
+    }
+
+    @Test
+    void whenWriteReviewWithInvalidHotelId_thenReturnError() {
+        String email = "john.doe@example.com";
+        String password = "password123";
+        JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens(email, password, webTestClient);
+
+        WriteReviewRequestDTO requestDTO = WriteReviewRequestDTO.builder()
+                .hotelId(String.valueOf(-1L))
+                .content("Great hotel!")
+                .rate("8.6")
+                .goodSides("The staff was very friendly")
+                .badSides("The room was a bit small")
+                .build();
+
+        webTestClient.post()
+                .uri("/hotel/review")
+                .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDTO)
                 .exchange()
                 .expectStatus().isNotFound();
     }
