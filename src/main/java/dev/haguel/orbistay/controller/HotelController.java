@@ -4,7 +4,7 @@ import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetHotelsRequestDTO;
-import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.entity.Review;
@@ -42,7 +42,7 @@ public class HotelController {
     @Operation(summary = "Get hotels by criteria")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Hotels found successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetHotelsResponseDTO.class))),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetHotelsIncludeRoomResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "No hotels found for given criteria",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
@@ -51,7 +51,7 @@ public class HotelController {
     @GetMapping("/get/filter")
     public ResponseEntity<?> getHotels(@RequestBody @Valid GetHotelsRequestDTO getHotelsRequestDTO) throws HotelsNotFoundException {
         log.info("Get hotels request received");
-        List<GetHotelsResponseDTO> hotels = hotelService.getHotels(getHotelsRequestDTO);
+        List<GetHotelsIncludeRoomResponseDTO> hotels = hotelService.getHotels(getHotelsRequestDTO);
 
         log.info("Hotels returned");
         return ResponseEntity.status(200).body(hotels);
