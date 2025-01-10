@@ -1,7 +1,11 @@
 package dev.haguel.orbistay.controller;
 
+import com.google.common.collect.Lists;
 import com.redis.testcontainers.RedisContainer;
+import dev.haguel.orbistay.dto.request.HotelFiltersDTO;
 import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
+import dev.haguel.orbistay.dto.request.enumeration.HotelStars;
+import dev.haguel.orbistay.dto.request.enumeration.ObjectValuation;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetFilteredHotelsRequestDTO;
@@ -53,6 +57,12 @@ class HotelControllerTest {
     class GetFilteredHotels {
         @Test
         void whenGetFilteredHotelsWithValidCriteria_thenReturnHotels() {
+            HotelFiltersDTO hotelFiltersDTO = HotelFiltersDTO.builder()
+                    .minPrice("5.0")
+                    .maxPrice("25.0")
+                    .stars(Lists.newArrayList(HotelStars.THREE_STARS, HotelStars.FOUR_STARS, HotelStars.FIVE_STARS))
+                    .valuations(Lists.newArrayList(ObjectValuation.EXCELLENT))
+                    .build();
             GetFilteredHotelsRequestDTO requestDTO = GetFilteredHotelsRequestDTO.builder()
                     .name("Hotel New York 1")
                     .city("New York")
@@ -61,12 +71,7 @@ class HotelControllerTest {
                     .isChildrenFriendly(String.valueOf(true))
                     .checkIn(String.valueOf(LocalDate.of(2024, 1, 1)))
                     .checkOut(String.valueOf(LocalDate.of(2024, 1, 10)))
-                    .minPrice(String.valueOf(5.0))
-                    .maxPrice(String.valueOf(25.0))
-                    .minRating(String.valueOf(3))
-                    .maxRating(String.valueOf(5))
-                    .minStars(String.valueOf(3))
-                    .maxStars(String.valueOf(5))
+                    .filters(hotelFiltersDTO)
                     .build();
 
             webTestClient.mutate()
