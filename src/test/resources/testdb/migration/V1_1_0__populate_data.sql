@@ -562,10 +562,10 @@ INSERT INTO app_user (username, email, password_hash, phone, birth_date, gender,
 
 -- Insert reviews from the first two users
 INSERT INTO review (rate, content, app_user_id, hotel_id, created_at) VALUES
-                                  (4.5, 'Great hotel with excellent service and amenities.', 1, 1, '2023-02-15 10:30:00'),
-                                  (4.0, 'Very comfortable stay, will visit again.', 1, 2, '2023-06-01 14:00:00'),
-                                  (3.5, 'Good value for money, but could improve cleanliness.', 2, 3, '2023-10-15 18:45:00'),
-                                  (5.0, 'Absolutely loved the experience, highly recommend!', 2, 4, '2024-03-01 09:15:00');
+                                  (9.5, 'Great hotel with excellent service and amenities.', 1, 1, '2023-02-15 10:30:00'),
+                                  (8.0, 'Very comfortable stay, will visit again.', 1, 2, '2023-06-01 14:00:00'),
+                                  (7.5, 'Good value for money, but could improve cleanliness.', 2, 3, '2023-10-15 18:45:00'),
+                                  (10.0, 'Absolutely loved the experience, highly recommend!', 2, 4, '2024-03-01 09:15:00');
 
 INSERT INTO booking (app_user_id, hotel_room_id, country_id, check_in, check_out, first_name, last_name, email, phone_number) VALUES
                                   -- Bookings for Hotel New York 1
