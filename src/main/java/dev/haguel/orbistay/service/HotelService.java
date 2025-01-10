@@ -2,6 +2,7 @@ package dev.haguel.orbistay.service;
 
 import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetFilteredHotelsRequestDTO;
+import dev.haguel.orbistay.dto.request.enumeration.ObjectValuation;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,14 +40,34 @@ public class HotelService {
         Boolean isChildrenFriendly = Optional.ofNullable(getFilteredHotelsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
         LocalDate checkIn = Optional.ofNullable(getFilteredHotelsRequestDTO.getCheckIn()).map(LocalDate::parse).orElse(null);
         LocalDate checkOut = Optional.ofNullable(getFilteredHotelsRequestDTO.getCheckOut()).map(LocalDate::parse).orElse(null);
-        Double minPrice = Optional.ofNullable(getFilteredHotelsRequestDTO.getMinPrice()).map(Double::parseDouble).orElse(null);
-        Double maxPrice = Optional.ofNullable(getFilteredHotelsRequestDTO.getMaxPrice()).map(Double::parseDouble).orElse(null);
-        Integer minRating = Optional.ofNullable(getFilteredHotelsRequestDTO.getMinRating()).map(Integer::parseInt).orElse(null);
-        Integer maxRating = Optional.ofNullable(getFilteredHotelsRequestDTO.getMaxRating()).map(Integer::parseInt).orElse(null);
-        Integer minStars = Optional.ofNullable(getFilteredHotelsRequestDTO.getMinStars()).map(Integer::parseInt).orElse(null);
-        Integer maxStars = Optional.ofNullable(getFilteredHotelsRequestDTO.getMaxStars()).map(Integer::parseInt).orElse(null);
+        Double minPrice = Optional.ofNullable(getFilteredHotelsRequestDTO.getFilters())
+                .map(filters -> filters.getMinPrice())
+                .map(Double::parseDouble)
+                .orElse(null);
+        Double maxPrice = Optional.ofNullable(getFilteredHotelsRequestDTO.getFilters())
+                .map(filters -> filters.getMaxPrice())
+                .map(Double::parseDouble)
+                .orElse(null);
+        List<Integer> stars = Optional.ofNullable(getFilteredHotelsRequestDTO.getFilters())
+                .map(filters -> filters.getStars())
+                .map(starsList -> starsList.stream()
+                        .map(star -> Integer.parseInt(star.stars))
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+        Boolean sevenToEight = Optional.ofNullable(getFilteredHotelsRequestDTO.getFilters())
+                .map(filters -> filters.getValuations())
+                .map(valuations -> valuations.contains(ObjectValuation.GOOD) ? true : null)
+                .orElse(null);
+        Boolean eightToNine = Optional.ofNullable(getFilteredHotelsRequestDTO.getFilters())
+                .map(filters -> filters.getValuations())
+                .map(valuations -> valuations.contains(ObjectValuation.VERY_GOOD) ? true : null)
+                .orElse(null);
+        Boolean nineToTen = Optional.ofNullable(getFilteredHotelsRequestDTO.getFilters())
+                .map(filters -> filters.getValuations())
+                .map(valuations -> valuations.contains(ObjectValuation.EXCELLENT) ? true : null)
+                .orElse(null);
 
-        List<Hotel> hotels = hotelRepository.findHotels(
+        List<Hotel> hotels = hotelRepository.findFilteredHotels(
                 getFilteredHotelsRequestDTO.getName(),
                 getFilteredHotelsRequestDTO.getCity(),
                 getFilteredHotelsRequestDTO.getCountry(),
@@ -55,11 +77,11 @@ public class HotelService {
                 checkOut,
                 minPrice,
                 maxPrice,
-                minRating,
-                maxRating,
-                minStars,
-                maxStars
-        ).orElse(null);
+                stars,
+                sevenToEight,
+                eightToNine,
+                nineToTen
+            ).orElse(null);
 
         if (hotels == null || hotels.isEmpty()) {
             throw new HotelsNotFoundException("No hotels found for given criteria");
@@ -80,8 +102,8 @@ public class HotelService {
                     .isChildrenFriendly(getFilteredHotelsRequestDTO.getIsChildrenFriendly())
                     .checkIn(getFilteredHotelsRequestDTO.getCheckIn())
                     .checkOut(getFilteredHotelsRequestDTO.getCheckOut())
-                    .minPrice(getFilteredHotelsRequestDTO.getMinPrice())
-                    .maxPrice(getFilteredHotelsRequestDTO.getMaxPrice())
+                    .minPrice(String.valueOf(minPrice))
+                    .maxPrice(String.valueOf(maxPrice))
                     .build();
 
             try {

@@ -3,6 +3,7 @@ package dev.haguel.orbistay.dto.request;
 import dev.haguel.orbistay.annotation.ValidBoolean;
 import dev.haguel.orbistay.annotation.ValidDate;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,27 +41,7 @@ public class GetFilteredHotelsRequestDTO {
     @ValidDate
     private String checkOut;
 
-    @Schema(description = "The minimum price of the hotel", example = "5.0")
-    @PositiveOrZero
-    private String minPrice;
-
-    @Schema(description = "The maximum price of hotel room price", example = "25.0")
-    @PositiveOrZero
-    private String maxPrice;
-
-    @Schema(description = "The minimum rating of hotel room price", example = "3")
-    @PositiveOrZero
-    private String minRating;
-
-    @Schema(description = "The maximum rating of the hotel", example = "5")
-    @PositiveOrZero
-    private String maxRating;
-
-    @Schema(description = "The minimum number of stars of the hotel", example = "3")
-    @PositiveOrZero
-    private String minStars;
-
-    @Schema(description = "The maximum number of stars of the hotel", example = "5")
-    @PositiveOrZero
-    private String maxStars;
+    @Schema(description = "The filters to apply to the hotels")
+    @Valid
+    private HotelFiltersDTO filters;
 }
