@@ -136,7 +136,7 @@ CREATE TABLE booking (
 
 CREATE TABLE review (
     id BIGSERIAL PRIMARY KEY,
-    rate NUMERIC(2, 1) NOT NULL,
+    rate NUMERIC(3, 1) NOT NULL,
     content TEXT NOT NULL,
     good_sides VARCHAR(255),
     bad_sides VARCHAR(255),
