@@ -6,10 +6,10 @@ import dev.haguel.orbistay.dto.request.HotelFiltersDTO;
 import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
 import dev.haguel.orbistay.dto.request.enumeration.HotelStars;
 import dev.haguel.orbistay.dto.request.enumeration.ObjectValuation;
+import dev.haguel.orbistay.dto.response.GetFilteredHotelsResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetFilteredHotelsRequestDTO;
-import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.entity.Review;
@@ -82,10 +82,57 @@ class HotelControllerTest {
                     .bodyValue(requestDTO)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBodyList(GetHotelsIncludeRoomResponseDTO.class)
-                    .value(hotels -> {
-                        assertNotNull(hotels);
-                        assertFalse(hotels.isEmpty());
+                    .expectBodyList(GetFilteredHotelsResponseDTO.class)
+                    .value(response -> {
+                        assertNotNull(response.get(0).getHotels());
+                        assertFalse(response.get(0).getHotels().isEmpty());
+                    });
+        }
+
+        @Test
+        void whenGetFilteredHotels_thenReturnValidFiltersCount() {
+            HotelFiltersDTO hotelFiltersDTO = HotelFiltersDTO.builder()
+                    .stars(Lists.newArrayList(HotelStars.FOUR_STARS, HotelStars.FIVE_STARS))
+                    .build();
+            GetFilteredHotelsRequestDTO requestDTO = GetFilteredHotelsRequestDTO.builder()
+                    .filters(hotelFiltersDTO)
+                    .build();
+
+            webTestClient.mutate()
+                    .build()
+                    .method(HttpMethod.GET)
+                    .uri(EndPoints.Hotels.GET_FILTERED_HOTELS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBodyList(GetFilteredHotelsResponseDTO.class)
+                    .value(response -> {
+                        assertNotNull(response);
+                        assertFalse(response.get(0).getHotels().isEmpty());
+                        assertEquals(4, response.get(0).getHotels().size());
+                    });
+
+            hotelFiltersDTO = HotelFiltersDTO.builder()
+                    .valuations(Lists.newArrayList(ObjectValuation.EXCELLENT))
+                    .build();
+            requestDTO = GetFilteredHotelsRequestDTO.builder()
+                    .filters(hotelFiltersDTO)
+                    .build();
+
+            webTestClient.mutate()
+                    .build()
+                    .method(HttpMethod.GET)
+                    .uri(EndPoints.Hotels.GET_FILTERED_HOTELS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBodyList(GetFilteredHotelsResponseDTO.class)
+                    .value(response -> {
+                        assertNotNull(response);
+                        assertFalse(response.get(0).getHotels().isEmpty());
+                        assertEquals(2, response.get(0).getHotels().size());
                     });
         }
 
@@ -286,7 +333,7 @@ class HotelControllerTest {
                     .uri(EndPoints.Hotels.GET_POPULAR_HOTELS)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBodyList(GetHotelsIncludeRoomResponseDTO.class);
+                    .expectBodyList(GetFilteredHotelsResponseDTO.class);
         }
     }
 }

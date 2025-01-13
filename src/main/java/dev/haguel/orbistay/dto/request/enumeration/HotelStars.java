@@ -15,4 +15,21 @@ public enum HotelStars {
     HotelStars(String stars) {
         this.stars = stars;
     }
+
+    public static HotelStars fromStars(int stars) {
+        switch (stars) {
+            case 1:
+                return ONE_STAR;
+            case 2:
+                return TWO_STARS;
+            case 3:
+                return THREE_STARS;
+            case 4:
+                return FOUR_STARS;
+            case 5:
+                return FIVE_STARS;
+            default:
+                return null;
+        }
+    }
 }

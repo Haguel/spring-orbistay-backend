@@ -15,8 +15,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(name = "GetHotelsIncludeRoomResponseDTO", description = "Get hotels response data transfer object")
-public class GetHotelsIncludeRoomResponseDTO {
+@Schema(name = "FilteredHotelDTO", description = "Filtered hotel data transfer object")
+public class FilteredHotelDTO {
     @Schema(description = "The hotel's ID", example = "1")
     private Long id;
 

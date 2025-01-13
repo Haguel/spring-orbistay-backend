@@ -38,7 +38,7 @@ class HotelRepositoryTest {
             String hotelCity = "Hotel New York 1";
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             hotelCity, null, null, null, null, null, null,
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -51,7 +51,7 @@ class HotelRepositoryTest {
             HashSet<String> expected = new HashSet<>(Lists.newArrayList("Hotel New York 1", "Hotel New York 2", "Hotel New York 3"));
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             null, null, "United States", null, null, null, null,
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -67,7 +67,7 @@ class HotelRepositoryTest {
                     "Hotel Zurich 1", "Hotel Zurich 2", "Hotel Zurich 3"));
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             null, null, null, 2, null, null, null,
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -83,7 +83,7 @@ class HotelRepositoryTest {
                     "Hotel Zurich 1", "Hotel Zurich 2", "Hotel Zurich 3"));
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             null, null, null, null, true, null, null,
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -100,7 +100,7 @@ class HotelRepositoryTest {
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             null, null, null, null, null,
                             LocalDate.of(2025, 1, 5), LocalDate.of(2025, 1, 8),
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -114,7 +114,7 @@ class HotelRepositoryTest {
         void whenFindHotelsByMinMaxPriceCriteria_thenReturnHotel() {
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             null, null, null, null, null, null, null,
-                            5.0, 50.0, Collections.emptyList(), null, null, null)
+                            5.0, 50.0)
                     .orElse(null);
 
             assertNotNull(result);
@@ -124,36 +124,10 @@ class HotelRepositoryTest {
         }
 
         @Test
-        void whenFindHotelsByRatingCriteria_thenReturnHotel() {
-            List<Hotel> result = hotelRepository.findFilteredHotels(
-                            null, null, null, null, null, null, null,
-                            null, null, Collections.emptyList(), null, null, true)
-                    .orElse(null);
-
-            assertNotNull(result);
-            assertFalse(result.isEmpty());
-            assertTrue(result.stream().allMatch(
-                    hotel -> hotel.getReviews().stream().mapToDouble(review -> review.getRate()).average().orElse(0) >= 9 &&
-                            hotel.getReviews().stream().mapToDouble(review -> review.getRate()).average().orElse(0) <= 10));
-        }
-
-        @Test
-        void whenFindHotelsByStarsCriteria_thenReturnHotel() {
-            List<Hotel> result = hotelRepository.findFilteredHotels(
-                            null, null, null, null, null, null, null,
-                            null, null, Lists.newArrayList(3), null, null, null)
-                    .orElse(null);
-
-            assertNotNull(result);
-            assertFalse(result.isEmpty());
-            assertTrue(result.stream().allMatch(hotel -> hotel.getStars() >= 3 && hotel.getStars() <= 5));
-        }
-
-        @Test
         void whenFindHotelsByNonExistentName_thenReturnEmpty() {
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             "Nonexistent Hotel", null, null, null, null, null, null,
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -164,7 +138,7 @@ class HotelRepositoryTest {
         void whenFindHotelsByNonExistentCountry_thenReturnEmpty() {
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             null, null, "Nonexistent Country", null, null, null, null,
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -175,7 +149,7 @@ class HotelRepositoryTest {
         void whenFindHotelsByInvalidPeopleCount_thenReturnEmpty() {
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             null, null, null, 10, null, null, null,
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -190,7 +164,7 @@ class HotelRepositoryTest {
             String hotelName = "Hotel New York 1";
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             hotelName, null, null, null, null, takenCheckIn, takenCheckOut,
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -199,7 +173,7 @@ class HotelRepositoryTest {
             result = hotelRepository.findFilteredHotels(
                             hotelName, null, null, null, null,
                             takenCheckIn.minusDays(5), takenCheckOut.minusDays(5),
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -208,7 +182,7 @@ class HotelRepositoryTest {
             result = hotelRepository.findFilteredHotels(
                             hotelName, null, null, null, null,
                             takenCheckIn.plusDays(5), takenCheckOut.plusDays(5),
-                            null, null, Collections.emptyList(), null, null, null)
+                            null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -219,18 +193,7 @@ class HotelRepositoryTest {
         void whenFindHotelsByInvalidMinMaxPriceCriteria_thenReturnEmpty() {
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             null, null, null, null, null, null, null,
-                            1000.0, 2000.0, Collections.emptyList(), null, null, null)
-                    .orElse(null);
-
-            assertNotNull(result);
-            assertTrue(result.isEmpty());
-        }
-
-        @Test
-        void whenFindHotelsByInvalidStarsCriteria_thenReturnEmpty() {
-            List<Hotel> result = hotelRepository.findFilteredHotels(
-                            null, null, null, null, null, null, null,
-                            null, null, Lists.newArrayList(10, 20), null, null, null)
+                            1000.0, 2000.0)
                     .orElse(null);
 
             assertNotNull(result);
@@ -241,7 +204,7 @@ class HotelRepositoryTest {
         void whenFindHotelsByFullData_thenReturnHotel() {
             List<Hotel> result = hotelRepository.findFilteredHotels(
                             "Hotel New York 1", "New York", "United States", 2, true, LocalDate.of(2022, 12, 5), LocalDate.of(2022, 12, 8),
-                            5.0, 25.0, Lists.newArrayList(4), null, null, true)
+                            5.0, 25.0)
                     .orElse(null);
 
             assertNotNull(result);
