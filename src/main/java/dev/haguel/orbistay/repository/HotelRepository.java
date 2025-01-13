@@ -29,13 +29,6 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
                    OR (CAST(:checkIn AS DATE) > b.check_out AND CAST(:checkOut AS DATE) > b.check_out))
           AND (:minPrice IS NULL OR hr.cost_per_night >= :minPrice)
           AND (:maxPrice IS NULL OR hr.cost_per_night <= :maxPrice)
-          AND (:stars IS NULL OR h.stars IN :stars)
-          AND (
-              (:sevenToEight IS NULL AND :eightToNine IS NULL AND :nineToTen IS NULL)
-              OR (:sevenToEight IS NOT NULL AND (SELECT AVG(r.rate) FROM review r WHERE r.hotel_id = h.id) BETWEEN 7 AND 8)
-              OR (:eightToNine IS NOT NULL AND (SELECT AVG(r.rate) FROM review r WHERE r.hotel_id = h.id) BETWEEN 8 AND 9)
-              OR (:nineToTen IS NOT NULL AND (SELECT AVG(r.rate) FROM review r WHERE r.hotel_id = h.id) BETWEEN 9 AND 10)
-          )
     """, nativeQuery = true)
     Optional<List<Hotel>> findFilteredHotels(@Param("name") String name,
                                              @Param("city") String city,
@@ -45,12 +38,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
                                              @Param("checkIn") LocalDate checkIn,
                                              @Param("checkOut") LocalDate checkOut,
                                              @Param("minPrice") Double minPrice,
-                                             @Param("maxPrice") Double maxPrice,
-                                             @Param("stars") List<Integer> stars,
-                                             // Ratings
-                                             @Param("sevenToEight") Boolean sevenToEight,
-                                             @Param("eightToNine") Boolean eightToNine,
-                                             @Param("nineToTen") Boolean nineToTen);
+                                             @Param("maxPrice") Double maxPrice);
 
     @Query(value = """
         SELECT h.*

@@ -55,4 +55,11 @@ public class Hotel {
                 .map(HotelHotelHighlight::getHotelHighlight)
                 .collect(Collectors.toList());
     }
+
+    public double getAvgRate() {
+        return reviews.stream()
+                .mapToDouble(Review::getRate)
+                .average()
+                .orElse(0);
+    }
 }

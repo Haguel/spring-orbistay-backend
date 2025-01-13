@@ -1,7 +1,8 @@
 package dev.haguel.orbistay.mapper;
 
+import dev.haguel.orbistay.dto.response.FilteredHotelDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
-import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
+import dev.haguel.orbistay.dto.response.GetFilteredHotelsResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.repository.HotelRepository;
@@ -40,11 +41,11 @@ class HotelMapperTest {
     private HotelMapper hotelMapper;
 
     @Nested
-    class GetHotelsIncludeRoomResponseDTOMapping {
+    class FilteredHotelsDTOMapping {
         @Test
         void whenHotelToHotelsIncludeRoomResponseDTO_thenReturnGetHotelsIncludeRoomResponseDTO() {
             Hotel hotel = hotelRepository.findById(1L).orElse(null);
-            GetHotelsIncludeRoomResponseDTO responseDTO = hotelMapper.hotelToHotelsIncludeRoomResponseDTO(hotel);
+            FilteredHotelDTO responseDTO = hotelMapper.hotelToFilteredHotelDTO(hotel);
 
             assertNotNull(responseDTO);
             assertEquals(hotel.getId(), responseDTO.getId());

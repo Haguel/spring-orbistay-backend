@@ -1,10 +1,10 @@
 package dev.haguel.orbistay.controller;
 
 import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
+import dev.haguel.orbistay.dto.response.GetFilteredHotelsResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetFilteredHotelsRequestDTO;
-import dev.haguel.orbistay.dto.response.GetHotelsIncludeRoomResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.HotelRoom;
@@ -43,7 +43,7 @@ public class HotelController {
     @Operation(summary = "Get hotels by criteria")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Hotels found successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetHotelsIncludeRoomResponseDTO.class))),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetFilteredHotelsResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "No hotels found for given criteria",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
@@ -53,10 +53,10 @@ public class HotelController {
     public ResponseEntity<?> getFilteredHotels(@RequestBody @Valid GetFilteredHotelsRequestDTO getFilteredHotelsRequestDTO)
             throws HotelsNotFoundException {
         log.info("Get hotels request received");
-        List<GetHotelsIncludeRoomResponseDTO> hotels = hotelService.getFilteredHotels(getFilteredHotelsRequestDTO);
+        GetFilteredHotelsResponseDTO getFilteredHotelsResponseDTO = hotelService.getFilteredHotels(getFilteredHotelsRequestDTO);
 
         log.info("Hotels returned");
-        return ResponseEntity.status(200).body(hotels);
+        return ResponseEntity.status(200).body(getFilteredHotelsResponseDTO);
     }
 
     @Operation(summary = "Get hotel by ID")
