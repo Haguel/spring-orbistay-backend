@@ -153,4 +153,20 @@ class BookingControllerTest {
                     .expectStatus().is4xxClientError();
         }
     }
+
+    @Nested
+    class GetBookings {
+        @Test
+        void whenGetBookings_thenReturnBookings() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            webTestClient.get()
+                    .uri(EndPoints.Booking.GET_BOOKINGS)
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBodyList(Booking.class)
+                    .hasSize(4);
+        }
+    }
 }

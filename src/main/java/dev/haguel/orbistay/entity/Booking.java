@@ -1,5 +1,11 @@
 package dev.haguel.orbistay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import dev.haguel.orbistay.serialization.hotel_room.BookingHotelRoomDeserializer;
+import dev.haguel.orbistay.serialization.hotel_room.BookingHotelRoomSerializer;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import jakarta.persistence.*;
 
@@ -39,9 +45,13 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "app_user_id", nullable = false)
+    @JsonIgnore
     private AppUser appUser;
 
     @ManyToOne
+    @Schema(implementation = BookingHotelRoomSerializer.InnerSerializer.class)
+    @JsonSerialize(using = BookingHotelRoomSerializer.class)
+    @JsonDeserialize(using = BookingHotelRoomDeserializer.class)
     @JoinColumn(name = "hotel_room_id", nullable = false)
     private HotelRoom hotelRoom;
 }

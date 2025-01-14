@@ -75,6 +75,10 @@ public class AppUser implements UserDetails {
     @JsonIgnore
     private List<RecentlyViewedHotel> recentlyViewedHotels = Collections.emptyList();
 
+    @OneToMany(mappedBy = "appUser")
+    @JsonIgnore
+    private List<Booking> bookings = Collections.emptyList();
+
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -85,6 +89,7 @@ public class AppUser implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    @JsonIgnore
     public List<Hotel> getMappedRecentlyViewedHotels() {
         return recentlyViewedHotels.stream()
                 .map(RecentlyViewedHotel::getHotel)

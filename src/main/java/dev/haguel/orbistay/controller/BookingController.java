@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -41,6 +43,8 @@ public class BookingController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409", description = "Booking not available",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping(EndPoints.Booking.BOOK_HOTEL_ROOM)
     public ResponseEntity<?> bookHotelRoom(@RequestHeader(name="Authorization") String authorizationHeader,
@@ -51,5 +55,26 @@ public class BookingController {
         Booking booking = bookingService.bookHotelRoom(appUser, bookHotelRoomRequestDTO);
 
         return ResponseEntity.status(200).body(booking);
+    }
+
+    @Schema(description = "Get bookings")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bookings retrieved successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Booking.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid jwt token",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping(EndPoints.Booking.GET_BOOKINGS)
+    public ResponseEntity<?> getBookings(@RequestHeader(name="Authorization") String authorizationHeader)
+            throws InvalidJwtTokenException {
+        log.info("Get bookings request received");
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
+        List<Booking> bookings = appUser.getBookings();
+        log.info("Found {} bookings", bookings.size());
+
+        log.info("Returning bookings");
+        return ResponseEntity.status(200).body(bookings);
     }
 }
