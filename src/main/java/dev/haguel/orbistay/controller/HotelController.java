@@ -69,7 +69,8 @@ public class HotelController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping(EndPoints.Hotels.GET_HOTEL + "/{id}")
-    public ResponseEntity<?> getHotel(@PathVariable Long id) throws HotelNotFoundException {
+    public ResponseEntity<?> getHotel(@PathVariable Long id)
+            throws HotelNotFoundException {
         log.info("Get hotel by id request received");
         GetHotelResponseDTO hotel = hotelService.getHotelById(id);
 
@@ -89,7 +90,8 @@ public class HotelController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
-    public ResponseEntity<?> getFilteredHotelRooms(@RequestBody @Valid GetFileredHotelRoomsRequestDTO getFileredHotelRoomsRequestDTO) throws HotelRoomsNotFoundException {
+    public ResponseEntity<?> getFilteredHotelRooms(@RequestBody @Valid GetFileredHotelRoomsRequestDTO getFileredHotelRoomsRequestDTO)
+            throws HotelRoomsNotFoundException {
         log.info("Get hotel rooms request received");
         List<HotelRoom> hotelRooms = hotelRoomService.getFilteredHotelRooms(getFileredHotelRoomsRequestDTO);
 
@@ -107,7 +109,8 @@ public class HotelController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping(EndPoints.Hotels.GET_HOTEL_ROOM + "/{id}")
-    public ResponseEntity<?> getHotelRoom(@PathVariable Long id) throws HotelRoomNotFoundException {
+    public ResponseEntity<?> getHotelRoom(@PathVariable Long id)
+            throws HotelRoomNotFoundException {
         log.info("Get hotel room by id request received");
         HotelRoom hotelRoom = hotelRoomService.getHotelRoomById(id);
 
@@ -121,13 +124,15 @@ public class HotelController {
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = Review.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request data",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid JWT token",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Hotel not found",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping(EndPoints.Hotels.WRITE_REVIEW)
     public ResponseEntity<?> writeReview(@RequestHeader("Authorization") String token,
                                          @RequestBody @Valid WriteReviewRequestDTO writeReviewRequestDTO)
-            throws InvalidJwtTokenException, AppUserNotFoundException, HotelNotFoundException {
+            throws InvalidJwtTokenException, HotelNotFoundException {
         log.info("Write review request received");
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(token);
         Review review = reviewService.save(appUser, writeReviewRequestDTO);

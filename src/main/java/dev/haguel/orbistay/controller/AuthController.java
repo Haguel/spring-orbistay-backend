@@ -137,8 +137,6 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Password changed successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid JWT token",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "400", description = "Password is incorrect",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request data",
@@ -149,7 +147,7 @@ public class AuthController {
     @PostMapping(EndPoints.Auth.CHANGE_PASSWORD)
     public ResponseEntity<?> changePassword(@RequestHeader(name="Authorization") String authorizationHeader,
                                             @RequestBody @Valid ChangePasswordRequestDTO changePasswordRequestDTO)
-            throws AppUserNotFoundException, InvalidJwtTokenException, IncorrectPasswordException {
+            throws InvalidJwtTokenException, IncorrectPasswordException {
         log.info("Change password request received");
 
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);

@@ -1,7 +1,6 @@
 package dev.haguel.orbistay.service;
 
 import dev.haguel.orbistay.entity.AppUser;
-import dev.haguel.orbistay.exception.AppUserNotFoundException;
 import dev.haguel.orbistay.exception.InvalidJwtTokenException;
 import dev.haguel.orbistay.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,7 @@ public class SecurityService {
     private final JwtService jwtService;
     private final AppUserService appUserService;
 
-    public AppUser getAppUserFromAuthorizationHeader(String authorizationHeader) throws InvalidJwtTokenException, AppUserNotFoundException {
+    public AppUser getAppUserFromAuthorizationHeader(String authorizationHeader) throws InvalidJwtTokenException {
         String jwtToken = SecurityUtil.getTokenFromAuthorizationHeader(authorizationHeader);
         String appUserEmail = jwtService.getAccessClaims(jwtToken).getSubject();
 
@@ -26,7 +25,7 @@ public class SecurityService {
         AppUser appUser = appUserService.findByEmail(appUserEmail);
 
         if(appUser == null) {
-            throw new AppUserNotFoundException("App user couldn't be found in database by provided email");
+            throw new InvalidJwtTokenException("App user couldn't be found in database by provided email");
         }
 
         return appUser;

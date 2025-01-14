@@ -36,8 +36,6 @@ public class AppUserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "App user info returned successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetAppUserInfoResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "App user not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "400", description = "Access token doesn't contain user email",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
@@ -45,7 +43,7 @@ public class AppUserController {
     })
     @GetMapping(EndPoints.AppUsers.GET_CURRENT_APP_USER)
     public ResponseEntity<?> getCurrentAppUserInfo(@RequestHeader(name="Authorization") String authorizationHeader)
-            throws AppUserNotFoundException, InvalidJwtTokenException {
+            throws InvalidJwtTokenException {
         log.info("Get current app user info request received");
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
 
@@ -58,11 +56,9 @@ public class AppUserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetAppUserInfoResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Request body validation failed",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "App user not found",
+            @ApiResponse(responseCode = "400", description = "Invalid Jwt token",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Country not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Access token doesn't contain user email",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
@@ -70,7 +66,7 @@ public class AppUserController {
     @PutMapping(EndPoints.AppUsers.EDIT_CURRENT_APP_USER)
     public ResponseEntity<?> editAppUserData(@RequestHeader(name="Authorization") String authorizationHeader,
                                              @Valid @RequestBody EditAppUserDataRequestDTO data)
-            throws AppUserNotFoundException, CountryNotFoundException, InvalidJwtTokenException {
+            throws CountryNotFoundException, InvalidJwtTokenException {
         log.info("Edit app user data request received");
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
         appUser = appUserService.editAppUserData(appUser, data);
