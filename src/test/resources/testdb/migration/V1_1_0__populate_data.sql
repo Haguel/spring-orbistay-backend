@@ -579,3 +579,15 @@ INSERT INTO booking (app_user_id, hotel_room_id, country_id, check_in, check_out
                                   (2, 6, '1', '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
                                   (2, 7, '1', '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321'),
                                   (2, 8, '1', '2024-12-15', '2024-12-20', 'Jane', 'Smith', 'jane.smith@example.com', '098-765-4321');
+
+-- Insert recently viewed hotels for all users
+INSERT INTO recently_viewed_hotel (app_user_id, hotel_id, viewed_at) VALUES
+                                                                          (1, 1, '2024-01-01 10:00:00'),
+                                                                          (1, 2, '2024-01-02 11:00:00'),
+                                                                          (1, 3, '2024-01-03 12:00:00'),
+                                                                          (2, 1, '2024-01-01 10:00:00'),
+                                                                          (2, 4, '2024-01-02 11:00:00'),
+                                                                          (2, 5, '2024-01-03 12:00:00'),
+                                                                          (3, 2, '2024-01-01 10:00:00'),
+                                                                          (3, 3, '2024-01-02 11:00:00'),
+                                                                          (3, 6, '2024-01-03 12:00:00');

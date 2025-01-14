@@ -3,6 +3,7 @@ package dev.haguel.orbistay.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.haguel.orbistay.entity.enumeration.Gender;
 import dev.haguel.orbistay.entity.enumeration.Role;
+import dev.haguel.orbistay.util.EndPoints;
 import lombok.*;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,13 +14,14 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"passport"})
-@EqualsAndHashCode(exclude = {"passport"})
+@ToString(exclude = {"passport", "reviews", "recentlyViewedHotels"})
+@EqualsAndHashCode(exclude = {"passport", "reviews", "recentlyViewedHotels"})
 @Entity(name = "app_user")
 public class AppUser implements UserDetails {
     @Id
@@ -65,9 +67,13 @@ public class AppUser implements UserDetails {
     @JsonIgnore
     private Passport passport;
 
-    @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "appUser")
     @JsonIgnore
-    private List<Review> reviews;
+    private List<Review> reviews = Collections.emptyList();
+
+    @OneToMany(mappedBy = "appUser", orphanRemoval = true)
+    @JsonIgnore
+    private List<RecentlyViewedHotel> recentlyViewedHotels = Collections.emptyList();
 
     @Override
     @JsonIgnore
@@ -77,6 +83,12 @@ public class AppUser implements UserDetails {
         }
 
         return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    public List<Hotel> getMappedRecentlyViewedHotels() {
+        return recentlyViewedHotels.stream()
+                .map(RecentlyViewedHotel::getHotel)
+                .collect(Collectors.toList());
     }
 
     @Override

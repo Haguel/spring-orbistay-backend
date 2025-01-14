@@ -79,6 +79,19 @@ public class EndPoints {
         }
     }
 
+    public static class RecentlyViewedHotels {
+        private static final String BASE_ENDPOINT = "/recentlyViewedHotels";
+        public static final String GET_RECENTLY_VIEWED_HOTELS = BASE_ENDPOINT + "/me";
+        public static final String ADD_TO_RECENTLY_VIEWED_HOTELS = BASE_ENDPOINT + "/me";
+
+        public static String[] getAuthorizedEndpoints() {
+            return new String[] {
+                    GET_RECENTLY_VIEWED_HOTELS,
+                    ADD_TO_RECENTLY_VIEWED_HOTELS,
+            };
+        }
+    }
+
     public static class Destinations {
         private static final String BASE_ENDPOINT = "/destinations";
         public static final String GET_POPULAR_DESTINATIONS = BASE_ENDPOINT + "/popular";
