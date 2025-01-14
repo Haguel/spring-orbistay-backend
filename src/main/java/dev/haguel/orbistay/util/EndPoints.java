@@ -105,7 +105,7 @@ public class EndPoints {
         public static String[] getAuthorizedEndpoints() {
             return new String[] {
                     GET_RECENTLY_VIEWED_HOTELS,
-                    ADD_TO_RECENTLY_VIEWED_HOTELS,
+                    ADD_TO_RECENTLY_VIEWED_HOTELS + "/*",
             };
         }
     }

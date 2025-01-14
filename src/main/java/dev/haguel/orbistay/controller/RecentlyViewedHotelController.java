@@ -1,10 +1,7 @@
 package dev.haguel.orbistay.controller;
 
-import dev.haguel.orbistay.dto.request.AddToRecentlyViewedHotelsRequestDTO;
-import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
-import dev.haguel.orbistay.exception.AppUserNotFoundException;
 import dev.haguel.orbistay.exception.HotelNotFoundException;
 import dev.haguel.orbistay.exception.InvalidJwtTokenException;
 import dev.haguel.orbistay.service.RecentlyViewedHotelService;
@@ -16,7 +13,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -63,13 +59,13 @@ public class RecentlyViewedHotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS)
+    @PostMapping(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS + "/{hotelId}")
     public ResponseEntity<?> addToRecentlyViewedHotels(@RequestHeader("Authorization") String token,
-                                                       @Valid @RequestBody AddToRecentlyViewedHotelsRequestDTO addToRecentlyViewedHotelsRequestDTO)
+                                                       @PathVariable String hotelId)
             throws InvalidJwtTokenException, HotelNotFoundException {
         log.info("Add to recently viewed hotels request received");
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(token);
-        recentlyViewedHotelService.addToRecentlyViewedHotels(appUser, Long.parseLong(addToRecentlyViewedHotelsRequestDTO.getHotelId()));
+        recentlyViewedHotelService.addToRecentlyViewedHotels(appUser, Long.parseLong(hotelId));
 
         log.info("Hotel added to recently viewed hotels");
         return ResponseEntity.status(200).build();

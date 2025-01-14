@@ -1,7 +1,6 @@
 package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
-import dev.haguel.orbistay.dto.request.AddToRecentlyViewedHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.util.EndPoints;
@@ -20,8 +19,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import test_utils.SharedTestUtil;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @Testcontainers
@@ -47,35 +44,21 @@ class RecentlyViewedHotelControllerTest {
         void whenAddToRecentlyViewedHotels_thenReturns200() {
             JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
 
-            AddToRecentlyViewedHotelsRequestDTO addToRecentlyViewedHotelsRequestDTO = AddToRecentlyViewedHotelsRequestDTO.builder()
-                    .hotelId("1")
-                    .build();
-
             webTestClient.post()
-                    .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS)
+                    .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS + "/1")
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(addToRecentlyViewedHotelsRequestDTO)
                     .exchange()
                     .expectStatus().isOk();
 
             webTestClient.post()
-                    .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS)
+                    .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS + "/1")
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(addToRecentlyViewedHotelsRequestDTO)
                     .exchange()
                     .expectStatus().isOk();
 
-            addToRecentlyViewedHotelsRequestDTO = AddToRecentlyViewedHotelsRequestDTO.builder()
-                    .hotelId("2")
-                    .build();
-
             webTestClient.post()
-                    .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS)
+                    .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS + "/2")
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(addToRecentlyViewedHotelsRequestDTO)
                     .exchange()
                     .expectStatus().isOk();
         }
@@ -84,15 +67,9 @@ class RecentlyViewedHotelControllerTest {
         void whenAddToRecentlyViewedHotelsWithInvalidHotelId_thenReturns404() {
             JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
 
-            AddToRecentlyViewedHotelsRequestDTO addToRecentlyViewedHotelsRequestDTO = AddToRecentlyViewedHotelsRequestDTO.builder()
-                    .hotelId("-1")
-                    .build();
-
             webTestClient.post()
-                    .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS)
+                    .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS + "/-1")
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(addToRecentlyViewedHotelsRequestDTO)
                     .exchange()
                     .expectStatus().isNotFound();
         }
