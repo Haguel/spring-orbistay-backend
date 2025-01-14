@@ -79,10 +79,22 @@ public class EndPoints {
         }
     }
 
+    public static class Destinations {
+        private static final String BASE_ENDPOINT = "/destinations";
+        public static final String GET_POPULAR_DESTINATIONS = BASE_ENDPOINT + "/popular";
+
+        public static String[] getUnauthorizedEndpoints() {
+            return new String[] {
+                    GET_POPULAR_DESTINATIONS,
+            };
+        }
+    }
+
     public static String[] getUnauthorizedEndpoints() {
         return Stream.of(
                 Auth.getUnauthorizedEndpoints(),
-                Hotels.getUnauthorizedEndpoints()
+                Hotels.getUnauthorizedEndpoints(),
+                Destinations.getUnauthorizedEndpoints()
         )
                 .flatMap(Stream::of)
                 .toArray(String[]::new);

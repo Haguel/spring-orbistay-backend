@@ -177,6 +177,7 @@ public class HotelService {
         return getFilteredHotelsResponseDTO;
     }
 
+    @Transactional(readOnly = true)
     public GetHotelResponseDTO getHotelById(Long id)
             throws HotelNotFoundException {
         Hotel hotel = findById(id);
@@ -199,7 +200,7 @@ public class HotelService {
 
     @Transactional(readOnly = true)
     public List<GetHotelsResponseDTO> getPopularHotels() {
-        List<Hotel> hotels = hotelRepository.findPopularHotels(LocalDate.now().minusDays(30));
+        List<Hotel> hotels = getPopularHotelsRaw();
 
         List<GetHotelsResponseDTO> getHotelsResponseDTOs = hotels.stream()
                 .map(hotelMapper::hotelToHotelsResponseDTO)
@@ -207,5 +208,13 @@ public class HotelService {
 
         log.info("Returning {} popular hotels", getHotelsResponseDTOs.size());
         return getHotelsResponseDTOs;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Hotel> getPopularHotelsRaw() {
+        List<Hotel> hotels = hotelRepository.findPopularHotels(LocalDate.now().minusDays(30));
+
+        log.info("Found {} popular hotels", hotels.size());
+        return hotels;
     }
 }

@@ -1,9 +1,6 @@
 package dev.haguel.orbistay.mapper;
 
-import dev.haguel.orbistay.dto.response.FilteredHotelDTO;
-import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
-import dev.haguel.orbistay.dto.response.GetFilteredHotelsResponseDTO;
-import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
+import dev.haguel.orbistay.dto.response.*;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.repository.HotelRepository;
 import dev.haguel.orbistay.util.mapper.HotelMapperUtil;
@@ -98,6 +95,19 @@ class HotelMapperTest {
             assertEquals(hotel.getHotelHighlights().size(), responseDTO.getHotelHighlights().size());
             assertEquals(hotel.getReviews().size(), responseDTO.getReviewsCount());
             assertEquals(hotelMapperUtil.getReviewsAvgRate(hotel), responseDTO.getAvgRate());
+        }
+    }
+
+    @Nested
+    class GetPopularDestinationsResponseDTOMapping {
+        @Test
+        void whenHotelToPopularDestinationsResponseDTO_thenGetPopularDestinationsResponseDTO() {
+            Hotel hotel = hotelRepository.findById(1L).orElse(null);
+            GetPopularDestinationsResponseDTO responseDTO = hotelMapper.hotelToPopularDestinationsResponseDTO(hotel);
+
+            assertNotNull(responseDTO);
+            assertEquals(hotel.getAddress().getCountry(), responseDTO.getCountry());
+            assertEquals(hotel.getAddress().getCity(), responseDTO.getCity());
         }
     }
 }
