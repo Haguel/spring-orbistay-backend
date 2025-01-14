@@ -50,7 +50,7 @@ class HotelRepositoryTest {
         void whenFindHotelsByCountryCriteria_thenReturnHotel() {
             HashSet<String> expected = new HashSet<>(Lists.newArrayList("Hotel New York 1", "Hotel New York 2", "Hotel New York 3"));
             List<Hotel> result = hotelRepository.findFilteredHotels(
-                            null, null, "United States", null, null, null, null,
+                            null, null, 1L, null, null, null, null,
                             null, null)
                     .orElse(null);
 
@@ -137,7 +137,7 @@ class HotelRepositoryTest {
         @Test
         void whenFindHotelsByNonExistentCountry_thenReturnEmpty() {
             List<Hotel> result = hotelRepository.findFilteredHotels(
-                            null, null, "Nonexistent Country", null, null, null, null,
+                            null, null, -1L, null, null, null, null,
                             null, null)
                     .orElse(null);
 
@@ -203,7 +203,7 @@ class HotelRepositoryTest {
         @Test
         void whenFindHotelsByFullData_thenReturnHotel() {
             List<Hotel> result = hotelRepository.findFilteredHotels(
-                            "Hotel New York 1", "New York", "United States", 2, true, LocalDate.of(2022, 12, 5), LocalDate.of(2022, 12, 8),
+                            "Hotel New York 1", "New York", 1L, 2, true, LocalDate.of(2022, 12, 5), LocalDate.of(2022, 12, 8),
                             5.0, 25.0)
                     .orElse(null);
 

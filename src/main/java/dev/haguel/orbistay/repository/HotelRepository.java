@@ -20,7 +20,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
         LEFT JOIN review r ON r.hotel_id = h.id
         WHERE (:name IS NULL OR LOWER(h.name) LIKE LOWER(CONCAT('%', :name, '%')))
           AND (:city IS NULL OR LOWER(a.city) LIKE LOWER(CONCAT('%', :city, '%')))
-          AND (:country IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :country, '%')))
+          AND (:countryId IS NULL OR c.id = :countryId)
           AND (:peopleCount IS NULL OR hr.capacity >= CAST(:peopleCount AS INT))
           AND (:isChildrenFriendly IS NULL OR :isChildrenFriendly = hr.is_children_friendly)
           AND ((CAST(:checkIn AS DATE) IS NULL OR CAST(:checkOut AS DATE) IS NULL) 
@@ -32,7 +32,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
     """, nativeQuery = true)
     Optional<List<Hotel>> findFilteredHotels(@Param("name") String name,
                                              @Param("city") String city,
-                                             @Param("country") String country,
+                                             @Param("countryId") Long countryId,
                                              @Param("peopleCount") Integer peopleCount,
                                              @Param("isChildrenFriendly") Boolean isChildrenFriendly,
                                              @Param("checkIn") LocalDate checkIn,

@@ -22,8 +22,8 @@ public class GetFilteredHotelsRequestDTO {
     @Schema(description = "The city where the hotel is located", example = "New York")
     private String city;
 
-    @Schema(description = "The country where the hotel is located", example = "United States")
-    private String country;
+    @Schema(description = "The country's id where the hotel is located", example = "1")
+    private String countryId;
 
     @Schema(description = "The count of people the hotel's rooms can accommodate", example = "2")
     @PositiveOrZero

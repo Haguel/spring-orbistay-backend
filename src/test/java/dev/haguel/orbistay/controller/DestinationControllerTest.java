@@ -2,6 +2,7 @@ package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.response.GetPopularDestinationsResponseDTO;
+import dev.haguel.orbistay.util.EndPoints;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Nested;
@@ -41,7 +42,7 @@ class DestinationControllerTest {
         @Test
         void whenGetPopularDestinations_thenReturnPopularDestinations() {
             webTestClient.get()
-                    .uri("/destinations/popular")
+                    .uri(EndPoints.Destinations.GET_POPULAR_DESTINATIONS)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(GetPopularDestinationsResponseDTO.class)

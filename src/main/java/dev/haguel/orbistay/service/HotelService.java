@@ -70,6 +70,7 @@ public class HotelService {
     @Transactional(readOnly = true)
     public GetFilteredHotelsResponseDTO getFilteredHotels(GetFilteredHotelsRequestDTO getFilteredHotelsRequestDTO)
             throws HotelsNotFoundException {
+        Long countryId = Optional.ofNullable(getFilteredHotelsRequestDTO.getCountryId()).map(Long::parseLong).orElse(null);
         Integer peopleCount = Optional.ofNullable(getFilteredHotelsRequestDTO.getPeopleCount()).map(Integer::parseInt).orElse(null);
         Boolean isChildrenFriendly = Optional.ofNullable(getFilteredHotelsRequestDTO.getIsChildrenFriendly()).map(Boolean::parseBoolean).orElse(null);
         LocalDate checkIn = Optional.ofNullable(getFilteredHotelsRequestDTO.getCheckIn()).map(LocalDate::parse).orElse(null);
@@ -104,7 +105,7 @@ public class HotelService {
         List<Hotel> filteredHotels = hotelRepository.findFilteredHotels(
                 getFilteredHotelsRequestDTO.getName(),
                 getFilteredHotelsRequestDTO.getCity(),
-                getFilteredHotelsRequestDTO.getCountry(),
+                countryId,
                 peopleCount,
                 isChildrenFriendly,
                 checkIn,

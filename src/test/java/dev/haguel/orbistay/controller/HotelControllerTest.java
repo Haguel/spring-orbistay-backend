@@ -66,7 +66,7 @@ class HotelControllerTest {
             GetFilteredHotelsRequestDTO requestDTO = GetFilteredHotelsRequestDTO.builder()
                     .name("Hotel New York 1")
                     .city("New York")
-                    .country("United States")
+                    .countryId("1")
                     .peopleCount(String.valueOf(2))
                     .isChildrenFriendly(String.valueOf(true))
                     .checkIn(String.valueOf(LocalDate.of(2024, 1, 1)))
@@ -141,7 +141,7 @@ class HotelControllerTest {
             GetFilteredHotelsRequestDTO requestDTO = GetFilteredHotelsRequestDTO.builder()
                     .name("Invalid Hotel")
                     .city("Invalid City")
-                    .country("Invalid Country")
+                    .countryId("-1")
                     .build();
 
             webTestClient.mutate()
