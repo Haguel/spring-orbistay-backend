@@ -7,6 +7,7 @@ import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetFilteredHotelsRequestDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
+import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.entity.Review;
 import dev.haguel.orbistay.exception.*;
@@ -118,7 +119,7 @@ public class HotelController {
         return ResponseEntity.status(200).body(hotelRoom);
     }
 
-    @Operation(summary = "Write review")
+    @Operation(summary = "Write hotel review")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Review written successfully",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = Review.class))),
@@ -128,8 +129,10 @@ public class HotelController {
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Hotel not found",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping(EndPoints.Hotels.WRITE_REVIEW)
+    @PostMapping(EndPoints.Hotels.WRITE_HOTEL_REVIEW)
     public ResponseEntity<?> writeReview(@RequestHeader("Authorization") String token,
                                          @RequestBody @Valid WriteReviewRequestDTO writeReviewRequestDTO)
             throws InvalidJwtTokenException, HotelNotFoundException {
@@ -139,6 +142,26 @@ public class HotelController {
 
         log.info("Review returned");
         return ResponseEntity.status(201).body(review);
+    }
+
+    @Operation(summary = "Get hotel reviews")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reviews found successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Review.class))),
+            @ApiResponse(responseCode = "404", description = "Hotel not found",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping(EndPoints.Hotels.GET_HOTEL_REVIEWS + "/{hotelId}")
+    public ResponseEntity<?> getReviews(@PathVariable Long hotelId) throws HotelNotFoundException {
+        log.info("Get reviews request received");
+        Hotel hotel = hotelService.findById(hotelId);
+        List<Review> reviews = hotel.getReviews();
+        log.info("Found {} reviews", reviews.size());
+
+        log.info("Reviews returned");
+        return ResponseEntity.status(200).body(reviews);
     }
 
     @Operation(summary = "Get popular hotels")

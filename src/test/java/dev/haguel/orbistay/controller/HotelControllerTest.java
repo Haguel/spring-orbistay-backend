@@ -272,7 +272,7 @@ class HotelControllerTest {
     }
 
     @Nested
-    class WriteReview {
+    class WriteHotelReview {
         @Test
         void whenWriteReviewWithValidData_thenReturnReview() {
             JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
@@ -286,7 +286,7 @@ class HotelControllerTest {
                     .build();
 
             webTestClient.post()
-                    .uri(EndPoints.Hotels.WRITE_REVIEW)
+                    .uri(EndPoints.Hotels.WRITE_HOTEL_REVIEW)
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
@@ -316,12 +316,25 @@ class HotelControllerTest {
                     .build();
 
             webTestClient.post()
-                    .uri(EndPoints.Hotels.WRITE_REVIEW)
+                    .uri(EndPoints.Hotels.WRITE_HOTEL_REVIEW)
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
                     .expectStatus().isNotFound();
+        }
+    }
+
+    @Nested
+    class GetHotelReviews {
+        @Test
+        void whenGetHotelReviews_thenReturnHotelReviews() {
+            webTestClient.get()
+                    .uri(EndPoints.Hotels.GET_HOTEL_REVIEWS + "/1")
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBodyList(Review.class)
+                    .hasSize(1);
         }
     }
 

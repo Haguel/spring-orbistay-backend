@@ -60,7 +60,8 @@ public class EndPoints {
         public static final String GET_FILTERED_HOTEL_ROOMS = BASE_ENDPOINT + "/rooms/filter";
         public static final String GET_HOTEL_ROOM = BASE_ENDPOINT + "/rooms";
         public static final String GET_POPULAR_HOTELS = BASE_ENDPOINT + "/popular";
-        public static final String WRITE_REVIEW = BASE_ENDPOINT + "/review";
+        public static final String WRITE_HOTEL_REVIEW = BASE_ENDPOINT + "/reviews";
+        public static final String GET_HOTEL_REVIEWS = BASE_ENDPOINT + "/reviews";
 
         public static String[] getUnauthorizedEndpoints() {
             return new String[] {
@@ -69,12 +70,13 @@ public class EndPoints {
                     GET_FILTERED_HOTEL_ROOMS,
                     GET_HOTEL_ROOM + "/*",
                     GET_POPULAR_HOTELS,
+                    GET_HOTEL_REVIEWS + "/*",
             };
         }
 
         public static String[] getAuthorizedEndpoints() {
             return new String[] {
-                    WRITE_REVIEW,
+                    WRITE_HOTEL_REVIEW,
             };
         }
     }

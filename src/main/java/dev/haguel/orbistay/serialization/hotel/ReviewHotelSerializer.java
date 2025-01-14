@@ -36,20 +36,10 @@ public class ReviewHotelSerializer extends JsonSerializer<Hotel> {
     public static class InnerSerializer {
         private Long id;
         private String name;
-        private String shortDesc;
-        private String fullDesc;
-        private Integer stars;
-        private String mainImageUrl;
-        private Address address;
 
         public InnerSerializer(Hotel hotel) {
             this.id = hotel.getId();
             this.name = hotel.getName();
-            this.shortDesc = hotel.getShortDesc();
-            this.fullDesc = hotel.getFullDesc();
-            this.stars = hotel.getStars();
-            this.mainImageUrl = hotel.getMainImageUrl();
-            this.address = hotel.getAddress();
         }
     }
 }
