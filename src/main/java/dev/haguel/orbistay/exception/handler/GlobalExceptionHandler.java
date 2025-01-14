@@ -60,6 +60,20 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleReviewNotFoundException(ReviewNotFoundException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Review could not be found in database"
+        );
+
+        log.error("Revoew not found", exception);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(IncorrectAuthDataException.class)
     public ResponseEntity<ErrorResponse> handleIncorrectAuthDataException(IncorrectAuthDataException exception) {
         ErrorResponse errorResponse = new ErrorResponse(

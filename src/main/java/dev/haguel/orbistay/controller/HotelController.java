@@ -164,6 +164,31 @@ public class HotelController {
         return ResponseEntity.status(200).body(reviews);
     }
 
+    @Operation(summary = "Remove hotel review")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Review removed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid JWT token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Can not change other user data",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Review not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @DeleteMapping(EndPoints.Hotels.REMOVE_HOTEL_REVIEW + "/{reviewId}")
+    public ResponseEntity<?> removeReview(@RequestHeader("Authorization") String token,
+                                          @PathVariable Long reviewId)
+            throws InvalidJwtTokenException, ReviewNotFoundException, CanNotChangeOtherUserDataException {
+        log.info("Remove review request received");
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(token);
+        Review review = reviewService.findById(reviewId);
+        reviewService.delete(appUser, review);
+
+        log.info("Review removed");
+        return ResponseEntity.status(200).build();
+    }
+
     @Operation(summary = "Get popular hotels")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Popular hotels found successfully",

@@ -326,6 +326,42 @@ class HotelControllerTest {
     }
 
     @Nested
+    class RemoveReview {
+        @Test
+        void whenRemoveReviewWithValidId_thenReturn200() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            webTestClient.delete()
+                    .uri(EndPoints.Hotels.REMOVE_HOTEL_REVIEW + "/1")
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isOk();
+        }
+
+        @Test
+        void whenRemoveReviewWithInvalidId_thenReturn404() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            webTestClient.delete()
+                    .uri(EndPoints.Hotels.REMOVE_HOTEL_REVIEW + "/-1")
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isNotFound();
+        }
+
+        @Test
+        void whenRemoveReviewOfAnotherUser_thenReturn403() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            webTestClient.delete()
+                    .uri(EndPoints.Hotels.REMOVE_HOTEL_REVIEW + "/3")
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isForbidden();
+        }
+    }
+
+    @Nested
     class GetHotelReviews {
         @Test
         void whenGetHotelReviews_thenReturnHotelReviews() {
