@@ -3,7 +3,6 @@ package dev.haguel.orbistay.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.haguel.orbistay.entity.enumeration.Gender;
 import dev.haguel.orbistay.entity.enumeration.Role;
-import dev.haguel.orbistay.util.EndPoints;
 import lombok.*;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -79,6 +78,10 @@ public class AppUser implements UserDetails {
     @JsonIgnore
     private List<Booking> bookings = Collections.emptyList();
 
+    @OneToMany(mappedBy = "appUser", orphanRemoval = true)
+    @JsonIgnore
+    private List<Favorites> favorites = Collections.emptyList();
+
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -93,6 +96,13 @@ public class AppUser implements UserDetails {
     public List<Hotel> getMappedRecentlyViewedHotels() {
         return recentlyViewedHotels.stream()
                 .map(RecentlyViewedHotel::getHotel)
+                .collect(Collectors.toList());
+    }
+
+    @JsonIgnore
+    public List<Hotel> getMappedFavoriteHotels() {
+        return favorites.stream()
+                .map(Favorites::getHotel)
                 .collect(Collectors.toList());
     }
 

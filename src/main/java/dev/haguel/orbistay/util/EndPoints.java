@@ -54,6 +54,21 @@ public class EndPoints {
         }
     }
 
+    public static class Favorites {
+        private static final String BASE_ENDPOINT = "/favorites";
+        public static final String ADD_TO_FAVORITES = BASE_ENDPOINT;
+        public static final String GET_FAVORITES = BASE_ENDPOINT + "/me";
+        public static final String REMOVE_FAVORITES = BASE_ENDPOINT;
+
+        public static String[] getAuthorizedEndpoints() {
+            return new String[] {
+                    ADD_TO_FAVORITES + "/*",
+                    GET_FAVORITES,
+                    REMOVE_FAVORITES + "/*",
+            };
+        }
+    }
+
     public static class Hotels {
         private static final String BASE_ENDPOINT = "/hotels";
         public static final String GET_FILTERED_HOTELS = BASE_ENDPOINT + "/filter";
@@ -121,7 +136,9 @@ public class EndPoints {
                 AppUsers.getAuthorizedEndpoints(),
                 Auth.getAuthorizedEndpoints(),
                 Booking.getAuthorizedEndpoints(),
-                Hotels.getAuthorizedEndpoints()
+                Hotels.getAuthorizedEndpoints(),
+                RecentlyViewedHotels.getAuthorizedEndpoints(),
+                Favorites.getAuthorizedEndpoints()
         )
                 .flatMap(Stream::of)
                 .toArray(String[]::new);

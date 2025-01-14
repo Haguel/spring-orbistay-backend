@@ -32,6 +32,34 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(CanNotChangeOtherUserDataException.class)
+    public ResponseEntity<ErrorResponse> handleCanNotChangeOtherUserDataException(CanNotChangeOtherUserDataException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Can not change other user data"
+        );
+
+        log.error("Can not change other user data", exception);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(FavoritesNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleFavoritesNotFoundException(FavoritesNotFoundException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Favorites could not be found in database"
+        );
+
+        log.error("Favorites not found", exception);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(IncorrectAuthDataException.class)
     public ResponseEntity<ErrorResponse> handleIncorrectAuthDataException(IncorrectAuthDataException exception) {
         ErrorResponse errorResponse = new ErrorResponse(

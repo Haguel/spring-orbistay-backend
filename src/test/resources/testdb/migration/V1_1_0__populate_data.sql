@@ -591,3 +591,15 @@ INSERT INTO recently_viewed_hotel (app_user_id, hotel_id, viewed_at) VALUES
                                                                           (3, 2, '2024-01-01 10:00:00'),
                                                                           (3, 3, '2024-01-02 11:00:00'),
                                                                           (3, 6, '2024-01-03 12:00:00');
+
+-- Insert favorites for all users
+INSERT INTO favorites (app_user_id, hotel_id) VALUES
+                                                  (1, 1),
+                                                  (1, 2),
+                                                  (1, 3),
+                                                  (2, 1),
+                                                  (2, 4),
+                                                  (2, 5),
+                                                  (3, 2),
+                                                  (3, 3),
+                                                  (3, 6);
