@@ -21,6 +21,7 @@ public abstract class BookingMapper {
     @Mapping(target = "country", ignore = true)
     @Mapping(target = "appUser", ignore = true)
     @Mapping(target = "hotelRoom", ignore = true)
+    @Mapping(target = "status", ignore = true)
     public abstract Booking bookHotelRoomRequestDTOToBooking(BookHotelRoomRequestDTO bookHotelRoomRequestDTO);
 
     @AfterMapping

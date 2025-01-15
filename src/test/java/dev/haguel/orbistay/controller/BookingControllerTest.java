@@ -78,6 +78,7 @@ class BookingControllerTest {
                         assertEquals(requestDTO.getPhoneNumber(), response.getPhoneNumber());
                         assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoom().getId());
                         assertEquals(Long.parseLong(requestDTO.getCountryId()), response.getCountry().getId());
+                        assertEquals("ACTIVE", response.getStatus().getStatus());
                     });
         }
 

@@ -54,4 +54,8 @@ public class Booking {
     @JsonDeserialize(using = BookingHotelRoomDeserializer.class)
     @JoinColumn(name = "hotel_room_id", nullable = false)
     private HotelRoom hotelRoom;
+
+    @ManyToOne
+    @JoinColumn(name = "booking_status_id", nullable = false)
+    private BookingStatus status;
 }

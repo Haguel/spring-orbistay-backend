@@ -118,6 +118,11 @@ CREATE TABLE hotel_hotel_highlight (
     FOREIGN KEY (hotel_highlight_id) REFERENCES hotel_highlight(id)
 );
 
+CREATE TABLE booking_status (
+    id BIGSERIAL PRIMARY KEY,
+    status VARCHAR(50) NOT NULL UNIQUE
+);
+
 CREATE TABLE booking (
     id BIGSERIAL PRIMARY KEY,
     check_in TIMESTAMP NOT NULL,
@@ -129,6 +134,8 @@ CREATE TABLE booking (
     app_user_id BIGINT NOT NULL,
     hotel_room_id BIGINT NOT NULL,
     country_id BIGINT NOT NULL,
+    booking_status_id BIGINT NOT NULL,
+    FOREIGN KEY (booking_status_id) REFERENCES booking_status(id),
     FOREIGN KEY (country_id) REFERENCES country(id),
     FOREIGN KEY (app_user_id) REFERENCES app_user(id),
     FOREIGN KEY (hotel_room_id) REFERENCES hotel_room(id)

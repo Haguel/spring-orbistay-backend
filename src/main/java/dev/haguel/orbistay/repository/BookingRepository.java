@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN false ELSE true END " +
@@ -18,4 +19,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     boolean isBookingAvailable(@Param("hotelRoomId") Long hotelRoomId,
                                @Param("checkIn") LocalDate checkIn,
                                @Param("checkOut") LocalDate checkOut);
+
+    @Query("SELECT b FROM booking b WHERE b.status.status = 'ACTIVE'")
+    List<Booking> findAllActiveStatus();
 }

@@ -11,9 +11,11 @@ import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
 import dev.haguel.orbistay.exception.InvalidDataException;
 import dev.haguel.orbistay.mapper.BookingMapper;
 import dev.haguel.orbistay.repository.BookingRepository;
+import dev.haguel.orbistay.repository.BookingStatusRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
@@ -23,20 +25,22 @@ import java.time.LocalDate;
 public class BookingService {
     private final HotelRoomService hotelRoomService;
     private final BookingRepository bookingRepository;
+    private final BookingStatusRepository bookingStatusRepository;
     private final BookingMapper bookingMapper;
     private final CountryService countryService;
 
-    private boolean isDatesValid(LocalDate checkIn, LocalDate checkOut) {
+    private boolean isDatesNotReversed(LocalDate checkIn, LocalDate checkOut) {
         return checkIn.isBefore(checkOut);
     }
 
+    @Transactional
     public Booking bookHotelRoom(AppUser appUser, BookHotelRoomRequestDTO bookHotelRoomRequestDTO)
             throws BookingNotAvailableException, HotelRoomNotFoundException, CountryNotFoundException, InvalidDataException {
         HotelRoom hotelRoom = hotelRoomService.getHotelRoomById(Long.valueOf(bookHotelRoomRequestDTO.getHotelRoomId()));
         Country country = countryService.findById(Long.valueOf(bookHotelRoomRequestDTO.getCountryId()));
         Booking booking = bookingMapper.bookHotelRoomRequestDTOToBooking(bookHotelRoomRequestDTO);
 
-        if(!isDatesValid(booking.getCheckIn(), booking.getCheckOut())) {
+        if(!isDatesNotReversed(booking.getCheckIn(), booking.getCheckOut())) {
             log.warn("Check-in must be before check-out");
             throw new InvalidDataException("Check-in must be before check-out");
         }
@@ -51,6 +55,7 @@ public class BookingService {
         booking.setAppUser(appUser);
         booking.setHotelRoom(hotelRoom);
         booking.setCountry(country);
+        booking.setStatus(bookingStatusRepository.findActiveStatus());
         booking = bookingRepository.save(booking);
 
         log.info("Booking created and saved to db");
