@@ -44,12 +44,15 @@ public class EndPoints {
 
     public static class Booking {
         private static final String BASE_ENDPOINT = "/bookings";
-        public static final String BOOK_HOTEL_ROOM = BASE_ENDPOINT + "/book";
+        public static final String BOOK_HOTEL_ROOM = BASE_ENDPOINT;
         public static final String GET_BOOKINGS = BASE_ENDPOINT + "/me";
+        public static final String CANCEL_BOOKING = BASE_ENDPOINT;
 
         public static String[] getAuthorizedEndpoints() {
             return new String[] {
                     BOOK_HOTEL_ROOM,
+                    GET_BOOKINGS + "/*",
+                    CANCEL_BOOKING + "/*",
             };
         }
     }

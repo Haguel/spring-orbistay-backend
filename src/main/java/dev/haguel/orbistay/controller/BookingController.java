@@ -79,4 +79,32 @@ public class BookingController {
         log.info("Returning bookings");
         return ResponseEntity.status(200).body(bookings);
     }
+
+    @Schema(description = "Cancel booking")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Booking canceled successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Booking.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid jwt token",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Booking can not be canceled",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Can not change other user data",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Booking not found",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @DeleteMapping(EndPoints.Booking.CANCEL_BOOKING + "/{id}")
+    public ResponseEntity<?> cancelBooking(@RequestHeader(name="Authorization") String authorizationHeader,
+                                          @PathVariable Long id)
+            throws InvalidJwtTokenException, BookingNotFoundException, BookingCanNotBeCanceled, CanNotChangeOtherUserDataException {
+        log.info("Cancel booking request received");
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
+        Booking booking = bookingService.findById(id);
+        bookingService.cancelBooking(appUser, booking);
+
+        log.info("Booking canceled successfully");
+        return ResponseEntity.status(200).body(booking);
+    }
 }

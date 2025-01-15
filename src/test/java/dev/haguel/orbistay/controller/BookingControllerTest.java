@@ -248,4 +248,51 @@ class BookingControllerTest {
                     .hasSize(4);
         }
     }
+
+    @Nested
+    class CancelBooking {
+        @Test
+        void whenCancelBooking_thenReturnBooking() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            webTestClient.delete()
+                    .uri(EndPoints.Booking.CANCEL_BOOKING + "/1")
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isOk();
+        }
+
+        @Test
+        void whenCancelBookingWithInvalidId_thenReturn404() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            webTestClient.delete()
+                    .uri(EndPoints.Booking.CANCEL_BOOKING + "/-1")
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isNotFound();
+        }
+
+        @Test
+        void whenCancelBookingOfOtherUser_thenReturn403() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            webTestClient.delete()
+                    .uri(EndPoints.Booking.CANCEL_BOOKING + "/5")
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isForbidden();
+        }
+
+        @Test
+        void whenCancelBookingWithCheckInLessThan24Hours_thenReturn400() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            webTestClient.delete()
+                    .uri(EndPoints.Booking.CANCEL_BOOKING + "/2")
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isForbidden();
+        }
+    }
 }

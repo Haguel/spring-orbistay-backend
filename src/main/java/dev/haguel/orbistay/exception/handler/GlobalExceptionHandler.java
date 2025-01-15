@@ -82,9 +82,37 @@ public class GlobalExceptionHandler {
                 "Review could not be found in database"
         );
 
-        log.error("Revoew not found", exception);
+        log.error("Review not found", exception);
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBookingNotFoundException(BookingNotFoundException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Booking could not be found in database"
+        );
+
+        log.error("Booking not found", exception);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(BookingCanNotBeCanceled.class)
+    public ResponseEntity<ErrorResponse> handleBookingCanNotBeCanceled(BookingCanNotBeCanceled exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Booking can not be canceled"
+        );
+
+        log.error("Booking can not be canceled", exception);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(errorResponse);
     }
 

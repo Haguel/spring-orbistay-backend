@@ -1,14 +1,8 @@
 package dev.haguel.orbistay.service;
 
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
-import dev.haguel.orbistay.entity.AppUser;
-import dev.haguel.orbistay.entity.Booking;
-import dev.haguel.orbistay.entity.Country;
-import dev.haguel.orbistay.entity.HotelRoom;
-import dev.haguel.orbistay.exception.BookingNotAvailableException;
-import dev.haguel.orbistay.exception.CountryNotFoundException;
-import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
-import dev.haguel.orbistay.exception.InvalidDataException;
+import dev.haguel.orbistay.entity.*;
+import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.mapper.BookingMapper;
 import dev.haguel.orbistay.repository.BookingRepository;
 import dev.haguel.orbistay.repository.BookingStatusRepository;
@@ -31,6 +25,27 @@ public class BookingService {
 
     private boolean isDatesNotReversed(LocalDateTime checkIn, LocalDateTime checkOut) {
         return checkIn.isBefore(checkOut);
+    }
+
+    private Booking save(Booking booking) {
+        booking = bookingRepository.save(booking);
+
+        log.info("Booking created and saved to db");
+        return booking;
+    }
+
+    @Transactional(readOnly = true)
+    public Booking findById(Long id) throws BookingNotFoundException {
+        Booking booking =  bookingRepository.findById(id).orElse(null);
+
+        if (booking == null) {
+            log.warn("Booking with id {} not found", id);
+            throw new BookingNotFoundException("Booking with not found");
+        } else {
+            log.info("Booking with id {} found", id);
+        }
+
+        return booking;
     }
 
     @Transactional
@@ -56,9 +71,27 @@ public class BookingService {
         booking.setHotelRoom(hotelRoom);
         booking.setCountry(country);
         booking.setStatus(bookingStatusRepository.findActiveStatus());
-        booking = bookingRepository.save(booking);
+        booking = save(booking);
 
         log.info("Booking created and saved to db");
         return booking;
+    }
+
+    @Transactional
+    public void cancelBooking(AppUser appUser, Booking booking) throws CanNotChangeOtherUserDataException, BookingCanNotBeCanceled {
+        if(booking.getAppUser().getId() != appUser.getId()) {
+            log.warn("User with id {} is not allowed to cancel booking of another user", appUser.getId());
+            throw new CanNotChangeOtherUserDataException("User is not allowed to cancel another user's booking");
+        }
+
+        // Booking can not be canceled if check-in is less than 24 hours from now
+        if(booking.getCheckIn().minusDays(1).isBefore(LocalDateTime.now())) {
+            log.warn("Booking with id {} can not be canceled already", booking.getId());
+            throw new BookingCanNotBeCanceled("Booking can not be canceled already");
+        }
+
+        BookingStatus bookingStatus = bookingStatusRepository.findCanceledStatus();
+        booking.setStatus(bookingStatus);
+        save(booking);
     }
 }
