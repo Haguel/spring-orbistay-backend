@@ -1,12 +1,11 @@
 package dev.haguel.orbistay.dto.request;
 
-import dev.haguel.orbistay.annotation.ValidDate;
+import dev.haguel.orbistay.annotation.ValidDateFormat;
 import dev.haguel.orbistay.annotation.ValidPhoneNumber;
 import dev.haguel.orbistay.entity.enumeration.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,7 +31,7 @@ public class EditAppUserDataRequestDTO {
     private String phone;
 
     @Schema(description = "The app user's birth date", example = "2000-01-01")
-    @ValidDate
+    @ValidDateFormat
     private String birthDate;
 
     @Schema(description = "The app user's gender", implementation = Gender.class)

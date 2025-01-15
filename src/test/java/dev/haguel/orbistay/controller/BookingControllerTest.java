@@ -3,9 +3,7 @@ package dev.haguel.orbistay.controller;
 import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
-import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.Booking;
-import dev.haguel.orbistay.service.AppUserService;
 import dev.haguel.orbistay.util.EndPoints;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +20,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import test_utils.SharedTestUtil;
+
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,8 +52,8 @@ class BookingControllerTest {
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
                     .hotelRoomId("1")
                     .countryId("1")
-                    .checkIn("2023-12-01")
-                    .checkOut("2023-12-10")
+                    .checkIn(LocalDate.now().plusDays(5).toString())
+                    .checkOut(LocalDate.now().plusDays(10).toString())
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
@@ -82,14 +82,14 @@ class BookingControllerTest {
         }
 
         @Test
-        void whenBookHotelRoomWithTakenDates_thenReturnError() {
+        void whenBookHotelRoomWithTakenDates_thenReturn409() {
             JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
 
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
                     .hotelRoomId("1")
                     .countryId("1")
-                    .checkIn("2024-12-01")
-                    .checkOut("2024-12-05")
+                    .checkIn("2025-12-01")
+                    .checkOut("2025-12-05")
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
@@ -106,14 +106,14 @@ class BookingControllerTest {
         }
 
         @Test
-        void whenBookHotelRoomWithInvalidCountry_thenReturnError() {
+        void whenBookHotelRoomWithInvalidCountry_thenReturn404() {
             JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
 
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
                     .hotelRoomId("1")
-                    .countryId("400")
-                    .checkIn("2024-11-10")
-                    .checkOut("2024-11-11")
+                    .countryId("-1")
+                    .checkIn(LocalDate.now().plusDays(6).toString())
+                    .checkOut(LocalDate.now().plusDays(20).toString())
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
@@ -126,18 +126,18 @@ class BookingControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
-                    .expectStatus().is4xxClientError();
+                    .expectStatus().isNotFound();
         }
 
         @Test
-        void whenBookHotelRoomWithInvalidHotelRoom_thenReturnError() {
+        void whenBookHotelRoomWithInvalidHotelRoom_thenReturn404() {
             JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
 
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
                     .hotelRoomId("-1")
                     .countryId("1")
-                    .checkIn("2024-11-10")
-                    .checkOut("2024-11-11")
+                    .checkIn(LocalDate.now().plusDays(5).toString())
+                    .checkOut(LocalDate.now().plusDays(10).toString())
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
@@ -150,7 +150,31 @@ class BookingControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
-                    .expectStatus().is4xxClientError();
+                    .expectStatus().isNotFound();
+        }
+
+        @Test
+        void whenBookHotelRoomWithReversedDates_thenReturn400() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
+                    .hotelRoomId("1")
+                    .countryId("1")
+                    .checkIn(LocalDate.now().plusDays(10).toString())
+                    .checkOut(LocalDate.now().plusDays(5).toString())
+                    .firstName("John")
+                    .lastName("Doe")
+                    .email("john.test@example.com")
+                    .phoneNumber("1234567890")
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isBadRequest();
         }
     }
 

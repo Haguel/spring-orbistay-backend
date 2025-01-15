@@ -1,7 +1,7 @@
 package dev.haguel.orbistay.dto.request;
 
 import dev.haguel.orbistay.annotation.ValidBoolean;
-import dev.haguel.orbistay.annotation.ValidDate;
+import dev.haguel.orbistay.annotation.ValidDateFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -29,11 +29,11 @@ public class GetFileredHotelRoomsRequestDTO {
     private String isChildrenFriendly;
 
     @Schema(description = "Check-in date", example = "2022-12-01")
-    @ValidDate
+    @ValidDateFormat
     private String checkIn;
 
     @Schema(description = "Check-out date", example = "2022-12-10")
-    @ValidDate
+    @ValidDateFormat
     private String checkOut;
 
     @Schema(description = "The minimum price of hotel room price", example = "5.0")

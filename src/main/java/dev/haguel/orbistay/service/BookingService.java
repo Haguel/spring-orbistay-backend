@@ -8,11 +8,14 @@ import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.exception.BookingNotAvailableException;
 import dev.haguel.orbistay.exception.CountryNotFoundException;
 import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
+import dev.haguel.orbistay.exception.InvalidDataException;
 import dev.haguel.orbistay.mapper.BookingMapper;
 import dev.haguel.orbistay.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 @Service
 @Slf4j
@@ -23,11 +26,20 @@ public class BookingService {
     private final BookingMapper bookingMapper;
     private final CountryService countryService;
 
+    private boolean isDatesValid(LocalDate checkIn, LocalDate checkOut) {
+        return checkIn.isBefore(checkOut);
+    }
+
     public Booking bookHotelRoom(AppUser appUser, BookHotelRoomRequestDTO bookHotelRoomRequestDTO)
-            throws BookingNotAvailableException, HotelRoomNotFoundException, CountryNotFoundException {
+            throws BookingNotAvailableException, HotelRoomNotFoundException, CountryNotFoundException, InvalidDataException {
         HotelRoom hotelRoom = hotelRoomService.getHotelRoomById(Long.valueOf(bookHotelRoomRequestDTO.getHotelRoomId()));
         Country country = countryService.findById(Long.valueOf(bookHotelRoomRequestDTO.getCountryId()));
         Booking booking = bookingMapper.bookHotelRoomRequestDTOToBooking(bookHotelRoomRequestDTO);
+
+        if(!isDatesValid(booking.getCheckIn(), booking.getCheckOut())) {
+            log.warn("Check-in must be before check-out");
+            throw new InvalidDataException("Check-in must be before check-out");
+        }
 
         if(bookingRepository.isBookingAvailable(hotelRoom.getId(), booking.getCheckIn(), booking.getCheckOut())) {
             log.info("Booking is available");

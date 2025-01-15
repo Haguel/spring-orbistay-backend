@@ -37,6 +37,8 @@ public class BookingController {
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid jwt token",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Check in must be before check out",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Hotel room not found",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Country not found",
@@ -49,7 +51,7 @@ public class BookingController {
     @PostMapping(EndPoints.Booking.BOOK_HOTEL_ROOM)
     public ResponseEntity<?> bookHotelRoom(@RequestHeader(name="Authorization") String authorizationHeader,
                                            @Valid @RequestBody BookHotelRoomRequestDTO bookHotelRoomRequestDTO)
-            throws InvalidJwtTokenException, HotelRoomNotFoundException, BookingNotAvailableException, CountryNotFoundException {
+            throws InvalidJwtTokenException, HotelRoomNotFoundException, BookingNotAvailableException, CountryNotFoundException, InvalidDataException {
         log.info("Book hotel room request received");
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
         Booking booking = bookingService.bookHotelRoom(appUser, bookHotelRoomRequestDTO);

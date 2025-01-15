@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.dto.request;
 
-import dev.haguel.orbistay.annotation.ValidDate;
+import dev.haguel.orbistay.annotation.ValidDateFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -40,6 +40,6 @@ public class PassportDataRequestDTO {
     @Schema(description = "Date of issuance of the passport", example = "2024-01-20")
     @NotNull
     @NotBlank
-    @ValidDate
+    @ValidDateFormat
     private String expirationDate;
 }

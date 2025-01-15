@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.dto.request;
 
-import dev.haguel.orbistay.annotation.ValidDate;
+import dev.haguel.orbistay.annotation.IsDateAfterToday;
+import dev.haguel.orbistay.annotation.ValidDateFormat;
 import dev.haguel.orbistay.annotation.ValidPhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -21,13 +22,15 @@ public class BookHotelRoomRequestDTO {
     private String hotelRoomId;
 
     @Schema(description = "Check-in date", example = "2023-10-01")
-    @ValidDate
+    @ValidDateFormat
+    @IsDateAfterToday
     @NotNull
     @NotBlank
     private String checkIn;
 
     @Schema(description = "Check-out date", example = "2023-10-02")
-    @ValidDate
+    @ValidDateFormat
+    @IsDateAfterToday
     @NotNull
     @NotBlank
     private String checkOut;
