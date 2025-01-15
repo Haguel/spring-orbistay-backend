@@ -11,18 +11,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalTime;
+
 @Mapper(componentModel = "spring")
 public abstract class BookingMapper {
     @Autowired
     protected SharedMapperUtil sharedMapperUtil;
 
-    @Mapping(target = "checkIn", expression = "java(sharedMapperUtil.convertStringToLocalDate(bookHotelRoomRequestDTO.getCheckIn()))")
-    @Mapping(target = "checkOut", expression = "java(sharedMapperUtil.convertStringToLocalDate(bookHotelRoomRequestDTO.getCheckOut()))")
+    @Mapping(target = "checkIn", expression = "java(sharedMapperUtil.convertStringToLocalDateTime(bookHotelRoomRequestDTO.getCheckIn(), checkInTime))")
+    @Mapping(target = "checkOut", expression = "java(sharedMapperUtil.convertStringToLocalDateTime(bookHotelRoomRequestDTO.getCheckOut(), checkOutTime))")
     @Mapping(target = "country", ignore = true)
     @Mapping(target = "appUser", ignore = true)
     @Mapping(target = "hotelRoom", ignore = true)
     @Mapping(target = "status", ignore = true)
-    public abstract Booking bookHotelRoomRequestDTOToBooking(BookHotelRoomRequestDTO bookHotelRoomRequestDTO);
+    public abstract Booking bookHotelRoomRequestDTOToBooking(BookHotelRoomRequestDTO bookHotelRoomRequestDTO,
+                                                             LocalTime checkInTime, LocalTime checkOutTime);
 
     @AfterMapping
     protected void validateBookingDates(@MappingTarget Booking booking) {

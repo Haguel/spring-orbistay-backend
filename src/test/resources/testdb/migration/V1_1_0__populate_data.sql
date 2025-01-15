@@ -225,42 +225,42 @@ INSERT INTO hotel (name, address_id, short_desc, full_desc, stars, main_image_ur
                    ('Hotel Zurich 2', 5, 'Premium hotel in Zurich', 'A premium hotel in Zurich offering luxurious rooms, top-notch amenities, and exceptional service.', 5, 'hotel_zurich2.jpg'),
                    ('Hotel Zurich 3', 6, 'Affordable hotel in Zurich', 'An affordable hotel in Zurich with clean rooms, friendly staff, and a convenient location.', 3, 'hotel_zurich3.jpg');
 
-INSERT INTO hotel_room (name, description, cost_per_night, is_children_friendly, capacity, hotel_id) VALUES
-               -- Hotel New York 1
-               ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 1),
-               ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 1),
-               ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, false, 4, 1),
-               ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 1),
+INSERT INTO hotel_room (name, description, cost_per_night, is_children_friendly, capacity, hotel_id, check_in_time, check_out_time) VALUES
+                                                                                                                                        -- Hotel New York 1
+                                                                                                                                        ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 1, '14:00:00', '12:00:00'),
+                                                                                                                                        ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 1, '14:00:00', '12:00:00'),
+                                                                                                                                        ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, false, 4, 1, '14:00:00', '12:00:00'),
+                                                                                                                                        ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 1, '14:00:00', '12:00:00'),
 
-               -- Hotel New York 2
-               ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 2),
-               ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 2),
-               ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 2),
-               ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 2),
+                                                                                                                                        -- Hotel New York 2
+                                                                                                                                        ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 2, '15:00:00', '11:00:00'),
+                                                                                                                                        ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 2, '15:00:00', '11:00:00'),
+                                                                                                                                        ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 2, '15:00:00', '11:00:00'),
+                                                                                                                                        ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 2, '15:00:00', '11:00:00'),
 
-               -- Hotel New York 3
-               ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 3),
-               ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, false, 2, 3),
-               ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 3),
-               ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 3),
+                                                                                                                                        -- Hotel New York 3
+                                                                                                                                        ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 3, '16:00:00', '10:00:00'),
+                                                                                                                                        ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, false, 2, 3, '16:00:00', '10:00:00'),
+                                                                                                                                        ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 3, '16:00:00', '10:00:00'),
+                                                                                                                                        ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 3, '16:00:00', '10:00:00'),
 
-               -- Hotel Zurich 1
-               ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 4),
-               ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 4),
-               ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 4),
-               ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 4),
+                                                                                                                                        -- Hotel Zurich 1
+                                                                                                                                        ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 4, '14:00:00', '12:00:00'),
+                                                                                                                                        ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 4, '14:00:00', '12:00:00'),
+                                                                                                                                        ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 4, '14:00:00', '12:00:00'),
+                                                                                                                                        ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 4, '14:00:00', '12:00:00'),
 
-               -- Hotel Zurich 2
-               ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 5),
-               ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 5),
-               ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 5),
-               ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 5),
+                                                                                                                                        -- Hotel Zurich 2
+                                                                                                                                        ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 5, '15:00:00', '11:00:00'),
+                                                                                                                                        ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 5, '15:00:00', '11:00:00'),
+                                                                                                                                        ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 5, '15:00:00', '11:00:00'),
+                                                                                                                                        ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 5, '15:00:00', '11:00:00'),
 
-               -- Hotel Zurich 3
-               ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 6),
-               ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 6),
-               ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 6),
-               ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 6);
+                                                                                                                                        -- Hotel Zurich 3
+                                                                                                                                        ('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 6, '16:00:00', '10:00:00'),
+                                                                                                                                        ('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 6, '16:00:00', '10:00:00'),
+                                                                                                                                        ('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 6, '16:00:00', '10:00:00'),
+                                                                                                                                        ('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 6, '16:00:00', '10:00:00');
 
 
 INSERT INTO hotel_room_image (hotel_room_id, image_url) VALUES

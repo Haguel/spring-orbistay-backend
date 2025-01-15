@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @Slf4j
@@ -29,16 +29,16 @@ public class BookingService {
     private final BookingMapper bookingMapper;
     private final CountryService countryService;
 
-    private boolean isDatesNotReversed(LocalDate checkIn, LocalDate checkOut) {
+    private boolean isDatesNotReversed(LocalDateTime checkIn, LocalDateTime checkOut) {
         return checkIn.isBefore(checkOut);
     }
 
     @Transactional
     public Booking bookHotelRoom(AppUser appUser, BookHotelRoomRequestDTO bookHotelRoomRequestDTO)
             throws BookingNotAvailableException, HotelRoomNotFoundException, CountryNotFoundException, InvalidDataException {
-        HotelRoom hotelRoom = hotelRoomService.getHotelRoomById(Long.valueOf(bookHotelRoomRequestDTO.getHotelRoomId()));
+        HotelRoom hotelRoom = hotelRoomService.findById(Long.valueOf(bookHotelRoomRequestDTO.getHotelRoomId()));
         Country country = countryService.findById(Long.valueOf(bookHotelRoomRequestDTO.getCountryId()));
-        Booking booking = bookingMapper.bookHotelRoomRequestDTOToBooking(bookHotelRoomRequestDTO);
+        Booking booking = bookingMapper.bookHotelRoomRequestDTOToBooking(bookHotelRoomRequestDTO, hotelRoom.getCheckInTime(), hotelRoom.getCheckOutTime());
 
         if(!isDatesNotReversed(booking.getCheckIn(), booking.getCheckOut())) {
             log.warn("Check-in must be before check-out");

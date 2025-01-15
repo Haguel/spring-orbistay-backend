@@ -113,7 +113,7 @@ public class HotelController {
     public ResponseEntity<?> getHotelRoom(@PathVariable Long id)
             throws HotelRoomNotFoundException {
         log.info("Get hotel room by id request received");
-        HotelRoom hotelRoom = hotelRoomService.getHotelRoomById(id);
+        HotelRoom hotelRoom = hotelRoomService.findById(id);
 
         log.info("Hotel room returned");
         return ResponseEntity.status(200).body(hotelRoom);

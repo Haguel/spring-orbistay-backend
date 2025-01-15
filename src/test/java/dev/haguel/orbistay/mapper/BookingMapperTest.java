@@ -13,6 +13,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -43,11 +47,12 @@ public class BookingMapperTest {
                     .phoneNumber("1234567890")
                     .build();
 
-            Booking booking = bookingMapper.bookHotelRoomRequestDTOToBooking(requestDTO);
+            LocalTime localTime = LocalTime.now();
+            Booking booking = bookingMapper.bookHotelRoomRequestDTOToBooking(requestDTO, localTime, localTime);
 
             assertNotNull(booking);
-            assertEquals(requestDTO.getCheckIn(), booking.getCheckIn().toString());
-            assertEquals(requestDTO.getCheckOut(), booking.getCheckOut().toString());
+            assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckIn()), localTime), booking.getCheckIn());
+            assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckOut()), localTime), booking.getCheckOut());
             assertEquals(requestDTO.getFirstName(), booking.getFirstName());
             assertEquals(requestDTO.getLastName(), booking.getLastName());
             assertEquals(requestDTO.getEmail(), booking.getEmail());

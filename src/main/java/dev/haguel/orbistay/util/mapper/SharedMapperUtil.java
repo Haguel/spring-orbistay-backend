@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +24,10 @@ public class SharedMapperUtil {
 
     public LocalDate convertStringToLocalDate(String date) {
         return LocalDate.parse(date);
+    }
+
+    public LocalDateTime convertStringToLocalDateTime(String date, LocalTime time) {
+        return LocalDateTime.of(LocalDate.parse(date), time);
     }
 
     public Double convertStringToDouble(String value) {

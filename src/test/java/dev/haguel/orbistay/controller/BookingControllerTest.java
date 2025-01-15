@@ -4,6 +4,9 @@ import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.Booking;
+import dev.haguel.orbistay.entity.HotelRoom;
+import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
+import dev.haguel.orbistay.service.HotelRoomService;
 import dev.haguel.orbistay.util.EndPoints;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import test_utils.SharedTestUtil;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,14 +47,20 @@ class BookingControllerTest {
     @Autowired
     private WebTestClient webTestClient;
 
+    @Autowired
+    private HotelRoomService hotelRoomService;
+
     @Nested
     class BookHotelRoom {
         @Test
-        void whenBookHotelRoomWithValidData_thenReturnBooking() {
+        void whenBookHotelRoomWithValidData_thenReturnBooking() throws HotelRoomNotFoundException {
             JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
 
+            Long hotelRoomId = 1L;
+            HotelRoom hotelRoom = hotelRoomService.findById(hotelRoomId);
+
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
-                    .hotelRoomId("1")
+                    .hotelRoomId(hotelRoomId.toString())
                     .countryId("1")
                     .checkIn(LocalDate.now().plusDays(5).toString())
                     .checkOut(LocalDate.now().plusDays(10).toString())
@@ -70,8 +80,52 @@ class BookingControllerTest {
                     .expectBody(Booking.class)
                     .value(response -> {
                         assertNotNull(response);
-                        assertEquals(requestDTO.getCheckIn(), response.getCheckIn().toString());
-                        assertEquals(requestDTO.getCheckOut(), response.getCheckOut().toString());
+                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckIn()), hotelRoom.getCheckInTime()),
+                                response.getCheckIn());
+                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckOut()), hotelRoom.getCheckOutTime()),
+                                response.getCheckOut());
+                        assertEquals(requestDTO.getFirstName(), response.getFirstName());
+                        assertEquals(requestDTO.getLastName(), response.getLastName());
+                        assertEquals(requestDTO.getEmail(), response.getEmail());
+                        assertEquals(requestDTO.getPhoneNumber(), response.getPhoneNumber());
+                        assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoom().getId());
+                        assertEquals(Long.parseLong(requestDTO.getCountryId()), response.getCountry().getId());
+                        assertEquals("ACTIVE", response.getStatus().getStatus());
+                    });
+        }
+
+        @Test
+        void whenBookHotelRoomWithSameDayAsOtherCheckOut_thenReturnBooking() throws HotelRoomNotFoundException {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            Long hotelRoomId = 1L;
+            HotelRoom hotelRoom = hotelRoomService.findById(hotelRoomId);
+
+            BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
+                    .hotelRoomId(hotelRoomId.toString())
+                    .countryId("1")
+                    .checkIn("2025-12-10")
+                    .checkOut("2025-12-15")
+                    .firstName("John")
+                    .lastName("Doe")
+                    .email("john.test@example.com")
+                    .phoneNumber("1234567890")
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(Booking.class)
+                    .value(response -> {
+                        assertNotNull(response);
+                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckIn()), hotelRoom.getCheckInTime()),
+                                response.getCheckIn());
+                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckOut()), hotelRoom.getCheckOutTime()),
+                                response.getCheckOut());
                         assertEquals(requestDTO.getFirstName(), response.getFirstName());
                         assertEquals(requestDTO.getLastName(), response.getLastName());
                         assertEquals(requestDTO.getEmail(), response.getEmail());

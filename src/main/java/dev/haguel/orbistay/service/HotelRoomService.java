@@ -81,7 +81,7 @@ public class HotelRoomService {
     }
 
     @Transactional(readOnly = true)
-    public HotelRoom getHotelRoomById(Long id)
+    public HotelRoom findById(Long id)
             throws HotelRoomNotFoundException {
         HotelRoom hotelRoom = hotelRoomRepository.findById(id).orElse(null);
 

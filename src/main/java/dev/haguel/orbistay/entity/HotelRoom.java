@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import jakarta.persistence.*;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +37,12 @@ public class HotelRoom {
 
     @Column(nullable = false)
     private Integer capacity;
+
+    @Column(nullable = false)
+    private LocalTime checkInTime;
+
+    @Column(nullable = false)
+    private LocalTime checkOutTime;
 
     @ManyToOne
     @JoinColumn(name = "hotel_id", nullable = false)

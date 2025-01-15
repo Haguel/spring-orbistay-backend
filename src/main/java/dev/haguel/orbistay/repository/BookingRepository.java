@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -17,8 +18,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "OR b.check_in BETWEEN :checkIn AND :checkOut)",
             nativeQuery = true)
     boolean isBookingAvailable(@Param("hotelRoomId") Long hotelRoomId,
-                               @Param("checkIn") LocalDate checkIn,
-                               @Param("checkOut") LocalDate checkOut);
+                               @Param("checkIn") LocalDateTime checkIn,
+                               @Param("checkOut") LocalDateTime checkOut);
 
     @Query("SELECT b FROM booking b WHERE b.status.status = 'ACTIVE'")
     List<Booking> findAllActiveStatus();
