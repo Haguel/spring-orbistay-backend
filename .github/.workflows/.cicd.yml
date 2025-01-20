@@ -1,9 +1,6 @@
 name: Deploy App To Azure App Services
 
-on:
-  push:
-    branches:
-      - azure-deployment
+on: [push]
 
 jobs:
   build:
