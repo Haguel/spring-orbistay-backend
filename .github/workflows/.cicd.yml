@@ -16,7 +16,7 @@ jobs:
       - name: Build Project
         run: mvn clean install -DskipTests
       - name: Upload Artifact for deployment job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: spring-boot-orbistay
           path: ${{ github.workspace }}/target/*.jar
