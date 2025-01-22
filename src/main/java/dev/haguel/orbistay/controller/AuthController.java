@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     private final SecurityService securityService;
+    private final Environment env;
 
     @Operation(summary = "Sign up")
     @ApiResponses(value = {
@@ -65,6 +67,14 @@ public class AuthController {
     @PostMapping(EndPoints.Auth.SIGN_IN)
     public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO)
             throws AppUserNotFoundException, IncorrectAuthDataException {
+        System.out.println("Datasource url: " + env.getProperty("spring.datasource.url"));
+        System.out.println("Datasource username: " + env.getProperty("spring.datasource.username"));
+        System.out.println("Datasource password: " + env.getProperty("spring.datasource.password"));
+        System.out.println("Redis host:" + env.getProperty("spring.data.redis.host"));
+        System.out.println("Redis port:" + env.getProperty("spring.data.redis.port"));
+        System.out.println("Redis password:" + env.getProperty("spring.data.redis.password"));
+        System.out.println("Redis ssl enabled:" + env.getProperty("spring.data.redis.ssl.enabled"));
+
         log.info("Sign in request received");
         JwtResponseDTO jwtResponseDTO = authService.signIn(signInRequestDTO);
 
