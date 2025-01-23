@@ -31,7 +31,6 @@ public class AuthService {
     private final JwtService jwtService;
     private final RedisService redisService;
     private final AuthenticationManager authenticationManager;
-    private final AppUserRepository appUserRepository;
 
     public JwtResponseDTO signUp(SignUpRequestDTO signUpRequestDTO)
             throws UniquenessViolationException {
@@ -45,11 +44,11 @@ public class AuthService {
         try {
             appUser = appUserService.save(appUser);
         } catch (DataIntegrityViolationException exception) {
-            if(exception.getMessage().contains("email")) {
-                throw new UniquenessViolationException("Email already exists");
-            }
-            if(exception.getMessage().contains("username")) {
+            if(exception.getMessage().contains("app_user_username_key")) {
                 throw new UniquenessViolationException("Username already exists");
+            }
+            if(exception.getMessage().contains("app_user_email_key")) {
+                throw new UniquenessViolationException("Email already exists");
             }
         }
 
@@ -62,7 +61,6 @@ public class AuthService {
 
     public JwtResponseDTO signIn(SignInRequestDTO signInRequestDTO)
             throws AppUserNotFoundException, IncorrectAuthDataException {
-        List<AppUser> appUsers = appUserRepository.findAll();
         String email = signInRequestDTO.getEmail();
         UserDetails appUser = userDetailsCustomService.loadUserByUsername(email);
         if(appUser == null) {
