@@ -3,7 +3,6 @@ package dev.haguel.orbistay.controller;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
 import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
-import dev.haguel.orbistay.exception.AppUserNotFoundException;
 import dev.haguel.orbistay.exception.CountryNotFoundException;
 import dev.haguel.orbistay.exception.InvalidJwtTokenException;
 import dev.haguel.orbistay.mapper.AppUserMapper;
@@ -20,8 +19,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -70,6 +73,26 @@ public class AppUserController {
         log.info("Edit app user data request received");
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
         appUser = appUserService.editAppUserData(appUser, data);
+
+        return ResponseEntity.status(200).body(appUserMapper.appUserToAppUserInfoDTO(appUser));
+    }
+
+    @Operation(summary = "Upload avatar for current app user by jwt access token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Avatar uploaded successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetAppUserInfoResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid Jwt token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping(EndPoints.AppUsers.UPLOAD_AVATAR)
+    public ResponseEntity<?> uploadAvatar(@RequestHeader(name="Authorization") String authorizationHeader,
+                                          @RequestParam("avatar") MultipartFile avatar)
+            throws InvalidJwtTokenException, IOException {
+        log.info("Upload avatar request received");
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
+        appUser = appUserService.setAvatar(appUser, avatar);
 
         return ResponseEntity.status(200).body(appUserMapper.appUserToAppUserInfoDTO(appUser));
     }

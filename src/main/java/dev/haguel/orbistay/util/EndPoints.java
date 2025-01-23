@@ -7,11 +7,13 @@ public class EndPoints {
         private static final String BASE_ENDPOINT = "/appUsers";
         public static final String GET_CURRENT_APP_USER = BASE_ENDPOINT + "/me";
         public static final String EDIT_CURRENT_APP_USER = BASE_ENDPOINT + "/me";
+        public static final String UPLOAD_AVATAR = BASE_ENDPOINT + "/me/avatar";
 
         public static String[] getAuthorizedEndpoints() {
             return new String[] {
                     GET_CURRENT_APP_USER,
                     EDIT_CURRENT_APP_USER,
+                    UPLOAD_AVATAR,
             };
         }
     }

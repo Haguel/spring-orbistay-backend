@@ -1,5 +1,8 @@
 package dev.haguel.orbistay.service;
 
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
 import dev.haguel.orbistay.entity.Address;
 import dev.haguel.orbistay.entity.AppUser;
@@ -11,14 +14,18 @@ import dev.haguel.orbistay.exception.CountryNotFoundException;
 import dev.haguel.orbistay.mapper.AddressMapper;
 import dev.haguel.orbistay.mapper.PassportMapper;
 import dev.haguel.orbistay.repository.AppUserRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -32,6 +39,19 @@ public class AppUserService {
     private final PassportService passportService;
     private final AddressMapper addressMapper;
     private final PassportMapper passportMapper;
+    private BlobServiceClient blobServiceClient;
+
+    @Value("${spring.cloud.azure.storage.blob.account-name}")
+    private String containerName;
+    @Value("${azure.blob-storage.connection-string}")
+    private String connectionString;
+
+    @PostConstruct
+    public void init() {
+        blobServiceClient = new BlobServiceClientBuilder()
+                .connectionString(connectionString)
+                .buildClient();
+    }
 
     public AppUser save(AppUser appUser)
             throws DataIntegrityViolationException {
@@ -112,5 +132,25 @@ public class AppUserService {
         });
 
         return save(appUser);
+    }
+
+    public AppUser setAvatar(AppUser appUser, MultipartFile avatar) throws IOException {
+        BlobClient blobClient = blobServiceClient.getBlobContainerClient(containerName)
+                .getBlobClient(String.valueOf(appUser.getId()));
+
+        try {
+            blobClient.upload(avatar.getInputStream(), avatar.getSize(), true);
+        } catch (IOException exception) {
+            log.error("Error while uploading avatar to blob storage");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while uploading avatar to blob storage");
+        }
+
+
+        String avatarUrl = blobClient.getBlobUrl();
+
+        appUser.setAvatarUrl(avatarUrl);
+        appUser = save(appUser);
+
+        return appUser;
     }
 }
