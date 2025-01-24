@@ -1,10 +1,12 @@
 package dev.haguel.orbistay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +38,10 @@ public class Hotel {
     private String mainImageUrl;
 
     @OneToMany(mappedBy = "hotel")
+    @JsonIgnore
+    private List<HotelImage> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "hotel")
     @JsonManagedReference
     private List<HotelRoom> hotelRooms;
 
@@ -61,5 +67,12 @@ public class Hotel {
                 .mapToDouble(Review::getRate)
                 .average()
                 .orElse(0);
+    }
+
+    @JsonProperty("images")
+    public List<String> getImagesUrls() {
+        return images.stream()
+                .map(HotelImage::getImageUrl)
+                .collect(Collectors.toList());
     }
 }

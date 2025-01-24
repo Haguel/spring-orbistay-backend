@@ -2,14 +2,17 @@ package dev.haguel.orbistay.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "hotel_room_image")
-public class HotelRoomImage {
+@Entity(name = "hotel_image")
+public class HotelImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,7 +21,7 @@ public class HotelRoomImage {
     private String imageUrl;
 
     @ManyToOne
-    @JoinColumn(name = "hotel_room_id", nullable = false)
+    @JoinColumn(name = "hotel_id", nullable = false)
     @JsonIgnore
-    private HotelRoom hotelRoom;
+    private Hotel hotel;
 }

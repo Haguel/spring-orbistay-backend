@@ -58,6 +58,13 @@ CREATE TABLE hotel (
     FOREIGN KEY (address_id) REFERENCES address(id)
 );
 
+CREATE TABLE hotel_image (
+     id BIGSERIAL PRIMARY KEY,
+     hotel_id BIGINT NOT NULL,
+     image_url TEXT NOT NULL,
+     FOREIGN KEY (hotel_id) REFERENCES hotel(id)
+);
+
 CREATE TABLE hotel_room (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,

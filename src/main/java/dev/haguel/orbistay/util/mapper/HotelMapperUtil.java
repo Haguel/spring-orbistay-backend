@@ -17,11 +17,7 @@ public class HotelMapperUtil {
 
     public List<String> getImagesUrls(Hotel hotel) {
         List<String> imagesUrls = Lists.newArrayList(hotel.getMainImageUrl());
-        imagesUrls.addAll(hotel.getHotelRooms()
-                .stream()
-                .flatMap(hotelRoom -> hotelRoom.getImagesUrls().stream())
-                .limit(19)
-                .collect(Collectors.toList()));
+        imagesUrls.addAll(hotel.getImagesUrls());
 
         return imagesUrls;
     }
