@@ -1,54 +1,41 @@
 package dev.haguel.orbistay.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisConfiguration;
+import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 @Configuration
+@ConfigurationProperties(prefix = "spring.data.redis")
+@Setter
 public class RedisConfig {
-    @Value("${spring.data.redis.host}")
-    private String redisHost;
 
-    @Value("${spring.data.redis.port}")
-    private int redisPort;
-
-    @Value("${spring.data.redis.password}")
-    private String redisPassword;
-
-    @Value("${spring.data.redis.ssl.enabled}")
-    private boolean redisSslEnabled;
+    private String host;
+    private String password;
 
     @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        LettuceClientConfiguration clientConfig = null;
-        if(redisSslEnabled) {
-            clientConfig = LettuceClientConfiguration.builder()
-                    .useSsl()
-                    .build();
-        } else {
-            clientConfig = LettuceClientConfiguration.defaultConfiguration();
-        }
-
-        RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration();
-        serverConfig.setHostName(redisHost);
-        serverConfig.setPort(redisPort);
-        serverConfig.setPassword(redisPassword);
-
-        return new LettuceConnectionFactory(serverConfig, clientConfig);
+    @Primary
+    public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory(RedisConfiguration defaultRedisConfig) {
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .useSsl().and()
+                .commandTimeout(Duration.ofMillis(60000)).build();
+        return new LettuceConnectionFactory(defaultRedisConfig, clientConfig);
     }
 
     @Bean
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
-        return template;
+    public RedisConfiguration defaultRedisConfig() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(host);
+        config.setPassword(RedisPassword.of(password));
+        return config;
     }
 }
