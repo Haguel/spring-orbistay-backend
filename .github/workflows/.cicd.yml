@@ -1,0 +1,39 @@
+name: Deploy App To Azure App Services
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Resource
+        uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build Project
+        run: mvn clean install -DskipTests
+      - name: Upload Artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-boot-orbistay
+          path: ${{ github.workspace }}/target/*.jar
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download Artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: spring-boot-orbistay
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: orbistay-backend
+          publish-profile: ${{ secrets.azureWebAppPublishProfile }}
+          package: '*.jar'
