@@ -11,32 +11,20 @@ import dev.haguel.orbistay.repository.AppUserRepository;
 import dev.haguel.orbistay.service.JwtService;
 import dev.haguel.orbistay.service.RedisService;
 import dev.haguel.orbistay.util.EndPoints;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import test_utils.TestDataGenerator;
 import test_utils.TestDataStorage;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Slf4j
-@Testcontainers
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@AutoConfigureMockMvc
-@SpringBootTest
-@Transactional
-class AuthControllerTest {
+class AuthControllerTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");

@@ -50,7 +50,7 @@ public class HotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping(EndPoints.Hotels.GET_FILTERED_HOTELS)
+    @PostMapping(EndPoints.Hotels.GET_FILTERED_HOTELS)
     public ResponseEntity<?> getFilteredHotels(@RequestBody @Valid GetFilteredHotelsRequestDTO getFilteredHotelsRequestDTO)
             throws HotelsNotFoundException {
         log.info("Get hotels request received");
@@ -90,7 +90,7 @@ public class HotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
+    @PostMapping(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
     public ResponseEntity<?> getFilteredHotelRooms(@RequestBody @Valid GetFileredHotelRoomsRequestDTO getFileredHotelRoomsRequestDTO)
             throws HotelRoomsNotFoundException {
         log.info("Get hotel rooms request received");

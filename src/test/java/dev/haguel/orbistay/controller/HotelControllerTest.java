@@ -14,34 +14,22 @@ import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.entity.Review;
 import dev.haguel.orbistay.util.EndPoints;
-import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import test_utils.SharedTestUtil;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Slf4j
-@Testcontainers
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-class HotelControllerTest {
+class HotelControllerTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
@@ -76,7 +64,7 @@ class HotelControllerTest {
 
             webTestClient.mutate()
                     .build()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .uri(EndPoints.Hotels.GET_FILTERED_HOTELS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
@@ -100,7 +88,7 @@ class HotelControllerTest {
 
             webTestClient.mutate()
                     .build()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .uri(EndPoints.Hotels.GET_FILTERED_HOTELS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
@@ -122,7 +110,7 @@ class HotelControllerTest {
 
             webTestClient.mutate()
                     .build()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .uri(EndPoints.Hotels.GET_FILTERED_HOTELS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
@@ -146,7 +134,7 @@ class HotelControllerTest {
 
             webTestClient.mutate()
                     .build()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .uri(EndPoints.Hotels.GET_FILTERED_HOTELS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
@@ -203,7 +191,7 @@ class HotelControllerTest {
 
             webTestClient.mutate()
                     .build()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .uri(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
@@ -230,7 +218,7 @@ class HotelControllerTest {
 
             webTestClient.mutate()
                     .build()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .uri(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
