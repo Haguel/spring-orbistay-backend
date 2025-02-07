@@ -1,6 +1,11 @@
 package dev.haguel.orbistay.controller;
 
+import dev.haguel.orbistay.annotation.ValidBoolean;
+import dev.haguel.orbistay.annotation.ValidDateFormat;
+import dev.haguel.orbistay.dto.request.HotelFiltersDTO;
 import dev.haguel.orbistay.dto.request.WriteReviewRequestDTO;
+import dev.haguel.orbistay.dto.request.enumeration.HotelStars;
+import dev.haguel.orbistay.dto.request.enumeration.ObjectValuation;
 import dev.haguel.orbistay.dto.response.GetFilteredHotelsResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
@@ -24,6 +29,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -50,10 +56,36 @@ public class HotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping(EndPoints.Hotels.GET_FILTERED_HOTELS)
-    public ResponseEntity<?> getFilteredHotels(@RequestBody @Valid GetFilteredHotelsRequestDTO getFilteredHotelsRequestDTO)
-            throws HotelsNotFoundException {
+    @GetMapping(EndPoints.Hotels.GET_FILTERED_HOTELS)
+    public ResponseEntity<?> getFilteredHotels(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String countryId,
+            @RequestParam(required = false) @PositiveOrZero String peopleCount,
+            @RequestParam(required = false) @ValidBoolean String isChildrenFriendly,
+            @RequestParam(required = false) @ValidDateFormat String checkIn,
+            @RequestParam(required = false) @ValidDateFormat String checkOut,
+            @RequestParam(required = false) @PositiveOrZero String minPrice,
+            @RequestParam(required = false) @PositiveOrZero String maxPrice,
+            @RequestParam(required = false) List<ObjectValuation> valuations,
+            @RequestParam(required = false) List<HotelStars> stars
+    ) throws HotelsNotFoundException {
         log.info("Get hotels request received");
+        GetFilteredHotelsRequestDTO getFilteredHotelsRequestDTO = GetFilteredHotelsRequestDTO.builder()
+                .name(name)
+                .city(city)
+                .countryId(countryId)
+                .peopleCount(peopleCount)
+                .isChildrenFriendly(isChildrenFriendly)
+                .checkIn(checkIn)
+                .checkOut(checkOut)
+                .filters(HotelFiltersDTO.builder()
+                        .minPrice(minPrice)
+                        .maxPrice(maxPrice)
+                        .valuations(valuations)
+                        .stars(stars)
+                        .build())
+                .build();
         GetFilteredHotelsResponseDTO getFilteredHotelsResponseDTO = hotelService.getFilteredHotels(getFilteredHotelsRequestDTO);
 
         log.info("Hotels returned");
@@ -90,10 +122,27 @@ public class HotelController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
-    public ResponseEntity<?> getFilteredHotelRooms(@RequestBody @Valid GetFileredHotelRoomsRequestDTO getFileredHotelRoomsRequestDTO)
+    @GetMapping(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
+    public ResponseEntity<?> getFilteredHotelRooms(
+            @RequestParam(required = false) String hotelId,
+            @RequestParam(required = false) @PositiveOrZero String peopleCount,
+            @RequestParam(required = false) @ValidBoolean String isChildrenFriendly,
+            @RequestParam(required = false) @ValidDateFormat String checkIn,
+            @RequestParam(required = false) @ValidDateFormat String checkOut,
+            @RequestParam(required = false) @PositiveOrZero String minPrice,
+            @RequestParam(required = false) @PositiveOrZero String maxPrice
+    )
             throws HotelRoomsNotFoundException {
         log.info("Get hotel rooms request received");
+        GetFileredHotelRoomsRequestDTO getFileredHotelRoomsRequestDTO = GetFileredHotelRoomsRequestDTO.builder()
+                .hotelId(hotelId)
+                .peopleCount(peopleCount)
+                .isChildrenFriendly(isChildrenFriendly)
+                .checkIn(checkIn)
+                .checkOut(checkOut)
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .build();
         List<HotelRoom> hotelRooms = hotelRoomService.getFilteredHotelRooms(getFileredHotelRoomsRequestDTO);
 
         log.info("Hotel rooms returned");
