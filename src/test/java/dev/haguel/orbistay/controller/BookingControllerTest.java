@@ -233,7 +233,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(Booking.class)
-                    .hasSize(4);
+                    .hasSize(7);
         }
     }
 
@@ -277,7 +277,7 @@ class BookingControllerTest extends BaseControllerTestClass {
             JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
 
             webTestClient.delete()
-                    .uri(EndPoints.Booking.CANCEL_BOOKING + "/2")
+                    .uri(EndPoints.Booking.CANCEL_BOOKING + "/5")
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isForbidden();
