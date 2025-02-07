@@ -63,9 +63,9 @@ class HotelRoomRepositoryTest extends BaseRepositoryTestClass {
         @Test
         void whenFindHotelRoomsByAvailability_thenReturnHotelRooms() {
             Long hotelId = 1L;
-            LocalDate checkIn = LocalDate.of(2024, 1, 1);
-            LocalDate checkOut = LocalDate.of(2024, 1, 10);
-            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, checkIn, checkOut, null, null)
+            LocalDate checkIn = LocalDate.of(2025, 1, 1);
+            LocalDate checkOut = LocalDate.of(2025, 1, 10);
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, checkIn.atStartOfDay(), checkOut.atStartOfDay(), null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -107,9 +107,9 @@ class HotelRoomRepositoryTest extends BaseRepositoryTestClass {
         @Test
         void whenFindHotelRoomsByInvalidAvailability_thenReturnEmpty() {
             Long hotelId = 1L;
-            LocalDate checkIn = LocalDate.of(2024, 12, 1);
-            LocalDate checkOut = LocalDate.of(2024, 12, 10);
-            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, checkIn, checkOut, null, null)
+            LocalDate checkIn = LocalDate.of(2025, 12, 1);
+            LocalDate checkOut = LocalDate.of(2025, 12, 10);
+            List<HotelRoom> result = hotelRoomRepository.findHotelRooms(hotelId, null, null, checkIn.atStartOfDay(), checkOut.atStartOfDay(), null, null)
                     .orElse(null);
 
             assertNotNull(result);
@@ -189,8 +189,8 @@ class HotelRoomRepositoryTest extends BaseRepositoryTestClass {
         @Test
         void whenFindHotelRoomByInvalidAvailability_thenReturnEmpty() {
             Long hotelId = 1L;
-            LocalDate checkIn = LocalDate.of(2024, 12, 1);
-            LocalDate checkOut = LocalDate.of(2024, 12, 10);
+            LocalDate checkIn = LocalDate.of(2025, 12, 1);
+            LocalDate checkOut = LocalDate.of(2025, 12, 10);
             Optional<HotelRoom> result = hotelRoomRepository.findHotelRoom(hotelId, null, null, checkIn, checkOut, null, null);
 
             assertTrue(result.isEmpty());

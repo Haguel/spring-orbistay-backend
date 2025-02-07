@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.repository;
 
 import dev.haguel.orbistay.entity.Booking;
+import dev.haguel.orbistay.entity.Hotel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -265,6 +265,36 @@ class HotelControllerTest extends BaseControllerTestClass {
                     .exchange()
                     .expectStatus().isNotFound();
         }
+
+        @Test
+        void whenGetFilteredHotelRoomsWithTakenDates_thenReturnError() {
+            GetFileredHotelRoomsRequestDTO requestDTO = GetFileredHotelRoomsRequestDTO.builder()
+                    .hotelId(String.valueOf(1L))
+                    .peopleCount(String.valueOf(2))
+                    .isChildrenFriendly(String.valueOf(true))
+                    .checkIn(String.valueOf(LocalDate.of(2025, 11, 28)))
+                    .checkOut(String.valueOf(LocalDate.of(2025, 12, 5)))
+                    .minPrice(String.valueOf(5.0))
+                    .maxPrice(String.valueOf(25.0))
+                    .build();
+
+            webTestClient.mutate()
+                    .build()
+                    .method(HttpMethod.GET)
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
+                            .queryParam("hotelId", requestDTO.getHotelId())
+                            .queryParam("peopleCount", requestDTO.getPeopleCount())
+                            .queryParam("isChildrenFriendly", requestDTO.getIsChildrenFriendly())
+                            .queryParam("checkIn", requestDTO.getCheckIn())
+                            .queryParam("checkOut", requestDTO.getCheckOut())
+                            .queryParam("minPrice", requestDTO.getMinPrice())
+                            .queryParam("maxPrice", requestDTO.getMaxPrice())
+                            .build())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isNotFound();
+        }
     }
 
     @Nested

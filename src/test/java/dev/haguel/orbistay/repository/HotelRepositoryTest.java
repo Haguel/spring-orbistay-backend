@@ -151,8 +151,8 @@ class HotelRepositoryTest extends BaseRepositoryTestClass {
 
         @Test
         void whenFindHoteslByTakenCheckInAndCheckOut_thenReturnEmpty() {
-            LocalDate takenCheckIn = LocalDate.of(2024, 12, 1);
-            LocalDate takenCheckOut = LocalDate.of(2024, 12, 10);
+            LocalDate takenCheckIn = LocalDate.of(2025, 12, 1);
+            LocalDate takenCheckOut = LocalDate.of(2025, 12, 10);
 
             String hotelName = "Hotel New York 1";
             List<Hotel> result = hotelRepository.findFilteredHotels(

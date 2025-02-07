@@ -576,6 +576,10 @@ INSERT INTO review (rate, content, app_user_id, hotel_id, created_at) VALUES
 INSERT INTO booking (app_user_id, hotel_room_id, country_id, booking_status_id, check_in, check_out, first_name, last_name, email, phone_number) VALUES
                                   -- Bookings for Hotel New York 1
                                   (1, 1, 1, 1, '2025-12-01', '2025-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 2, 1, 1, '2025-12-01', '2025-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 3, 1, 1, '2025-12-01', '2025-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+                                  (1, 4, 1, 1, '2025-12-01', '2025-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
+
                                   (1, 2, 1, 1, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
                                   (1, 3, 1, 1, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),
                                   (1, 4, 1, 1, '2024-12-01', '2024-12-10', 'John', 'Doe', 'john.doe@example.com', '123-456-7890'),

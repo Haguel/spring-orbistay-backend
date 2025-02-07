@@ -35,8 +35,8 @@ public class HotelRoomService {
                 hotelId,
                 peopleCount,
                 isChildrenFriendly,
-                checkIn,
-                checkOut,
+                checkIn.atStartOfDay(),
+                checkOut.atStartOfDay(),
                 minPrice,
                 maxPrice
         ).orElse(null);
