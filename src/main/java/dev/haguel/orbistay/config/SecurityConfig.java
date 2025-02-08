@@ -1,8 +1,10 @@
 package dev.haguel.orbistay.config;
 
 import dev.haguel.orbistay.filter.JwtFilter;
+import dev.haguel.orbistay.service.CustomOAuth2UserService;
 import dev.haguel.orbistay.service.UserDetailsCustomService;
 import dev.haguel.orbistay.util.EndPoints;
+import dev.haguel.orbistay.util.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +32,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -53,12 +57,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(EndPoints.getUnauthorizedEndpoints()).permitAll()
                         .requestMatchers(EndPoints.getAuthorizedEndpoints()).authenticated()
-                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**", "/oauth2/**").permitAll()
                         .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

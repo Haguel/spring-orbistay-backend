@@ -44,6 +44,17 @@ public class EndPoints {
         }
     }
 
+    public static class OAuth2 {
+        private static final String BASE_ENDPOINT = "/oauth2";
+        public static final String OAUTH2_GOOGLE_LOGIN = BASE_ENDPOINT + "/google/login";
+
+        public static String[] getUnauthorizedEndpoints() {
+            return new String[] {
+                    BASE_ENDPOINT
+            };
+        }
+    }
+
     public static class Booking {
         private static final String BASE_ENDPOINT = "/bookings";
         public static final String BOOK_HOTEL_ROOM = BASE_ENDPOINT;
@@ -131,6 +142,7 @@ public class EndPoints {
     public static String[] getUnauthorizedEndpoints() {
         return Stream.of(
                 Auth.getUnauthorizedEndpoints(),
+                OAuth2.getUnauthorizedEndpoints(),
                 Hotels.getUnauthorizedEndpoints(),
                 Destinations.getUnauthorizedEndpoints()
         )

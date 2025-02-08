@@ -36,6 +36,14 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         log.info("JwtFilter started");
+        String path = request.getRequestURI();
+        if (path.startsWith("/oauth2/") || path.startsWith("/login/")) {
+            log.info("Request path is /oauth2/ or /login/");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
         String authHeader = request.getHeader(HEADER_NAME);
         if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
             log.warn("Authorization header is empty or doesn't start with Bearer prefix");
