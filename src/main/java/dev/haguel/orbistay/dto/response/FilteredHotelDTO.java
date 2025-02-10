@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.dto.response;
 
+import dev.haguel.orbistay.entity.Address;
 import dev.haguel.orbistay.entity.HotelHighlight;
 import dev.haguel.orbistay.entity.HotelRoom;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,6 +32,9 @@ public class FilteredHotelDTO {
 
     @Schema(description = "The hotel's star rating", example = "5")
     private Integer stars;
+
+    @Schema(description = "The hotel's address", implementation = Address.class)
+    private Address address;
 
     @Schema(description = "The hotel's main image URL", example = "https://example.com/hotel.jpg")
     private String mainImageUrl;
