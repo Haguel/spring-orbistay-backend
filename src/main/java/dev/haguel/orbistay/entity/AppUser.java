@@ -30,7 +30,7 @@ public class AppUser implements UserDetails {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column
     @JsonIgnore
     private String passwordHash;
 

@@ -32,6 +32,9 @@ public class HotelRoom {
     private Double costPerNight;
 
     @Column(nullable = false)
+    private Double metering;
+
+    @Column(nullable = false)
     private Boolean isChildrenFriendly;
 
     @Column(nullable = false)
