@@ -92,12 +92,25 @@ CREATE TABLE room_facility (
     name VARCHAR(255) NOT NULL UNIQUE
 );
 
+CREATE TABLE room_bed (
+      id BIGSERIAL PRIMARY KEY,
+      bed_type VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE hotel_room_room_facility (
     id BIGSERIAL PRIMARY KEY,
     hotel_room_id BIGINT NOT NULL,
     room_facility_id BIGINT NOT NULL,
     FOREIGN KEY (hotel_room_id) REFERENCES hotel_room(id),
     FOREIGN KEY (room_facility_id) REFERENCES room_facility(id)
+);
+
+CREATE TABLE hotel_room_room_bed (
+    id BIGSERIAL PRIMARY KEY,
+    hotel_room_id INT NOT NULL,
+    room_bed_id INT NOT NULL,
+    FOREIGN KEY (hotel_room_id) REFERENCES hotel_room(id),
+    FOREIGN KEY (room_bed_id) REFERENCES room_bed(id)
 );
 
 CREATE TABLE room_highlight (

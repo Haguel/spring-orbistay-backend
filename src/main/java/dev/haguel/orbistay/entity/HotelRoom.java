@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"images", "roomFacilities", "roomHighlights"})
-@EqualsAndHashCode(exclude = {"images", "roomFacilities", "roomHighlights"})
+@ToString(exclude = {"images", "hotelRoomRoomFacilities", "hotelRoomRoomHighlights", "hotelRoomRoomBeds"})
+@EqualsAndHashCode(exclude = {"images", "hotelRoomRoomFacilities", "hotelRoomRoomHighlights", "hotelRoomRoomBeds"})
 @Entity(name = "hotel_room")
 public class HotelRoom {
     @Id
@@ -61,6 +61,9 @@ public class HotelRoom {
     @OneToMany(mappedBy = "hotelRoom")
     private List<HotelRoomRoomHighlight> hotelRoomRoomHighlights;
 
+    @OneToMany(mappedBy = "hotelRoom")
+    private List<HotelRoomRoomBed> hotelRoomRoomBeds;
+
     @JsonProperty("hotelRoomRoomFacilities")
     public List<RoomFacility> getRoomFacilities() {
         return hotelRoomRoomFacilities.stream()
@@ -72,6 +75,13 @@ public class HotelRoom {
     public List<RoomHighlight> getRoomHighlights() {
         return hotelRoomRoomHighlights.stream()
                 .map(HotelRoomRoomHighlight::getRoomHighlight)
+                .collect(Collectors.toList());
+    }
+
+    @JsonProperty("hotelRoomRoomBeds")
+    public List<RoomBed> getRoomBeds() {
+        return hotelRoomRoomBeds.stream()
+                .map(HotelRoomRoomBed::getRoomBed)
                 .collect(Collectors.toList());
     }
 
