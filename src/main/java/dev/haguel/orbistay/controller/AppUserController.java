@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.controller;
 
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
+import dev.haguel.orbistay.dto.response.EditAppUserInfoDTO;
 import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.CountryNotFoundException;
@@ -56,7 +57,7 @@ public class AppUserController {
     @Operation(summary = "Edit current app user data by jwt access token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "App user data edited successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetAppUserInfoResponseDTO.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = EditAppUserInfoDTO.class))),
             @ApiResponse(responseCode = "400", description = "Request body validation failed",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid Jwt token",
@@ -72,9 +73,9 @@ public class AppUserController {
             throws CountryNotFoundException, InvalidJwtTokenException {
         log.info("Edit app user data request received");
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
-        appUser = appUserService.editAppUserData(appUser, data);
+        EditAppUserInfoDTO editAppUserData = appUserService.editAppUserData(appUser, data);
 
-        return ResponseEntity.status(200).body(appUserMapper.appUserToAppUserInfoDTO(appUser));
+        return ResponseEntity.status(200).body(editAppUserData);
     }
 
     @Operation(summary = "Upload avatar for current app user by jwt access token")

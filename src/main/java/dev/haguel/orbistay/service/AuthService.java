@@ -32,6 +32,14 @@ public class AuthService {
     private final RedisService redisService;
     private final AuthenticationManager authenticationManager;
 
+    private JwtResponseDTO getJwtResponseDTO(AppUser appUser) {
+        String accessToken = jwtService.generateAccessToken(appUser);
+        String refreshToken = jwtService.generateRefreshToken(appUser);
+        redisService.setValue(appUser.getEmail(), refreshToken);
+
+        return new JwtResponseDTO(accessToken, refreshToken);
+    }
+
     public JwtResponseDTO signUp(SignUpRequestDTO signUpRequestDTO)
             throws UniquenessViolationException {
         AppUser appUser = AppUser.builder()
@@ -52,11 +60,7 @@ public class AuthService {
             }
         }
 
-        String accessToken = jwtService.generateAccessToken(appUser);
-        String refreshToken = jwtService.generateRefreshToken(appUser);
-        redisService.setValue(appUser.getEmail(), refreshToken);
-
-        return new JwtResponseDTO(accessToken, refreshToken);
+        return getJwtResponseDTO(appUser);
     }
 
     public JwtResponseDTO signIn(SignInRequestDTO signInRequestDTO)
@@ -76,11 +80,7 @@ public class AuthService {
             throw new IncorrectAuthDataException("Incorrect email or password");
         }
 
-        String accessToken = jwtService.generateAccessToken(appUser);
-        String refreshToken = jwtService.generateRefreshToken(appUser);
-        redisService.setValue(email, refreshToken);
-
-        return new JwtResponseDTO(accessToken, refreshToken);
+        return getJwtResponseDTO((AppUser) appUser);
     }
 
     public JwtResponseDTO getAccessToken(String refreshToken)
@@ -117,11 +117,7 @@ public class AuthService {
                     throw new AppUserNotFoundException("User not found");
                 }
 
-                String accessToken = jwtService.generateAccessToken(appUser);
-                String newRefreshToken = jwtService.generateRefreshToken(appUser);
-                redisService.setValue(appUser.getEmail(), newRefreshToken);
-
-                return new JwtResponseDTO(accessToken, newRefreshToken);
+                return getJwtResponseDTO(appUser);
             }
         }
 

@@ -4,6 +4,8 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
+import dev.haguel.orbistay.dto.response.EditAppUserInfoDTO;
+import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.Address;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.Country;
@@ -12,6 +14,7 @@ import dev.haguel.orbistay.entity.enumeration.Gender;
 import dev.haguel.orbistay.exception.AppUserNotFoundException;
 import dev.haguel.orbistay.exception.CountryNotFoundException;
 import dev.haguel.orbistay.mapper.AddressMapper;
+import dev.haguel.orbistay.mapper.AppUserMapper;
 import dev.haguel.orbistay.mapper.PassportMapper;
 import dev.haguel.orbistay.repository.AppUserRepository;
 import jakarta.annotation.PostConstruct;
@@ -20,6 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +45,9 @@ public class AppUserService {
     private final PassportService passportService;
     private final AddressMapper addressMapper;
     private final PassportMapper passportMapper;
+    private final AppUserMapper appUserMapper;
+    private final RedisService redisService;
+    private final JwtService jwtService;
     private BlobServiceClient blobServiceClient;
 
     @Value("${spring.cloud.azure.storage.blob.account-name}")
@@ -59,6 +68,14 @@ public class AppUserService {
 
         log.info("User saved to database");
         return appUser;
+    }
+
+    private JwtResponseDTO getJwtResponseDTO(AppUser appUser) {
+        String accessToken = jwtService.generateAccessToken(appUser);
+        String refreshToken = jwtService.generateRefreshToken(appUser);
+        redisService.setValue(appUser.getEmail(), refreshToken);
+
+        return new JwtResponseDTO(accessToken, refreshToken);
     }
 
     @Transactional(readOnly = true)
@@ -90,7 +107,7 @@ public class AppUserService {
     }
 
     @Transactional
-    public AppUser editAppUserData(AppUser appUser, EditAppUserDataRequestDTO data)
+    public EditAppUserInfoDTO editAppUserData(AppUser appUser, EditAppUserDataRequestDTO data)
             throws CountryNotFoundException {
         if(appUser == null) {
             log.error("Provided null user");
@@ -131,7 +148,15 @@ public class AppUserService {
             appUser.setPassport(p);
         });
 
-        return save(appUser);
+        AppUser saved = save(appUser);
+
+        JwtResponseDTO jwtResponseDTO = getJwtResponseDTO(saved);
+        EditAppUserInfoDTO editAppUserInfoDTO = EditAppUserInfoDTO.builder()
+                .appUser(appUserMapper.appUserToAppUserInfoDTO(saved))
+                .jwtResponseDTO(jwtResponseDTO)
+                .build();
+
+        return editAppUserInfoDTO;
     }
 
     public AppUser setAvatar(AppUser appUser, MultipartFile avatar) throws IOException {
