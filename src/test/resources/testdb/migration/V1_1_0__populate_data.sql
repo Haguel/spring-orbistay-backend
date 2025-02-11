@@ -227,41 +227,40 @@ INSERT INTO hotel (name, address_id, short_desc, full_desc, stars, main_image_ur
 
 INSERT INTO hotel_room (name, description, cost_per_night, is_children_friendly, capacity, hotel_id, check_in_time, check_out_time, metering) VALUES
 -- Hotel New York 1
-('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 1, '14:00:00', '12:00:00', ROUND(20 + random() * 50, 2)),
-('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 1, '14:00:00', '12:00:00', ROUND(20 + random() * 50, 2)),
-('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, false, 4, 1, '14:00:00', '12:00:00', ROUND(20 + random() * 50, 2)),
-('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 1, '14:00:00', '12:00:00', ROUND(20 + random() * 50, 2)),
+('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 1, '14:00:00', '12:00:00', (20 + random() * 50)::numeric),
+('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 1, '14:00:00', '12:00:00', (20 + random() * 50)::numeric),
+('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, false, 4, 1, '14:00:00', '12:00:00', (20 + random() * 50)::numeric),
+('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 1, '14:00:00', '12:00:00', (20 + random() * 50)::numeric),
 
 -- Hotel New York 2
-('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 2, '15:00:00', '11:00:00', ROUND(20 + random() * 50, 2)),
-('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 2, '15:00:00', '11:00:00', ROUND(20 + random() * 50, 2)),
-('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 2, '15:00:00', '11:00:00', ROUND(20 + random() * 50, 2)),
-('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 2, '15:00:00', '11:00:00', ROUND(20 + random() * 50, 2)),
+('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 2, '15:00:00', '11:00:00', (20 + random() * 50)::numeric),
+('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 2, '15:00:00', '11:00:00', (20 + random() * 50)::numeric),
+('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 2, '15:00:00', '11:00:00', (20 + random() * 50)::numeric),
+('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 2, '15:00:00', '11:00:00', (20 + random() * 50)::numeric),
 
 -- Hotel New York 3
-('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 3, '16:00:00', '10:00:00', ROUND(20 + random() * 50, 2)),
-('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, false, 2, 3, '16:00:00', '10:00:00', ROUND(20 + random() * 50, 2)),
-('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 3, '16:00:00', '10:00:00', ROUND(20 + random() * 50, 2)),
-('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 3, '16:00:00', '10:00:00', ROUND(20 + random() * 50, 2)),
+('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 3, '16:00:00', '10:00:00', (20 + random() * 50)::numeric),
+('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, false, 2, 3, '16:00:00', '10:00:00', (20 + random() * 50)::numeric),
+('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 3, '16:00:00', '10:00:00', (20 + random() * 50)::numeric),
+('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 3, '16:00:00', '10:00:00', (20 + random() * 50)::numeric),
 
 -- Hotel Zurich 1
-('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 4, '14:00:00', '12:00:00', ROUND(20 + random() * 50, 2)),
-('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 4, '14:00:00', '12:00:00', ROUND(20 + random() * 50, 2)),
-('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 4, '14:00:00', '12:00:00', ROUND(20 + random() * 50, 2)),
-('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 4, '14:00:00', '12:00:00', ROUND(20 + random() * 50, 2)),
+('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 4, '14:00:00', '12:00:00', (20 + random() * 50)::numeric),
+('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 4, '14:00:00', '12:00:00', (20 + random() * 50)::numeric),
+('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 4, '14:00:00', '12:00:00', (20 + random() * 50)::numeric),
+('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 4, '14:00:00', '12:00:00', (20 + random() * 50)::numeric),
 
 -- Hotel Zurich 2
-('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 5, '15:00:00', '11:00:00', ROUND(20 + random() * 50, 2)),
-('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 5, '15:00:00', '11:00:00', ROUND(20 + random() * 50, 2)),
-('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 5, '15:00:00', '11:00:00', ROUND(20 + random() * 50, 2)),
-('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 5, '15:00:00', '11:00:00', ROUND(20 + random() * 50, 2)),
+('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 5, '15:00:00', '11:00:00', (20 + random() * 50)::numeric),
+('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 5, '15:00:00', '11:00:00', (20 + random() * 50)::numeric),
+('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 5, '15:00:00', '11:00:00', (20 + random() * 50)::numeric),
+('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 5, '15:00:00', '11:00:00', (20 + random() * 50)::numeric),
 
 -- Hotel Zurich 3
-('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 6, '16:00:00', '10:00:00', ROUND(20 + random() * 50, 2)),
-('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 6, '16:00:00', '10:00:00', ROUND(20 + random() * 50, 2)),
-('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 6, '16:00:00', '10:00:00', ROUND(20 + random() * 50, 2)),
-('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 6, '16:00:00', '10:00:00', ROUND(20 + random() * 50, 2));
-
+('Deluxe Room', 'A luxurious room with a king-sized bed, mini-bar, and a stunning city view. Includes free Wi-Fi and breakfast.', 50.00, true, 2, 6, '16:00:00', '10:00:00', (20 + random() * 50)::numeric),
+('Standard Room', 'A comfortable room with essential amenities, a queen-sized bed, and a cozy atmosphere. Includes free Wi-Fi.', 30.00, true, 2, 6, '16:00:00', '10:00:00', (20 + random() * 50)::numeric),
+('Suite', 'A spacious suite with a separate living area, premium amenities, and a beautiful city view. Includes free Wi-Fi and breakfast.', 40.00, true, 4, 6, '16:00:00', '10:00:00', (20 + random() * 50)::numeric),
+('Family Room', 'A large room suitable for families, with multiple beds and child-friendly amenities. Includes free Wi-Fi.', 20.00, true, 4, 6, '16:00:00', '10:00:00', (20 + random() * 50)::numeric);
 INSERT INTO hotel_room_image (hotel_room_id, image_url) VALUES
                             -- Hotel New York 1
                             (1, 'deluxe_room_ny1.jpg'),
