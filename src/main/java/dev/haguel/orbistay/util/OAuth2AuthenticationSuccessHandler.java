@@ -1,7 +1,5 @@
 package dev.haguel.orbistay.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.service.AppUserService;
 import dev.haguel.orbistay.service.JwtService;
@@ -10,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -25,6 +24,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final RedisService redisService;
     private final AppUserService appUserService;
 
+    @Value("${frontend.host}")
+    private String frontendHost;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -36,14 +38,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String refreshToken = jwtService.generateRefreshToken(appUser);
         redisService.setValue(appUser.getEmail(), refreshToken);
 
-        JwtResponseDTO jwtResponseDTO = new JwtResponseDTO(accessToken, refreshToken);
+        log.info("Successful OAuth2 authentication. Redirecting to frontend");
+        String redirectUrl = frontendHost + "/authRedirect?accessToken=" + accessToken + "&refreshToken=" + refreshToken;
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        String jsonResponse = new ObjectMapper().writeValueAsString(jwtResponseDTO);
-        log.info("Successful OAuth2 authentication. Returning jwt response");
-        response.getWriter().write(jsonResponse);
+        response.sendRedirect(redirectUrl);
     }
 }
 
