@@ -128,7 +128,6 @@ public class AppUserService {
                 }).orElse(null);
         Country country = data.getCitizenshipCountryId() == null ? null : countryService.findById(Long.parseLong(data.getCitizenshipCountryId()));
 
-        data.getAddress().getCountryId();
         Optional.ofNullable(data.getUsername()).ifPresent(appUser::setUsername);
         Optional.ofNullable(data.getEmail()).ifPresent(appUser::setEmail);
         Optional.ofNullable(data.getPhone()).ifPresent(appUser::setPhone);
