@@ -91,11 +91,11 @@ class HotelMapperTest extends BaseMapperTestClass {
     }
 
     @Nested
-    class GetPopularDestinationsResponseDTOMapping {
+    class GetDestinationsResponseDTOMapping {
         @Test
         void whenHotelToPopularDestinationsResponseDTO_thenGetPopularDestinationsResponseDTO() {
             Hotel hotel = hotelRepository.findById(1L).orElse(null);
-            GetPopularDestinationsResponseDTO responseDTO = hotelMapper.hotelToPopularDestinationsResponseDTO(hotel);
+            GetDestinationsResponseDTO responseDTO = hotelMapper.hotelToPopularDestinationsResponseDTO(hotel);
 
             assertNotNull(responseDTO);
             assertEquals(hotel.getAddress().getCountry(), responseDTO.getCountry());

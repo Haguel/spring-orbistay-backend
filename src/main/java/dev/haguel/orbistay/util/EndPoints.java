@@ -46,7 +46,6 @@ public class EndPoints {
 
     public static class OAuth2 {
         private static final String BASE_ENDPOINT = "/oauth2";
-        public static final String OAUTH2_GOOGLE_LOGIN = BASE_ENDPOINT + "/google/login";
 
         public static String[] getUnauthorizedEndpoints() {
             return new String[] {
@@ -131,10 +130,12 @@ public class EndPoints {
     public static class Destinations {
         private static final String BASE_ENDPOINT = "/destinations";
         public static final String GET_POPULAR_DESTINATIONS = BASE_ENDPOINT + "/popular";
+        public static final String GET_DESTINATIONS_SIMILAR_TO_TEXT = BASE_ENDPOINT + "/similar";
 
         public static String[] getUnauthorizedEndpoints() {
             return new String[] {
                     GET_POPULAR_DESTINATIONS,
+                    GET_DESTINATIONS_SIMILAR_TO_TEXT,
             };
         }
     }

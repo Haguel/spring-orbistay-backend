@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(name = "GetPopularDestinationsResponseDTO", description = "Get popular destinations response data transfer object")
-public class GetPopularDestinationsResponseDTO {
+@Schema(name = "GetDestinationsResponseDTO", description = "Get destinations response data transfer object")
+public class GetDestinationsResponseDTO {
     @Schema(description = "The destination's country info", implementation = Country.class)
     public Country country;
 

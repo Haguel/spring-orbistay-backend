@@ -1,9 +1,9 @@
 package dev.haguel.orbistay.mapper;
 
 import dev.haguel.orbistay.dto.response.FilteredHotelDTO;
+import dev.haguel.orbistay.dto.response.GetDestinationsResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
-import dev.haguel.orbistay.dto.response.GetPopularDestinationsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.util.mapper.HotelMapperUtil;
 import org.mapstruct.*;
@@ -31,5 +31,5 @@ public abstract class HotelMapper {
 
     @Mapping(target = "country", source = "address.country")
     @Mapping(target = "city", source = "address.city")
-    public abstract GetPopularDestinationsResponseDTO hotelToPopularDestinationsResponseDTO(Hotel hotel);
+    public abstract GetDestinationsResponseDTO hotelToPopularDestinationsResponseDTO(Hotel hotel);
 }

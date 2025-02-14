@@ -217,4 +217,24 @@ class HotelRepositoryTest extends BaseRepositoryTestClass {
             assertEquals(1, result.get(0).getHotelRooms().get(0).getId());
         }
     }
+
+    @Nested
+    class FindHotelWithSimilarAddress {
+        @Test
+        void whenFindHotelsWithSimilarAddress_thenReturnHotels() {
+            List<Hotel> result = hotelRepository.findHotelsWithAddressSimilarToText("New York");
+
+            assertNotNull(result);
+            assertFalse(result.isEmpty());
+            assertEquals(1, result.size());
+            assertTrue(result.stream().allMatch(hotel -> hotel.getAddress().getCity().contains("New York")));
+
+            result = hotelRepository.findHotelsWithAddressSimilarToText("Zuri");
+
+            assertNotNull(result);
+            assertFalse(result.isEmpty());
+            assertEquals(1, result.size());
+            assertTrue(result.stream().allMatch(hotel -> hotel.getAddress().getCity().contains("Zurich")));
+        }
+    }
 }

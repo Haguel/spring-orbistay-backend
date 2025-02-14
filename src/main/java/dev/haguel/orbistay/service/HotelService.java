@@ -211,6 +211,11 @@ public class HotelService {
     }
 
     @Transactional(readOnly = true)
+    public List<Hotel> getHotelsWithAddressSimilarToText(String text) {
+        return hotelRepository.findHotelsWithAddressSimilarToText(text);
+    }
+
+    @Transactional(readOnly = true)
     public List<Hotel> getPopularHotelsRaw() {
         List<Hotel> hotels = hotelRepository.findPopularHotels(LocalDate.now().minusDays(30));
 

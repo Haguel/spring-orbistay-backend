@@ -1,7 +1,7 @@
 package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
-import dev.haguel.orbistay.dto.response.GetPopularDestinationsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetDestinationsResponseDTO;
 import dev.haguel.orbistay.util.EndPoints;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,11 +33,47 @@ class DestinationControllerTest extends BaseControllerTestClass {
                     .uri(EndPoints.Destinations.GET_POPULAR_DESTINATIONS)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBodyList(GetPopularDestinationsResponseDTO.class)
+                    .expectBodyList(GetDestinationsResponseDTO.class)
                     .value(popularDestinations -> {
                         assertNotNull(popularDestinations);
                         assertFalse(popularDestinations.isEmpty());
                         assertEquals("US", popularDestinations.get(0).getCountry().getCode());
+                    });
+        }
+    }
+
+    @Nested
+    class GetDestinationsSimilarToText {
+        @Test
+        void whenGetDestinationsSimilarToText_thenReturnSimilarDestinations() {
+            webTestClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EndPoints.Destinations.GET_DESTINATIONS_SIMILAR_TO_TEXT)
+                            .queryParam("text", "New ")
+                            .build())
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBodyList(GetDestinationsResponseDTO.class)
+                    .value(similarDestinations -> {
+                        assertNotNull(similarDestinations);
+                        assertFalse(similarDestinations.isEmpty());
+                        assertEquals(1, similarDestinations.size());
+                        assertEquals("New York", similarDestinations.get(0).getCity());
+                    });
+
+            webTestClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EndPoints.Destinations.GET_DESTINATIONS_SIMILAR_TO_TEXT)
+                            .queryParam("text", "Zurich")
+                            .build())
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBodyList(GetDestinationsResponseDTO.class)
+                    .value(similarDestinations -> {
+                        assertNotNull(similarDestinations);
+                        assertFalse(similarDestinations.isEmpty());
+                        assertEquals(1, similarDestinations.size());
+                        assertEquals("Zurich", similarDestinations.get(0).getCity());
                     });
         }
     }

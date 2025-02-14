@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.service;
 
-import dev.haguel.orbistay.dto.response.GetPopularDestinationsResponseDTO;
+import dev.haguel.orbistay.dto.response.GetDestinationsResponseDTO;
 import dev.haguel.orbistay.entity.Hotel;
 import dev.haguel.orbistay.mapper.HotelMapper;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +16,25 @@ public class DestinationService {
     private final HotelService hotelService;
     private final HotelMapper hotelMapper;
 
-    public List<GetPopularDestinationsResponseDTO> getPopularDestinations() {
+    public List<GetDestinationsResponseDTO> getPopularDestinations() {
         List<Hotel> hotels = hotelService.getPopularHotelsRaw();
 
-        List<GetPopularDestinationsResponseDTO> popularDestinations = hotels.stream()
+        List<GetDestinationsResponseDTO> popularDestinations = hotels.stream()
                 .map(hotelMapper::hotelToPopularDestinationsResponseDTO)
                 .toList();
 
-        log.info("Find {} popular destinations", popularDestinations.size());
+        log.info("Found {} popular destinations", popularDestinations.size());
         return popularDestinations;
+    }
+
+    public List<GetDestinationsResponseDTO> getDestinationsSimilarToText(String text) {
+        List<Hotel> hotels = hotelService.getHotelsWithAddressSimilarToText(text);
+
+        List<GetDestinationsResponseDTO> similarDestinations = hotels.stream()
+                .map(hotelMapper::hotelToPopularDestinationsResponseDTO)
+                .toList();
+
+        log.info("Found {} similar destinations to '{}'", similarDestinations.size(), text);
+        return similarDestinations;
     }
 }

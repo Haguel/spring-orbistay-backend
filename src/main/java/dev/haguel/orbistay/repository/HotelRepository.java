@@ -54,4 +54,12 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
         LIMIT 10
     """, nativeQuery = true)
     List<Hotel> findPopularHotels(@Param("recentDate") LocalDate recentDate);
+
+    @Query(value = """
+        SELECT DISTINCT ON (a.city, a.country_id) h.*
+        FROM hotel h
+        JOIN address a ON h.address_id = a.id
+        WHERE LOWER(a.city) LIKE LOWER(CONCAT('%', :text, '%'))
+    """, nativeQuery = true)
+    List<Hotel> findHotelsWithAddressSimilarToText(String text);
 }
