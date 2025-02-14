@@ -207,7 +207,6 @@ public class HotelService {
                 .map(hotelMapper::hotelToHotelsResponseDTO)
                 .collect(Collectors.toList());
 
-        log.info("Returning {} popular hotels", getHotelsResponseDTOs.size());
         return getHotelsResponseDTOs;
     }
 

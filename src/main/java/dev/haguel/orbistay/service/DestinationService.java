@@ -23,7 +23,7 @@ public class DestinationService {
                 .map(hotelMapper::hotelToPopularDestinationsResponseDTO)
                 .toList();
 
-        log.info("Popular destinations returned");
+        log.info("Find {} popular destinations", popularDestinations.size());
         return popularDestinations;
     }
 }
