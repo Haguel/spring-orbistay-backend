@@ -6,6 +6,7 @@ import dev.haguel.orbistay.service.UserDetailsCustomService;
 import dev.haguel.orbistay.util.EndPoints;
 import dev.haguel.orbistay.util.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +37,12 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
+    @Value("${frontend.host}")
+    private String frontendHost;
+
+    @Value("${frontend.host.additional}")
+    private String frontendAdditionalHost;
+
     @Bean
     public UserDetailsService userDetailsService() {
         return new UserDetailsCustomService();
@@ -47,7 +54,7 @@ public class SecurityConfig {
                 // Disable CORS
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
-                    corsConfiguration.setAllowedOriginPatterns(List.of("*"));
+                    corsConfiguration.setAllowedOriginPatterns(List.of(frontendHost, frontendAdditionalHost));
                     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfiguration.setAllowedHeaders(List.of("*"));
                     corsConfiguration.setAllowCredentials(true);
