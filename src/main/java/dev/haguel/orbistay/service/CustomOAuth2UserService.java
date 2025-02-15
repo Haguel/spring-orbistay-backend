@@ -32,13 +32,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String email = (String) attributes.get("email");
         AppUser appUser = appUserService.findByEmail(email);
 
-        if(appUser == null) {
+        if (appUser == null) {
             appUser = new AppUser();
             appUser.setEmail(email);
             appUser.setAvatarUrl((String) attributes.get("picture"));
             appUser.setUsername((String) attributes.get("name"));
             appUser.setRole(Role.ROLE_USER);
-            appUserService.save(appUser);
         }
 
         return new DefaultOAuth2User(

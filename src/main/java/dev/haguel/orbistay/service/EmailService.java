@@ -35,11 +35,23 @@ public class EmailService {
         return emailVerification;
     }
 
-    public EmailVerification createVerificationForAppUser(AppUser appUser) {
+    public EmailVerification createNeededVerificationForAppUser(AppUser appUser) {
         EmailVerification emailVerification = EmailVerification.builder()
                 .token(UUID.randomUUID().toString())
                 .appUser(appUser)
                 .token(Generator.generateRandomString(10))
+                .build();
+
+        return save(emailVerification);
+    }
+
+    public EmailVerification createCompletedVerificationForAppUser(AppUser appUser) {
+        EmailVerification emailVerification = EmailVerification.builder()
+                .token(UUID.randomUUID().toString())
+                .appUser(appUser)
+                .token(null)
+                .isExpired(true)
+                .isVerified(true)
                 .build();
 
         return save(emailVerification);

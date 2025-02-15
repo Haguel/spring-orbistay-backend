@@ -5,14 +5,12 @@ import dev.haguel.orbistay.dto.request.SignInRequestDTO;
 import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
-import dev.haguel.orbistay.entity.EmailVerification;
 import dev.haguel.orbistay.entity.enumeration.Role;
 import dev.haguel.orbistay.exception.*;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -20,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Slf4j
@@ -54,7 +51,7 @@ public class AuthService {
 
         try {
             appUser = appUserService.save(appUser);
-            appUser.setEmailVerification(emailService.createVerificationForAppUser(appUser));
+            appUser.setEmailVerification(emailService.createNeededVerificationForAppUser(appUser));
             appUser = appUserService.save(appUser);
         } catch (DataIntegrityViolationException exception) {
             if(exception.getMessage().contains("app_user_username_key")) {
