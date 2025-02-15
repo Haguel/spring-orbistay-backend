@@ -5,21 +5,22 @@ import dev.haguel.orbistay.dto.request.SignInRequestDTO;
 import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
+import dev.haguel.orbistay.entity.EmailVerification;
 import dev.haguel.orbistay.entity.enumeration.Role;
 import dev.haguel.orbistay.exception.*;
-import dev.haguel.orbistay.repository.AppUserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Slf4j
@@ -31,6 +32,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final RedisService redisService;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     private JwtResponseDTO getJwtResponseDTO(AppUser appUser) {
         String accessToken = jwtService.generateAccessToken(appUser);
@@ -40,8 +42,9 @@ public class AuthService {
         return new JwtResponseDTO(accessToken, refreshToken);
     }
 
+    @Transactional(noRollbackFor = {EmailSendingException.class})
     public JwtResponseDTO signUp(SignUpRequestDTO signUpRequestDTO)
-            throws UniquenessViolationException {
+            throws UniquenessViolationException, EmailSendingException {
         AppUser appUser = AppUser.builder()
                 .username(signUpRequestDTO.getUsername())
                 .email(signUpRequestDTO.getEmail())
@@ -51,6 +54,8 @@ public class AuthService {
 
         try {
             appUser = appUserService.save(appUser);
+            appUser.setEmailVerification(emailService.createVerificationForAppUser(appUser));
+            appUser = appUserService.save(appUser);
         } catch (DataIntegrityViolationException exception) {
             if(exception.getMessage().contains("app_user_username_key")) {
                 throw new UniquenessViolationException("Username already exists");
@@ -59,6 +64,8 @@ public class AuthService {
                 throw new UniquenessViolationException("Email already exists");
             }
         }
+
+        emailService.sendVerificationEmail(appUser);
 
         return getJwtResponseDTO(appUser);
     }

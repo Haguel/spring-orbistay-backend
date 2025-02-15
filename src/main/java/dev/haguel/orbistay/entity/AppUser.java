@@ -82,6 +82,9 @@ public class AppUser implements UserDetails {
     @JsonIgnore
     private List<Favorites> favorites = Collections.emptyList();
 
+    @OneToOne(mappedBy = "appUser")
+    private EmailVerification emailVerification;
+
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,0 +1,10 @@
+CREATE TABLE email_verification (
+    id BIGSERIAL PRIMARY KEY,
+    token VARCHAR(255),
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_expired BOOLEAN NOT NULL DEFAULT FALSE,
+    app_user_id BIGSERIAL NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (app_user_id) REFERENCES app_user(id)
+);

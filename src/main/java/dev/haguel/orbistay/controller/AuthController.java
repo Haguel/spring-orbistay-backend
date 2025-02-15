@@ -9,6 +9,7 @@ import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
 import dev.haguel.orbistay.service.AuthService;
+import dev.haguel.orbistay.service.EmailService;
 import dev.haguel.orbistay.service.SecurityService;
 import dev.haguel.orbistay.util.EndPoints;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     private final SecurityService securityService;
+    private final EmailService emailService;
 
     @Operation(summary = "Sign up")
     @ApiResponses(value = {
@@ -43,7 +46,7 @@ public class AuthController {
     })
     @PostMapping(EndPoints.Auth.SIGN_UP)
     public ResponseEntity<JwtResponseDTO> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO)
-            throws UniquenessViolationException {
+            throws UniquenessViolationException, EmailSendingException {
         log.info("Sign up request received");
         JwtResponseDTO jwtResponseDTO = authService.signUp(signUpRequestDTO);
 
@@ -64,7 +67,7 @@ public class AuthController {
     })
     @PostMapping(EndPoints.Auth.SIGN_IN)
     public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO)
-            throws AppUserNotFoundException, IncorrectAuthDataException {
+            throws AppUserNotFoundException, IncorrectAuthDataException, MessagingException {
         log.info("Sign in request received");
         JwtResponseDTO jwtResponseDTO = authService.signIn(signInRequestDTO);
 
