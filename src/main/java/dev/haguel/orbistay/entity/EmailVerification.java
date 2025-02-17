@@ -3,6 +3,8 @@ package dev.haguel.orbistay.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,7 +24,7 @@ public class EmailVerification {
     private boolean isVerified;
 
     @Column(nullable = false)
-    private boolean isExpired;
+    private LocalDateTime expiresAt;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "app_user_id")

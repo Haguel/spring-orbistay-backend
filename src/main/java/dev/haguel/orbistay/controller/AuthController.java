@@ -159,4 +159,48 @@ public class AuthController {
         log.info("Password changed successfully");
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @Operation(summary = "Verify email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Email verified successfully"),
+            @ApiResponse(responseCode = "401", description = "Email can't be verified because verification email has been expired",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Email verification not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping(EndPoints.Auth.VERIFY_EMAIL)
+    public ResponseEntity<?> verifyEmail(@RequestParam String token)
+            throws EmailVerificationNotFoundException, EmailVerificationExpiredException {
+        log.info("Email verification request received");
+
+        authService.verifyEmail(token);
+
+        log.info("Email verified successfully");
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @Operation(summary = "Resend email verification")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Email verification resent successfully"),
+            @ApiResponse(responseCode = "400", description = "Email verification already verified",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Email verification not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping(EndPoints.Auth.RESEND_EMAIL_VERIFICATION)
+    public ResponseEntity<?> resendEmailVerification(@RequestHeader(name="Authorization") String authorizationHeader)
+            throws EmailVerificationNotFoundException, EmailSendingException {
+        log.info("Resend email verification request received");
+
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
+        authService.resendVerificationEmail(appUser);
+
+        log.info("Email verification resent successfully");
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }

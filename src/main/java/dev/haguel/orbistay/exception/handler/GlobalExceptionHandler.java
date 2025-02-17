@@ -277,6 +277,48 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(EmailVerificationNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEmailVerificationNotFoundException(EmailVerificationNotFoundException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Email verification can't be found in database"
+        );
+
+        log.error("Email verification can't be found in database", exception);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(EmailVerificationExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleEmailVerificationExpiredException(EmailVerificationExpiredException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Email can't be verified because verification email has been expired"
+        );
+
+        log.error("Email can't be verified because verification email has been expired", exception);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(EmailAlreadyVerifiedException.class)
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyVerifiedException(EmailAlreadyVerifiedException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Email already verified"
+        );
+
+        log.error("Email already verified", exception);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(CountryNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCountryNotFoundException(CountryNotFoundException exception) {
         ErrorResponse errorResponse = new ErrorResponse(

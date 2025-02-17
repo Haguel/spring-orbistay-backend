@@ -5,12 +5,14 @@ import dev.haguel.orbistay.dto.request.SignInRequestDTO;
 import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
+import dev.haguel.orbistay.entity.EmailVerification;
 import dev.haguel.orbistay.entity.enumeration.Role;
 import dev.haguel.orbistay.exception.*;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -18,6 +20,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
 
 @Service
 @Slf4j
@@ -154,5 +159,35 @@ public class AuthService {
         } else {
             throw new IncorrectPasswordException("Incorrect old password");
         }
+    }
+
+    public void verifyEmail(String token) {
+        EmailVerification emailVerification = emailService.findByToken(token);
+
+        if(emailVerification.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new EmailVerificationExpiredException("Email verification is expired");
+        }
+
+        AppUser appUser = emailVerification.getAppUser();
+        if(appUser == null) {
+            log.error("Email verification doesn't bind to any user");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Email verification doesn't bind to any user");
+        }
+
+        emailService.changeAndSaveEmailVerificationToVerified(emailVerification);
+    }
+
+    public void resendVerificationEmail(AppUser appUser)
+            throws EmailSendingException {
+        EmailVerification emailVerification = appUser.getEmailVerification();
+        if(emailVerification.isVerified()) {
+            log.warn("Can't send verification email to already verified user");
+            throw new EmailAlreadyVerifiedException("Email already verified");
+        }
+
+        emailVerification = emailService.continueAndSaveVerification(emailVerification);
+        appUser = emailVerification.getAppUser();
+
+        emailService.sendVerificationEmail(appUser);
     }
 }
