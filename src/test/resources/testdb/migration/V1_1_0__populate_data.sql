@@ -569,6 +569,10 @@ INSERT INTO email_verification (token, is_verified, app_user_id, expires_at) VAL
                                     ('654321', false, 2, '2024-12-31 23:59:59'),
                                     ('987654', true, 3, '2024-12-31 23:59:59');
 
+INSERT INTO passport (first_name, last_name, passport_number, expiration_date, country_of_issuance_id, app_user_id) VALUES
+            ('John', 'Doe', 'P1234567', '2030-12-31', 1, 1),
+            ('Admin', 'User', 'P1122334', '2028-10-31', 1, 3);
+
 -- Insert reviews from the first two users
 INSERT INTO review (rate, content, app_user_id, hotel_id, created_at) VALUES
                                   (9.5, 'Great hotel with excellent service and amenities.', 1, 1, '2023-02-15 10:30:00'),

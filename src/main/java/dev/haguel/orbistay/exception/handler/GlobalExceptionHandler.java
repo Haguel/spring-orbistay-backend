@@ -319,6 +319,20 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(RequiredDataMissingException.class)
+    public ResponseEntity<ErrorResponse> handleRequiredDataMissingException(RequiredDataMissingException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Required data must be filled"
+        );
+
+        log.error("Required data must be filled", exception);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(CountryNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCountryNotFoundException(CountryNotFoundException exception) {
         ErrorResponse errorResponse = new ErrorResponse(

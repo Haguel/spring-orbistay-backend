@@ -3,9 +3,11 @@ package dev.haguel.orbistay.controller;
 import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.Booking;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
+import dev.haguel.orbistay.repository.AppUserRepository;
 import dev.haguel.orbistay.service.HotelRoomService;
 import dev.haguel.orbistay.util.EndPoints;
 import org.junit.jupiter.api.Nested;
@@ -37,6 +39,9 @@ class BookingControllerTest extends BaseControllerTestClass {
 
     @Autowired
     private HotelRoomService hotelRoomService;
+
+    @Autowired
+    private AppUserRepository appUserRepository;
 
     @Nested
     class BookHotelRoom {
@@ -80,6 +85,61 @@ class BookingControllerTest extends BaseControllerTestClass {
                         assertEquals(Long.parseLong(requestDTO.getCountryId()), response.getCountry().getId());
                         assertEquals("ACTIVE", response.getStatus().getStatus());
                     });
+        }
+
+
+        @Test
+        void whenBookHotelRoomWithoutRequiredAppUserDataFilled_thenReturn400() {
+            AppUser appUser = appUserRepository.findAppUserByEmail("jane.smith@example.com").orElse(null);
+            appUser.getEmailVerification().setVerified(true);
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens("jane.smith@example.com", "qwerty", webTestClient);
+
+            Long hotelRoomId = 1L;
+
+            BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
+                    .hotelRoomId(hotelRoomId.toString())
+                    .countryId("1")
+                    .checkIn(LocalDate.now().plusDays(5).toString())
+                    .checkOut(LocalDate.now().plusDays(10).toString())
+                    .firstName("John")
+                    .lastName("Doe")
+                    .email("john.test@example.com")
+                    .phoneNumber("1234567890")
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isBadRequest();
+        }
+
+        @Test
+        void whenBookHotelRoomWithoutVerifiedEmail_thenReturn400() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens("jane.smith@example.com", "qwerty", webTestClient);
+
+            Long hotelRoomId = 1L;
+
+            BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
+                    .hotelRoomId(hotelRoomId.toString())
+                    .countryId("1")
+                    .checkIn(LocalDate.now().plusDays(5).toString())
+                    .checkOut(LocalDate.now().plusDays(10).toString())
+                    .firstName("John")
+                    .lastName("Doe")
+                    .email("john.test@example.com")
+                    .phoneNumber("1234567890")
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isBadRequest();
         }
 
         @Test

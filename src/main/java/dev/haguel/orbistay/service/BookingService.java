@@ -23,7 +23,7 @@ public class BookingService {
     private final BookingMapper bookingMapper;
     private final CountryService countryService;
 
-    private boolean isDatesNotReversed(LocalDateTime checkIn, LocalDateTime checkOut) {
+    private boolean areDatesNotReversed(LocalDateTime checkIn, LocalDateTime checkOut) {
         return checkIn.isBefore(checkOut);
     }
 
@@ -32,6 +32,27 @@ public class BookingService {
 
         log.info("Booking created and saved to db");
         return booking;
+    }
+
+    private void checkAppUserForBookingAbility(AppUser appUser) {
+        StringBuilder missingFields = new StringBuilder();
+        if (appUser.getCitizenship() == null) {
+            missingFields.append("citizenship, ");
+        }
+        if (appUser.getResidency() == null) {
+            missingFields.append("residency, ");
+        }
+        if (appUser.getPassport() == null) {
+            missingFields.append("passport, ");
+        }
+        if (missingFields.length() > 0) {
+            missingFields.setLength(missingFields.length() - 2);
+            throw new RequiredDataMissingException("Not able to book. Required data must be filled: " + missingFields);
+        }
+
+        if(!appUser.getEmailVerification().isVerified()) {
+            throw new RequiredDataMissingException("Email is not verified");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -55,7 +76,7 @@ public class BookingService {
         Country country = countryService.findById(Long.valueOf(bookHotelRoomRequestDTO.getCountryId()));
         Booking booking = bookingMapper.bookHotelRoomRequestDTOToBooking(bookHotelRoomRequestDTO, hotelRoom.getCheckInTime(), hotelRoom.getCheckOutTime());
 
-        if(!isDatesNotReversed(booking.getCheckIn(), booking.getCheckOut())) {
+        if(!areDatesNotReversed(booking.getCheckIn(), booking.getCheckOut())) {
             log.warn("Check-in must be before check-out");
             throw new InvalidDataException("Check-in must be before check-out");
         }
@@ -66,6 +87,8 @@ public class BookingService {
             log.error("Booking is not available");
             throw new BookingNotAvailableException("Hotel room is not available for the selected dates");
         }
+
+        checkAppUserForBookingAbility(appUser);
 
         booking.setAppUser(appUser);
         booking.setHotelRoom(hotelRoom);
