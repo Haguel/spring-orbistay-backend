@@ -164,7 +164,7 @@ public class AuthService {
     public void verifyEmail(String token) {
         EmailVerification emailVerification = emailService.findByToken(token);
 
-        if(emailVerification.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if(!emailVerification.isVerified() && emailVerification.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new EmailVerificationExpiredException("Email verification is expired");
         }
 

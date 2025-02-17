@@ -11,6 +11,7 @@ import dev.haguel.orbistay.repository.AppUserRepository;
 import dev.haguel.orbistay.service.JwtService;
 import dev.haguel.orbistay.service.RedisService;
 import dev.haguel.orbistay.util.EndPoints;
+import dev.haguel.orbistay.util.Generator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
+import test_utils.SharedTestUtil;
 import test_utils.TestDataGenerator;
 import test_utils.TestDataStorage;
+
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,6 +72,8 @@ class AuthControllerTest extends BaseControllerTestClass {
             AppUser appUser = appUserRepository.findAppUserByEmail(signUpRequestDTO.getEmail()).orElse(null);
 
             assertNotNull(appUser);
+            assertFalse(appUser.getEmailVerification().isVerified());
+            assertEquals(LocalDate.now().plusDays(1), appUser.getEmailVerification().getExpiresAt().toLocalDate());
             assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
             assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
             assertEquals(jwtService.getAccessClaims(jwtResponseDTO.getAccessToken()).getSubject(), appUser.getEmail());
@@ -505,6 +511,127 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .bodyValue(jwtRefreshTokenRequestDTO)
                     .exchange()
                     .expectStatus().isNotFound();
+        }
+    }
+
+    @Nested
+    class VerifyEmail {
+        @Test
+        void whenUserVerifyEmailWithCorrectToken_thenVerifyEmail() {
+            SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
+                    .username(TestDataGenerator.generateRandomUsername())
+                    .email(TestDataGenerator.generateRandomEmail())
+                    .password(TestDataGenerator.generateRandomPassword())
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.SIGN_UP)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(signUpRequestDTO)
+                    .exchange()
+                    .expectStatus().isCreated()
+                    .expectBody(JwtResponseDTO.class)
+                    .returnResult()
+                    .getResponseBody();
+
+            AppUser appUser = appUserRepository.findAppUserByEmail(signUpRequestDTO.getEmail()).orElse(null);
+            String token = appUser.getEmailVerification().getToken();
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.VERIFY_EMAIL + "?token=" + token)
+                    .exchange()
+                    .expectStatus().isOk();
+
+            appUser = appUserRepository.findAppUserByEmail(appUser.getEmail()).orElse(null);
+
+            assertTrue(appUser.getEmailVerification().isVerified());
+            assertNull(appUser.getEmailVerification().getToken());
+        }
+
+        @Test
+        void whenUserVerifyEmailWithIncorrectToken_thenReturn404() {
+            SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
+                    .username(TestDataGenerator.generateRandomUsername())
+                    .email(TestDataGenerator.generateRandomEmail())
+                    .password(TestDataGenerator.generateRandomPassword())
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.SIGN_UP)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(signUpRequestDTO)
+                    .exchange()
+                    .expectStatus().isCreated()
+                    .expectBody(JwtResponseDTO.class)
+                    .returnResult()
+                    .getResponseBody();
+
+            String token = Generator.generateRandomString(10);
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.VERIFY_EMAIL + "?token=" + token)
+                    .exchange()
+                    .expectStatus().isNotFound();
+        }
+
+        @Test
+        void whenUserVerifyEmailWithExpiredVerification_thenReturn401() {
+            String token = "654321";
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.VERIFY_EMAIL + "?token=" + token)
+                    .exchange()
+                    .expectStatus().isForbidden();
+        }
+    }
+
+    @Nested
+    class ResendVerificationEmail {
+        @Test
+        void whenUserResendVerificationEmail_thenSendNewEmail() {
+            SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
+                    .username(TestDataGenerator.generateRandomUsername())
+                    .email(TestDataGenerator.generateRandomEmail())
+                    .password(TestDataGenerator.generateRandomPassword())
+                    .build();
+
+            JwtResponseDTO jwtResponseDTO = webTestClient.post()
+                    .uri(EndPoints.Auth.SIGN_UP)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(signUpRequestDTO)
+                    .exchange()
+                    .expectStatus().isCreated()
+                    .expectBody(JwtResponseDTO.class)
+                    .returnResult()
+                    .getResponseBody();
+
+            AppUser appUser = appUserRepository.findAppUserByEmail(signUpRequestDTO.getEmail()).orElse(null);
+            String oldToken = appUser.getEmailVerification().getToken();
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.RESEND_EMAIL_VERIFICATION)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isOk();
+
+            appUser = appUserRepository.findAppUserByEmail(appUser.getEmail()).orElse(null);
+
+            assertFalse(appUser.getEmailVerification().isVerified());
+            assertEquals(LocalDate.now().plusDays(1), appUser.getEmailVerification().getExpiresAt().toLocalDate());
+            assertNotEquals(oldToken, appUser.getEmailVerification().getToken());
+        }
+
+        @Test
+        void whenVerifiedUserResendVerificationEmail_thenReturn400() {
+            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.RESEND_EMAIL_VERIFICATION)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isBadRequest();
         }
     }
 }

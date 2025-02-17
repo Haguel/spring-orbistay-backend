@@ -564,6 +564,11 @@ INSERT INTO app_user (username, email, password_hash, phone, birth_date, gender,
                                  -- password: admin_pass
                                  ('admin_user', 'admin@example.com', '$2a$10$SNsWC4N2oCuh4fmBxCqeaerDVbxHIZ.C.cwXaFoirp7LeVMXx68ny', '555-555-5555', '2001-01-25', 'FEMALE', 'avatar_admin.jpg', 1, 9, 'ROLE_ADMIN');
 
+INSERT INTO email_verification (token, is_verified, app_user_id, expires_at) VALUES
+                                    ('123456', true, 1, '2024-12-31 23:59:59'),
+                                    ('654321', false, 2, '2024-12-31 23:59:59'),
+                                    ('987654', true, 3, '2024-12-31 23:59:59');
+
 -- Insert reviews from the first two users
 INSERT INTO review (rate, content, app_user_id, hotel_id, created_at) VALUES
                                   (9.5, 'Great hotel with excellent service and amenities.', 1, 1, '2023-02-15 10:30:00'),
