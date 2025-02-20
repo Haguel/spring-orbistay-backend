@@ -21,15 +21,43 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class JwtService {
-    private final SecretKey jwtAccessSecret;
-    private final SecretKey jwtRefreshSecret;
+    private SecretKey jwtAccessSecret;
+    private SecretKey jwtRefreshSecret;
+    private SecretKey jwtResetPasswordSecret;
 
     public JwtService(
             @Value("${jwt.access.secret}") String jwtAccessSecret,
-            @Value("${jwt.refresh.secret}") String jwtRefreshSecret
+            @Value("${jwt.refresh.secret}") String jwtRefreshSecret,
+            @Value("${jwt.reset-password.secret}") String jwtResetPasswordSecret
     ) {
         this.jwtAccessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtAccessSecret));
         this.jwtRefreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtRefreshSecret));
+        this.jwtResetPasswordSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtResetPasswordSecret));
+    }
+
+    public String generateResetPasswordToken(UserDetails userDetails) {
+        final LocalDateTime now = LocalDateTime.now();
+        final Instant resetIssuedInstant = now.atZone(ZoneId.systemDefault()).toInstant();
+        final Instant resetExpirationInstant = now.plusMinutes(10).atZone(ZoneId.systemDefault()).toInstant();
+
+        if(userDetails instanceof AppUser appUser) {
+            String token = Jwts.builder()
+                    .setSubject(appUser.getEmail())
+                    .setExpiration(Date.from(resetExpirationInstant))
+                    .setIssuedAt(Date.from(resetIssuedInstant))
+                    .signWith(jwtResetPasswordSecret)
+                    .claim("username", appUser.getUsername())
+                    .claim("uuid", UUID.randomUUID().toString())
+                    .compact();
+
+            log.info("JWT reset password token generated");
+
+            return token;
+        }
+
+        log.warn("JWT reset password token generation failed because provided UserDetails is not an instance of AppUser");
+
+        return null;
     }
 
     public String generateAccessToken(UserDetails userDetails) {
@@ -90,6 +118,10 @@ public class JwtService {
         return validateToken(refreshToken, jwtRefreshSecret);
     }
 
+    public boolean validateResetPasswordToken(String refreshToken) {
+        return validateToken(refreshToken, jwtResetPasswordSecret);
+    }
+
     private boolean validateToken(String token, Key secret) {
         try {
             Jwts.parserBuilder()
@@ -117,6 +149,10 @@ public class JwtService {
 
     public Claims getRefreshClaims(String token) {
         return getClaims(token, jwtRefreshSecret);
+    }
+
+    public Claims getResetPasswordClaims(String token) {
+        return getClaims(token, jwtResetPasswordSecret);
     }
 
     private Claims getClaims(String token, Key secret) {

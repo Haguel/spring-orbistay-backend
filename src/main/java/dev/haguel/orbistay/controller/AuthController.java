@@ -1,9 +1,6 @@
 package dev.haguel.orbistay.controller;
 
-import dev.haguel.orbistay.dto.request.ChangePasswordRequestDTO;
-import dev.haguel.orbistay.dto.request.JwtRefreshTokenRequestDTO;
-import dev.haguel.orbistay.dto.request.SignInRequestDTO;
-import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
+import dev.haguel.orbistay.dto.request.*;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.*;
@@ -203,4 +200,43 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Operation(summary = "Request reset password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reset password request sent successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping(EndPoints.Auth.REQUEST_RESET_PASSWORD)
+    public ResponseEntity<?> requestResetPassword(@RequestBody @Valid RequestPasswordResetRequestDTO requestPasswordResetRequestDTO)
+            throws AppUserNotFoundException, EmailSendingException {
+        log.info("Request reset password request received");
+
+        authService.requestResetPassword(requestPasswordResetRequestDTO.getEmail());
+
+        log.info("Reset password request sent successfully");
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @Operation(summary = "Reset password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid JWT token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping(EndPoints.Auth.RESET_PASSWORD)
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid PasswordResetRequestDTO passwordResetRequestDTO)
+            throws InvalidJwtTokenException, AppUserNotFoundException {
+        log.info("Reset password request received");
+
+        authService.resetPassword(passwordResetRequestDTO.getResetPasswordJwtToken(), passwordResetRequestDTO.getNewPassword());
+
+        log.info("Password reset successfully");
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

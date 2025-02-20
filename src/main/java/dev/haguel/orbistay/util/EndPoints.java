@@ -28,7 +28,8 @@ public class EndPoints {
         public static final String REFRESH_ACCESS_TOKEN = BASE_ENDPOINT + "/refresh/tokens/access";
         public static final String VERIFY_EMAIL = BASE_ENDPOINT + "/email/verify";
         public static final String RESEND_EMAIL_VERIFICATION = BASE_ENDPOINT + "/email/resendVerification";
-
+        public static final String REQUEST_RESET_PASSWORD = BASE_ENDPOINT + "/resetPassword/request";
+        public static final String RESET_PASSWORD = BASE_ENDPOINT + "/resetPassword";
 
         public static String[] getUnauthorizedEndpoints() {
             return new String[] {
@@ -37,7 +38,9 @@ public class EndPoints {
                     REFRESH_TOKENS,
                     REFRESH_ACCESS_TOKEN,
                     LOG_OUT,
-                    VERIFY_EMAIL
+                    VERIFY_EMAIL,
+                    REQUEST_RESET_PASSWORD,
+                    RESET_PASSWORD
             };
         }
 

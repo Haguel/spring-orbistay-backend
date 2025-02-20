@@ -39,7 +39,7 @@ public class AuthService {
     private JwtResponseDTO getJwtResponseDTO(AppUser appUser) {
         String accessToken = jwtService.generateAccessToken(appUser);
         String refreshToken = jwtService.generateRefreshToken(appUser);
-        redisService.setValue(appUser.getEmail(), refreshToken);
+        redisService.setAuthValue(appUser.getEmail(), refreshToken);
 
         return new JwtResponseDTO(accessToken, refreshToken);
     }
@@ -100,7 +100,7 @@ public class AuthService {
 
         Claims claims = jwtService.getRefreshClaims(refreshToken);
         String email = claims.getSubject();
-        String storedRefreshToken = redisService.getValue(email);
+        String storedRefreshToken = redisService.getAuthValue(email);
 
         if (storedRefreshToken == null) {
             log.error("Refresh token doesn't bind to any email in redis");
@@ -118,7 +118,7 @@ public class AuthService {
         if (jwtService.validateRefreshToken(refreshToken)) {
             Claims claims = jwtService.getRefreshClaims(refreshToken);
             String email = claims.getSubject();
-            String storedRefreshToken = redisService.getValue(email);
+            String storedRefreshToken = redisService.getAuthValue(email);
 
             if (storedRefreshToken != null && storedRefreshToken.equals(refreshToken)) {
                 final AppUser appUser = appUserService.findByEmail(email);
@@ -139,12 +139,12 @@ public class AuthService {
             Claims claims = jwtService.getRefreshClaims(refreshToken);
             String email = claims.getSubject();
 
-            if(!redisService.hasKey(email)) {
+            if(!redisService.hasAuthKey(email)) {
                 log.error("Refresh token doesn't bind to any email in redis");
                 throw new InvalidJwtTokenException("Invalid refresh token");
             }
 
-            redisService.deleteValue(email);
+            redisService.deleteAuthValue(email);
         } else {
             throw new InvalidJwtTokenException("Invalid refresh token");
         }
@@ -159,6 +159,34 @@ public class AuthService {
         } else {
             throw new IncorrectPasswordException("Incorrect old password");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public void requestResetPassword(String email)
+            throws EmailSendingException {
+        AppUser appUser = appUserService.findByEmail(email);
+
+        String resetPasswordJwt = jwtService.generateResetPasswordToken(appUser);
+        redisService.setResetPasswordValue(appUser.getEmail(), resetPasswordJwt);
+
+        emailService.sendResetPasswordEmail(appUser, resetPasswordJwt);
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword)
+            throws InvalidJwtTokenException, AppUserNotFoundException {
+        if(!jwtService.validateResetPasswordToken(token)) {
+            throw new InvalidJwtTokenException("Invalid reset password token");
+        }
+
+        Claims claims = jwtService.getResetPasswordClaims(token);
+        String email = claims.getSubject();
+        AppUser appUser = appUserService.findByEmail(email);
+
+        appUser.setPasswordHash(passwordEncoder.encode(newPassword));
+        appUserService.save(appUser);
+
+        redisService.deleteResetPasswordValue(email);
     }
 
     public void verifyEmail(String token) {

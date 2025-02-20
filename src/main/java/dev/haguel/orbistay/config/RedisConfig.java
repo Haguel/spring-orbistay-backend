@@ -20,7 +20,6 @@ import java.time.Duration;
 @Profile("!test")
 @Setter
 public class RedisConfig {
-
     private String host;
     private String password;
 

@@ -1,10 +1,7 @@
 package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
-import dev.haguel.orbistay.dto.request.ChangePasswordRequestDTO;
-import dev.haguel.orbistay.dto.request.JwtRefreshTokenRequestDTO;
-import dev.haguel.orbistay.dto.request.SignInRequestDTO;
-import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
+import dev.haguel.orbistay.dto.request.*;
 import dev.haguel.orbistay.dto.response.JwtResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.repository.AppUserRepository;
@@ -192,7 +189,7 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .returnResult()
                     .getResponseBody();
 
-            assertTrue(redisService.hasKey(email));
+            assertTrue(redisService.hasAuthKey(email));
             assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
             assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
 
@@ -207,7 +204,7 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .exchange()
                     .expectStatus().isOk();
 
-            assertFalse(redisService.hasKey(email));
+            assertFalse(redisService.hasAuthKey(email));
         }
     }
 
@@ -359,7 +356,7 @@ class AuthControllerTest extends BaseControllerTestClass {
             assertNotEquals(refreshToken, newJwtResponseDTO.getRefreshToken());
             assertTrue(jwtService.validateAccessToken(newJwtResponseDTO.getAccessToken()));
             assertTrue(jwtService.validateRefreshToken(newJwtResponseDTO.getRefreshToken()));
-            assertEquals(redisService.getValue(email), newJwtResponseDTO.getRefreshToken());
+            assertEquals(redisService.getAuthValue(email), newJwtResponseDTO.getRefreshToken());
         }
 
         @Test
@@ -412,7 +409,7 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .returnResult()
                     .getResponseBody();
 
-            redisService.deleteValue(email);
+            redisService.deleteAuthValue(email);
 
             JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
                     .refreshToken(jwtResponseDTO.getRefreshToken())
@@ -499,7 +496,7 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .returnResult()
                     .getResponseBody();
 
-            redisService.deleteValue(email);
+            redisService.deleteAuthValue(email);
 
             JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
                     .refreshToken(jwtResponseDTO.getRefreshToken())
@@ -632,6 +629,74 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isBadRequest();
+        }
+    }
+
+    @Nested
+    class ResetPassword {
+        @Test
+        void whenUserRequestResetPassword_thenSendEmailWithResetTokenAndSaveToken() {
+            String email = "john.doe@example.com";
+            RequestPasswordResetRequestDTO requestPasswordResetRequestDTO = RequestPasswordResetRequestDTO.builder()
+                    .email(email)
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.REQUEST_RESET_PASSWORD)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestPasswordResetRequestDTO)
+                    .exchange()
+                    .expectStatus().isOk();
+
+            assertNotNull(redisService.getResetPasswordValue(email));
+        }
+
+        @Test
+        void whenUserRequestResetPasswordWithIncorrectEmail_return404() {
+            String email = "john_doe@example.com";
+            RequestPasswordResetRequestDTO requestPasswordResetRequestDTO = RequestPasswordResetRequestDTO.builder()
+                    .email(email)
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.REQUEST_RESET_PASSWORD)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestPasswordResetRequestDTO)
+                    .exchange()
+                    .expectStatus().isNotFound();
+        }
+
+        @Test
+        void whenUserResetPasswordWithCorrectToken_thenChangePassword() {
+            String email = "john.doe@example.com";
+            RequestPasswordResetRequestDTO requestPasswordResetRequestDTO = RequestPasswordResetRequestDTO.builder()
+                    .email(email)
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.REQUEST_RESET_PASSWORD)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestPasswordResetRequestDTO)
+                    .exchange()
+                    .expectStatus().isOk();
+
+            String token = redisService.getResetPasswordValue(email);
+            assertNotNull(token);
+
+            String newPassword = TestDataGenerator.generateRandomPassword();
+            PasswordResetRequestDTO resetPasswordRequestDTO = PasswordResetRequestDTO.builder()
+                    .newPassword(newPassword)
+                    .resetPasswordJwtToken(token)
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Auth.RESET_PASSWORD)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(resetPasswordRequestDTO)
+                    .exchange()
+                    .expectStatus().isOk();
+
+            SharedTestUtil.signInAndGetTokens(email, newPassword, webTestClient);
         }
     }
 }

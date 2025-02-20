@@ -59,7 +59,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String accessToken = jwtService.generateAccessToken(appUser);
         String refreshToken = jwtService.generateRefreshToken(appUser);
-        redisService.setValue(appUser.getEmail(), refreshToken);
+        redisService.setAuthValue(appUser.getEmail(), refreshToken);
 
         log.info("Successful OAuth2 authentication. Redirecting to frontend");
         String redirectUrl = frontendHost + "/authRedirect?accessToken=" + accessToken + "&refreshToken=" + refreshToken;

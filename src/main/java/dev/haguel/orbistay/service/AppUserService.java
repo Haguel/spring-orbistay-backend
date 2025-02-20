@@ -23,9 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -73,17 +70,19 @@ public class AppUserService {
     private JwtResponseDTO getJwtResponseDTO(AppUser appUser) {
         String accessToken = jwtService.generateAccessToken(appUser);
         String refreshToken = jwtService.generateRefreshToken(appUser);
-        redisService.setValue(appUser.getEmail(), refreshToken);
+        redisService.setAuthValue(appUser.getEmail(), refreshToken);
 
         return new JwtResponseDTO(accessToken, refreshToken);
     }
 
     @Transactional(readOnly = true)
-    public AppUser findByEmail(String email) {
+    public AppUser findByEmail(String email)
+            throws AppUserNotFoundException {
         AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
 
         if(appUser == null) {
             log.warn("User couldn't be found in database by provided email");
+            throw new AppUserNotFoundException("User with provided email not found in database");
         } else {
             log.info("User found in database by provided email");
         }
