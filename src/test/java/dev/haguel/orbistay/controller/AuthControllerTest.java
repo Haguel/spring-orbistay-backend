@@ -2,7 +2,7 @@ package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.request.*;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.repository.AppUserRepository;
 import dev.haguel.orbistay.service.JwtService;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -56,13 +57,15 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .password(TestDataGenerator.generateRandomPassword())
                     .build();
 
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
+            AccessTokenResponseDTO accessTokenResponseDTO = webTestClient.post()
                     .uri(EndPoints.Auth.SIGN_UP)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(signUpRequestDTO)
                     .exchange()
                     .expectStatus().isCreated()
-                    .expectBody(JwtResponseDTO.class)
+                    .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                    .expectHeader().valueMatches(HttpHeaders.SET_COOKIE, "refresh_token=.*; Path=/; Max-Age=\\d+; Expires=.*; HttpOnly; SameSite=Lax")
+                    .expectBody(AccessTokenResponseDTO.class)
                     .returnResult()
                     .getResponseBody();
 
@@ -71,10 +74,8 @@ class AuthControllerTest extends BaseControllerTestClass {
             assertNotNull(appUser);
             assertFalse(appUser.getEmailVerification().isVerified());
             assertEquals(LocalDate.now().plusDays(1), appUser.getEmailVerification().getExpiresAt().toLocalDate());
-            assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
-            assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
-            assertEquals(jwtService.getAccessClaims(jwtResponseDTO.getAccessToken()).getSubject(), appUser.getEmail());
-            assertEquals(jwtService.getRefreshClaims(jwtResponseDTO.getRefreshToken()).getSubject(), appUser.getEmail());
+            assertTrue(jwtService.validateAccessToken(accessTokenResponseDTO.getAccessToken()));
+            assertEquals(jwtService.getAccessClaims(accessTokenResponseDTO.getAccessToken()).getSubject(), appUser.getEmail());
         }
 
         @Test
@@ -105,22 +106,22 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .password(password)
                     .build();
 
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
+            AccessTokenResponseDTO accessTokenResponseDTO = webTestClient.post()
                     .uri(EndPoints.Auth.SIGN_IN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(signInRequestDTO)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
+                    .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                    .expectHeader().valueMatches(HttpHeaders.SET_COOKIE, "refresh_token=.*; Path=/; Max-Age=\\d+; Expires=.*; HttpOnly; SameSite=Lax")
+                    .expectBody(AccessTokenResponseDTO.class)
                     .returnResult()
                     .getResponseBody();
 
             AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
 
-            assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
-            assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
-            assertEquals(jwtService.getAccessClaims(jwtResponseDTO.getAccessToken()).getSubject(), appUser.getEmail());
-            assertEquals(jwtService.getRefreshClaims(jwtResponseDTO.getRefreshToken()).getSubject(), appUser.getEmail());
+            assertTrue(jwtService.validateAccessToken(accessTokenResponseDTO.getAccessToken()));
+            assertEquals(jwtService.getAccessClaims(accessTokenResponseDTO.getAccessToken()).getSubject(), appUser.getEmail());
         }
 
         @Test
@@ -172,39 +173,18 @@ class AuthControllerTest extends BaseControllerTestClass {
     class LogOut {
         @Test
         void whenUserLogout_thenRemoveEmailFromRedis() {
-            String email = TestDataStorage.JOHN_DOE_EMAIL;
-            String password = TestDataStorage.JOHN_DOE_PASSWORD;
-            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                    .email(email)
-                    .password(password)
-                    .build();
+            String refreshToken = SharedTestUtil.signInJohnDoeAndGetRefreshToken(webTestClient);
 
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_IN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signInRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
-
-            assertTrue(redisService.hasAuthKey(email));
-            assertTrue(jwtService.validateAccessToken(jwtResponseDTO.getAccessToken()));
-            assertTrue(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
-
-            JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
-                    .refreshToken(jwtResponseDTO.getRefreshToken())
-                    .build();
+            assertTrue(redisService.hasAuthKey(TestDataStorage.JOHN_DOE_EMAIL));
 
             webTestClient.post()
                     .uri(EndPoints.Auth.LOG_OUT)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(jwtRefreshTokenRequestDTO)
+                    .cookie("refresh_token", refreshToken)
                     .exchange()
                     .expectStatus().isOk();
 
-            assertFalse(redisService.hasAuthKey(email));
+            assertFalse(redisService.hasAuthKey(TestDataStorage.JOHN_DOE_EMAIL));
         }
     }
 
@@ -212,31 +192,16 @@ class AuthControllerTest extends BaseControllerTestClass {
     class ChangePassword {
         @Test
         void whenUserChangePasswordWithCorrectData_thenChangePassword() {
-            String email = TestDataStorage.JOHN_DOE_EMAIL;
-            String password = TestDataStorage.JOHN_DOE_PASSWORD;
-            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                    .email(email)
-                    .password(password)
-                    .build();
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_IN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signInRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
-
-            String accessToken = jwtResponseDTO.getAccessToken();
+            String accessToken = accessTokenResponseDTO.getAccessToken();
             String newPassword;
             do {
                 newPassword = TestDataGenerator.generateRandomPassword();
-            } while (newPassword.equals(password));
+            } while (newPassword.equals(TestDataStorage.JOHN_DOE_PASSWORD));
 
             ChangePasswordRequestDTO changePasswordRequestDTO = ChangePasswordRequestDTO.builder()
-                    .oldPassword(password)
+                    .oldPassword(TestDataStorage.JOHN_DOE_PASSWORD)
                     .newPassword(newPassword)
                     .build();
 
@@ -248,17 +213,7 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .exchange()
                     .expectStatus().isOk();
 
-            signInRequestDTO = SignInRequestDTO.builder()
-                    .email(email)
-                    .password(newPassword)
-                    .build();
-
-            webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_IN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signInRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk();
+            SharedTestUtil.signInAndGetAccessToken(TestDataStorage.JOHN_DOE_EMAIL, newPassword, webTestClient);
         }
 
         @Test
@@ -270,17 +225,17 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .password(password)
                     .build();
 
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
+            AccessTokenResponseDTO accessTokenResponseDTO = webTestClient.post()
                     .uri(EndPoints.Auth.SIGN_IN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(signInRequestDTO)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
+                    .expectBody(AccessTokenResponseDTO.class)
                     .returnResult()
                     .getResponseBody();
 
-            String accessToken = jwtResponseDTO.getAccessToken();
+            String accessToken = accessTokenResponseDTO.getAccessToken();
             String incorrectPassword;
             do {
                 incorrectPassword = TestDataGenerator.generateRandomPassword();
@@ -318,194 +273,45 @@ class AuthControllerTest extends BaseControllerTestClass {
     }
 
     @Nested
-    class RefreshTokens {
-        @Test
-        void whenUserRefreshTokensWithValidRefreshToken_thenReturnNewTokens() {
-            String email = TestDataStorage.JOHN_DOE_EMAIL;
-            String password = TestDataStorage.JOHN_DOE_PASSWORD;
-            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                    .email(email)
-                    .password(password)
-                    .build();
-
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_IN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signInRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
-
-            String refreshToken = jwtResponseDTO.getRefreshToken();
-            JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
-                    .refreshToken(refreshToken)
-                    .build();
-
-            JwtResponseDTO newJwtResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.REFRESH_TOKENS)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(jwtRefreshTokenRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
-
-            assertNotEquals(refreshToken, newJwtResponseDTO.getRefreshToken());
-            assertTrue(jwtService.validateAccessToken(newJwtResponseDTO.getAccessToken()));
-            assertTrue(jwtService.validateRefreshToken(newJwtResponseDTO.getRefreshToken()));
-            assertEquals(redisService.getAuthValue(email), newJwtResponseDTO.getRefreshToken());
-        }
-
-        @Test
-        void whenUserRefreshTokensWithInvalidRefreshToken_thenReturnError() {
-            String email = TestDataStorage.JOHN_DOE_EMAIL;
-            String password = TestDataStorage.JOHN_DOE_PASSWORD;
-            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                    .email(email)
-                    .password(password)
-                    .build();
-
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_IN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signInRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
-
-            JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
-                    .refreshToken(TestDataGenerator.generateRandomJwtToken())
-                    .build();
-
-            webTestClient.post()
-                    .uri(EndPoints.Auth.REFRESH_TOKENS)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(jwtRefreshTokenRequestDTO)
-                    .exchange()
-                    .expectStatus().isBadRequest();
-        }
-
-        @Test
-        void whenUserRefreshTokensWithUnbindRefreshToken_thenReturnError() {
-            String email = TestDataStorage.JOHN_DOE_EMAIL;
-            String password = TestDataStorage.JOHN_DOE_PASSWORD;
-            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                    .email(email)
-                    .password(password)
-                    .build();
-
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_IN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signInRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
-
-            redisService.deleteAuthValue(email);
-
-            JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
-                    .refreshToken(jwtResponseDTO.getRefreshToken())
-                    .build();
-
-            webTestClient.post()
-                    .uri(EndPoints.Auth.REFRESH_TOKENS)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(jwtRefreshTokenRequestDTO)
-                    .exchange()
-                    .expectStatus().isBadRequest();
-        }
-    }
-
-    @Nested
     class RefreshAccessToken {
         @Test
         void whenUserRefreshAccessTokenWithValidRefreshToken_thenReturnNewAccessToken() {
-            String email = TestDataStorage.JOHN_DOE_EMAIL;
-            String password = TestDataStorage.JOHN_DOE_PASSWORD;
-            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                    .email(email)
-                    .password(password)
-                    .build();
+            String refreshToken = SharedTestUtil.signInJohnDoeAndGetRefreshToken(webTestClient);
 
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_IN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signInRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
-
-            JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
-                    .refreshToken(jwtResponseDTO.getRefreshToken())
-                    .build();
-
-            JwtResponseDTO newJwtResponseDTO = webTestClient.post()
+            AccessTokenResponseDTO newAccessTokenResponseDTO = webTestClient.post()
                     .uri(EndPoints.Auth.REFRESH_ACCESS_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(jwtRefreshTokenRequestDTO)
+                    .cookie("refresh_token", refreshToken)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
+                    .expectBody(AccessTokenResponseDTO.class)
                     .returnResult()
                     .getResponseBody();
 
-            assertNotEquals(jwtResponseDTO.getAccessToken(), newJwtResponseDTO.getAccessToken());
-            assertTrue(jwtService.validateAccessToken(newJwtResponseDTO.getAccessToken()));
+            assertNotNull(newAccessTokenResponseDTO);
+            assertTrue(jwtService.validateAccessToken(newAccessTokenResponseDTO.getAccessToken()));
         }
 
         @Test
         void whenUserRefreshAccessTokenWithInvalidRefreshToken_thenReturnError() {
-            JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
-                    .refreshToken(TestDataGenerator.generateRandomJwtToken())
-                    .build();
-
             webTestClient.post()
                     .uri(EndPoints.Auth.REFRESH_ACCESS_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(jwtRefreshTokenRequestDTO)
+                    .cookie("refresh_token", Generator.generateRandomString(100))
                     .exchange()
                     .expectStatus().isBadRequest();
         }
 
         @Test
         void whenUserRefreshAccessTokenWithUnbindRefreshToken_thenReturnError() {
-            String email = TestDataStorage.JOHN_DOE_EMAIL;
-            String password = TestDataStorage.JOHN_DOE_PASSWORD;
-            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                    .email(email)
-                    .password(password)
-                    .build();
+            String refreshToken = SharedTestUtil.signInJohnDoeAndGetRefreshToken(webTestClient);
 
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_IN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signInRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
-
-            redisService.deleteAuthValue(email);
-
-            JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO = JwtRefreshTokenRequestDTO.builder()
-                    .refreshToken(jwtResponseDTO.getRefreshToken())
-                    .build();
+            redisService.deleteAuthValue(TestDataStorage.JOHN_DOE_EMAIL);
 
             webTestClient.post()
                     .uri(EndPoints.Auth.REFRESH_ACCESS_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(jwtRefreshTokenRequestDTO)
+                    .cookie("refresh_token", refreshToken)
                     .exchange()
                     .expectStatus().isNotFound();
         }
@@ -515,23 +321,13 @@ class AuthControllerTest extends BaseControllerTestClass {
     class VerifyEmail {
         @Test
         void whenUserVerifyEmailWithCorrectToken_thenVerifyEmail() {
-            SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                    .username(TestDataGenerator.generateRandomUsername())
-                    .email(TestDataGenerator.generateRandomEmail())
-                    .password(TestDataGenerator.generateRandomPassword())
-                    .build();
+            String username = TestDataGenerator.generateRandomUsername();
+            String email = TestDataGenerator.generateRandomEmail();
+            String password = TestDataGenerator.generateRandomPassword();
 
-            webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_UP)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signUpRequestDTO)
-                    .exchange()
-                    .expectStatus().isCreated()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
+            SharedTestUtil.signUpAndGetAccessToken(username, email, password, webTestClient);
 
-            AppUser appUser = appUserRepository.findAppUserByEmail(signUpRequestDTO.getEmail()).orElse(null);
+            AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
             String token = appUser.getEmailVerification().getToken();
 
             webTestClient.post()
@@ -547,21 +343,11 @@ class AuthControllerTest extends BaseControllerTestClass {
 
         @Test
         void whenUserVerifyEmailWithIncorrectToken_thenReturn404() {
-            SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                    .username(TestDataGenerator.generateRandomUsername())
-                    .email(TestDataGenerator.generateRandomEmail())
-                    .password(TestDataGenerator.generateRandomPassword())
-                    .build();
+            String username = TestDataGenerator.generateRandomUsername();
+            String email = TestDataGenerator.generateRandomEmail();
+            String password = TestDataGenerator.generateRandomPassword();
 
-            webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_UP)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signUpRequestDTO)
-                    .exchange()
-                    .expectStatus().isCreated()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
+            SharedTestUtil.signUpAndGetAccessToken(username, email, password, webTestClient);
 
             String token = Generator.generateRandomString(10);
 
@@ -586,29 +372,19 @@ class AuthControllerTest extends BaseControllerTestClass {
     class ResendVerificationEmail {
         @Test
         void whenUserResendVerificationEmail_thenSendNewEmail() {
-            SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
-                    .username(TestDataGenerator.generateRandomUsername())
-                    .email(TestDataGenerator.generateRandomEmail())
-                    .password(TestDataGenerator.generateRandomPassword())
-                    .build();
+            String username = TestDataGenerator.generateRandomUsername();
+            String email = TestDataGenerator.generateRandomEmail();
+            String password = TestDataGenerator.generateRandomPassword();
 
-            JwtResponseDTO jwtResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_UP)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signUpRequestDTO)
-                    .exchange()
-                    .expectStatus().isCreated()
-                    .expectBody(JwtResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signUpAndGetAccessToken(username, email, password, webTestClient);
 
-            AppUser appUser = appUserRepository.findAppUserByEmail(signUpRequestDTO.getEmail()).orElse(null);
+            AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
             String oldToken = appUser.getEmailVerification().getToken();
 
             webTestClient.post()
                     .uri(EndPoints.Auth.RESEND_EMAIL_VERIFICATION)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk();
 
@@ -621,12 +397,12 @@ class AuthControllerTest extends BaseControllerTestClass {
 
         @Test
         void whenVerifiedUserResendVerificationEmail_thenReturn400() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.post()
                     .uri(EndPoints.Auth.RESEND_EMAIL_VERIFICATION)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isBadRequest();
         }
@@ -696,7 +472,7 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .exchange()
                     .expectStatus().isOk();
 
-            SharedTestUtil.signInAndGetTokens(email, newPassword, webTestClient);
+            SharedTestUtil.signInAndGetAccessToken(email, newPassword, webTestClient);
         }
     }
 }

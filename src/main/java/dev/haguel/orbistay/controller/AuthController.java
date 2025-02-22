@@ -1,12 +1,12 @@
 package dev.haguel.orbistay.controller;
 
 import dev.haguel.orbistay.dto.request.*;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
+import dev.haguel.orbistay.dto.response.JwtDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.exception.*;
 import dev.haguel.orbistay.exception.error.ErrorResponse;
 import dev.haguel.orbistay.service.AuthService;
-import dev.haguel.orbistay.service.EmailService;
 import dev.haguel.orbistay.service.SecurityService;
 import dev.haguel.orbistay.util.EndPoints;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,13 +15,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,31 +34,48 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     private final SecurityService securityService;
-    private final EmailService emailService;
+    @Value("${refresh.cookie.same-site}")
+    private String sameSite;
 
-    @Operation(summary = "Sign up")
+    @Operation(summary = "Sign up. Http request credentials required")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User signed up successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponseDTO.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccessTokenResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Field uniqueness violation",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping(EndPoints.Auth.SIGN_UP)
-    public ResponseEntity<JwtResponseDTO> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO)
+    public ResponseEntity<AccessTokenResponseDTO> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO,
+                                                         HttpServletRequest httpServletRequest)
             throws UniquenessViolationException, EmailSendingException {
         log.info("Sign up request received");
-        JwtResponseDTO jwtResponseDTO = authService.signUp(signUpRequestDTO);
+        JwtDTO jwtDTO = authService.signUp(signUpRequestDTO);
+        AccessTokenResponseDTO accessTokenResponseDTO = AccessTokenResponseDTO.builder()
+                .accessToken(jwtDTO.getAccessToken())
+                .build();
+
+        boolean isSecure = httpServletRequest.isSecure();
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", jwtDTO.getRefreshToken())
+                .httpOnly(true)
+                .secure(isSecure)
+                .path("/")
+                .sameSite(sameSite)
+                .maxAge(Duration.ofDays(30))
+                .build();
 
         log.info("User signed up successfully");
-        return ResponseEntity.status(HttpStatus.CREATED).body(jwtResponseDTO);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .header("Set-Cookie", refreshCookie.toString())
+                .body(accessTokenResponseDTO);
     }
 
-    @Operation(summary = "Sign in")
+    @Operation(summary = "Sign in. Http request credentials required")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User signed in successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponseDTO.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccessTokenResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Incorrect email or password",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "User not found",
@@ -63,40 +84,34 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping(EndPoints.Auth.SIGN_IN)
-    public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO)
-            throws AppUserNotFoundException, IncorrectAuthDataException, MessagingException {
+    public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO,
+                                    HttpServletRequest httpServletRequest)
+            throws AppUserNotFoundException, IncorrectAuthDataException {
         log.info("Sign in request received");
-        JwtResponseDTO jwtResponseDTO = authService.signIn(signInRequestDTO);
+        JwtDTO jwtDTO = authService.signIn(signInRequestDTO);
+        AccessTokenResponseDTO accessTokenResponseDTO = AccessTokenResponseDTO.builder()
+                .accessToken(jwtDTO.getAccessToken())
+                .build();
+
+        boolean isSecure = httpServletRequest.isSecure();
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", jwtDTO.getRefreshToken())
+                .httpOnly(true)
+                .secure(isSecure)
+                .path("/")
+                .sameSite(sameSite)
+                .maxAge(Duration.ofDays(30))
+                .build();
 
         log.info("User signed in successfully");
-        return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Set-Cookie", refreshCookie.toString())
+                .body(accessTokenResponseDTO);
     }
 
-    @Operation(summary = "Get new JWT access and refresh tokens")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Token refreshed successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid JWT token",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @PostMapping(EndPoints.Auth.REFRESH_TOKENS)
-    public ResponseEntity<?> getNewTokens(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
-            throws InvalidJwtTokenException, AppUserNotFoundException {
-        log.info("Refresh token request received");
-        JwtResponseDTO jwtResponseDTO = authService.refresh(jwtRefreshTokenRequestDTO.getRefreshToken());
-
-        log.info("Token refreshed successfully");
-        return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
-    }
-
-    @Operation(summary = "Get new JWT access token")
+    @Operation(summary = "Get new JWT access token. Http request credentials required")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Access token refreshed successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponseDTO.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccessTokenResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid JWT token",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "User not found",
@@ -105,16 +120,16 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping(EndPoints.Auth.REFRESH_ACCESS_TOKEN)
-    public ResponseEntity<?> getNewAccessToken(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
+    public ResponseEntity<?> getNewAccessToken(@CookieValue(name = "refresh_token") String refreshToken)
             throws AppUserNotFoundException, InvalidJwtTokenException {
         log.info("Refresh access token request received");
-        JwtResponseDTO jwtResponseDTO = authService.getAccessToken(jwtRefreshTokenRequestDTO.getRefreshToken());
+        AccessTokenResponseDTO accessTokenResponseDTO = authService.getAccessToken(refreshToken);
 
         log.info("Access token refreshed successfully");
-        return ResponseEntity.status(HttpStatus.OK).body(jwtResponseDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(accessTokenResponseDTO);
     }
 
-    @Operation(summary = "Log out")
+    @Operation(summary = "Log out. Http request credentials required")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User logged out successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid JWT token",
@@ -123,10 +138,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping(EndPoints.Auth.LOG_OUT)
-    public ResponseEntity<?> logOut(@RequestBody @Valid JwtRefreshTokenRequestDTO jwtRefreshTokenRequestDTO)
+    public ResponseEntity<?> logOut(@CookieValue(name = "refresh_token") String refreshToken)
             throws InvalidJwtTokenException {
         log.info("Log out request received");
-        authService.logOut(jwtRefreshTokenRequestDTO.getRefreshToken());
+        authService.logOut(refreshToken);
 
         log.info("User logged out successfully");
         return ResponseEntity.status(HttpStatus.OK).build();

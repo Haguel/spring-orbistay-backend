@@ -12,10 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(name = "EditAppUserInfoDTO", description = "Edit app user info data transfer object")
-public class EditAppUserInfoDTO {
+public class EditAppUserInfoResponseWrapperDTO {
     @Schema(description = "The updated app user", implementation = AppUser.class)
-    GetAppUserInfoResponseDTO appUser;
+    EditAppUserInfoResponseDTO editAppUserInfoResponseDTO;
 
-    @Schema(description = "The JWT response", implementation = JwtResponseDTO.class)
-    JwtResponseDTO jwtResponseDTO;
+    @Schema(description = "The JWT response", implementation = JwtDTO.class)
+    JwtDTO jwtDTO;
+
+
 }

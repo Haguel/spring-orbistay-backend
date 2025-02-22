@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,5 +29,6 @@ public class EmailVerification {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "app_user_id")
+    @JsonIgnore
     private AppUser appUser;
 }

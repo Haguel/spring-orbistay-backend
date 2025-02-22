@@ -2,7 +2,7 @@ package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.Booking;
 import dev.haguel.orbistay.entity.HotelRoom;
@@ -47,7 +47,7 @@ class BookingControllerTest extends BaseControllerTestClass {
     class BookHotelRoom {
         @Test
         void whenBookHotelRoomWithValidData_thenReturnBooking() throws HotelRoomNotFoundException {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             Long hotelRoomId = 1L;
             HotelRoom hotelRoom = hotelRoomService.findById(hotelRoomId);
@@ -65,7 +65,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -92,7 +92,7 @@ class BookingControllerTest extends BaseControllerTestClass {
         void whenBookHotelRoomWithoutRequiredAppUserDataFilled_thenReturn400() {
             AppUser appUser = appUserRepository.findAppUserByEmail("jane.smith@example.com").orElse(null);
             appUser.getEmailVerification().setVerified(true);
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens("jane.smith@example.com", "qwerty", webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInAndGetAccessToken("jane.smith@example.com", "qwerty", webTestClient);
 
             Long hotelRoomId = 1L;
 
@@ -109,7 +109,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -118,7 +118,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
         @Test
         void whenBookHotelRoomWithoutVerifiedEmail_thenReturn400() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInAndGetTokens("jane.smith@example.com", "qwerty", webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInAndGetAccessToken("jane.smith@example.com", "qwerty", webTestClient);
 
             Long hotelRoomId = 1L;
 
@@ -135,7 +135,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -144,7 +144,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
         @Test
         void whenBookHotelRoomWithSameDayAsOtherCheckOut_thenReturnBooking() throws HotelRoomNotFoundException {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             Long hotelRoomId = 1L;
             HotelRoom hotelRoom = hotelRoomService.findById(hotelRoomId);
@@ -162,7 +162,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -186,7 +186,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
         @Test
         void whenBookHotelRoomWithTakenDates_thenReturn409() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
                     .hotelRoomId("1")
@@ -201,7 +201,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -210,7 +210,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
         @Test
         void whenBookHotelRoomWithInvalidCountry_thenReturn404() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
                     .hotelRoomId("1")
@@ -225,7 +225,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -234,7 +234,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
         @Test
         void whenBookHotelRoomWithInvalidHotelRoom_thenReturn404() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
                     .hotelRoomId("-1")
@@ -249,7 +249,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -258,7 +258,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
         @Test
         void whenBookHotelRoomWithReversedDates_thenReturn400() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
                     .hotelRoomId("1")
@@ -273,7 +273,7 @@ class BookingControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -285,11 +285,11 @@ class BookingControllerTest extends BaseControllerTestClass {
     class GetBookings {
         @Test
         void whenGetBookings_thenReturnBookings() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.get()
                     .uri(EndPoints.Booking.GET_BOOKINGS)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(Booking.class)
@@ -301,44 +301,44 @@ class BookingControllerTest extends BaseControllerTestClass {
     class CancelBooking {
         @Test
         void whenCancelBooking_thenReturnBooking() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Booking.CANCEL_BOOKING + "/1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk();
         }
 
         @Test
         void whenCancelBookingWithInvalidId_thenReturn404() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Booking.CANCEL_BOOKING + "/-1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isNotFound();
         }
 
         @Test
         void whenCancelBookingOfOtherUser_thenReturn403() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Booking.CANCEL_BOOKING + "/5")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isForbidden();
         }
 
         @Test
         void whenCancelBookingWithCheckInLessThan24Hours_thenReturn400() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Booking.CANCEL_BOOKING + "/5")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isForbidden();
         }

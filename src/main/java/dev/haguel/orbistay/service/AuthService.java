@@ -3,7 +3,8 @@ package dev.haguel.orbistay.service;
 import dev.haguel.orbistay.dto.request.ChangePasswordRequestDTO;
 import dev.haguel.orbistay.dto.request.SignInRequestDTO;
 import dev.haguel.orbistay.dto.request.SignUpRequestDTO;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
+import dev.haguel.orbistay.dto.response.JwtDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.EmailVerification;
 import dev.haguel.orbistay.entity.enumeration.Role;
@@ -36,16 +37,16 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
 
-    private JwtResponseDTO getJwtResponseDTO(AppUser appUser) {
+    private JwtDTO getJwtDTO(AppUser appUser) {
         String accessToken = jwtService.generateAccessToken(appUser);
         String refreshToken = jwtService.generateRefreshToken(appUser);
         redisService.setAuthValue(appUser.getEmail(), refreshToken);
 
-        return new JwtResponseDTO(accessToken, refreshToken);
+        return new JwtDTO(accessToken, refreshToken);
     }
 
     @Transactional(noRollbackFor = {EmailSendingException.class})
-    public JwtResponseDTO signUp(SignUpRequestDTO signUpRequestDTO)
+    public JwtDTO signUp(SignUpRequestDTO signUpRequestDTO)
             throws UniquenessViolationException, EmailSendingException {
         AppUser appUser = AppUser.builder()
                 .username(signUpRequestDTO.getUsername())
@@ -69,10 +70,10 @@ public class AuthService {
 
         emailService.sendVerificationEmail(appUser);
 
-        return getJwtResponseDTO(appUser);
+        return getJwtDTO(appUser);
     }
 
-    public JwtResponseDTO signIn(SignInRequestDTO signInRequestDTO)
+    public JwtDTO signIn(SignInRequestDTO signInRequestDTO)
             throws AppUserNotFoundException, IncorrectAuthDataException {
         String email = signInRequestDTO.getEmail();
         UserDetails appUser = userDetailsCustomService.loadUserByUsername(email);
@@ -89,10 +90,10 @@ public class AuthService {
             throw new IncorrectAuthDataException("Incorrect email or password");
         }
 
-        return getJwtResponseDTO((AppUser) appUser);
+        return getJwtDTO((AppUser) appUser);
     }
 
-    public JwtResponseDTO getAccessToken(String refreshToken)
+    public AccessTokenResponseDTO getAccessToken(String refreshToken)
             throws AppUserNotFoundException, InvalidJwtTokenException {
         if(!jwtService.validateRefreshToken(refreshToken)) {
             throw new InvalidJwtTokenException("Invalid refresh token");
@@ -110,27 +111,7 @@ public class AuthService {
         UserDetails userDetails = userDetailsCustomService.loadUserByUsername(email);
         String accessToken = jwtService.generateAccessToken(userDetails);
 
-        return new JwtResponseDTO(accessToken, null);
-    }
-
-    public JwtResponseDTO refresh(String refreshToken)
-            throws AppUserNotFoundException, InvalidJwtTokenException {
-        if (jwtService.validateRefreshToken(refreshToken)) {
-            Claims claims = jwtService.getRefreshClaims(refreshToken);
-            String email = claims.getSubject();
-            String storedRefreshToken = redisService.getAuthValue(email);
-
-            if (storedRefreshToken != null && storedRefreshToken.equals(refreshToken)) {
-                final AppUser appUser = appUserService.findByEmail(email);
-                if(appUser == null) {
-                    throw new AppUserNotFoundException("User not found");
-                }
-
-                return getJwtResponseDTO(appUser);
-            }
-        }
-
-        throw new InvalidJwtTokenException("Invalid refresh token");
+        return new AccessTokenResponseDTO(accessToken);
     }
 
     public void logOut(String refreshToken)

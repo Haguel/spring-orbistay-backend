@@ -2,7 +2,7 @@ package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
 import dev.haguel.orbistay.util.EndPoints;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,34 +29,34 @@ class FavoritesControllerTest extends BaseControllerTestClass {
     class AddHotelToFavorites {
         @Test
         void whenAddHotelToFavorites_thenReturnHotelAddedToFavorites() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.post()
                     .uri(EndPoints.Favorites.ADD_TO_FAVORITES + "/1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isCreated();
 
             webTestClient.post()
                     .uri(EndPoints.Favorites.ADD_TO_FAVORITES + "/1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isCreated();
 
             webTestClient.post()
                     .uri(EndPoints.Favorites.ADD_TO_FAVORITES + "/2")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isCreated();
         }
 
         @Test
         void whenAddHotelToFavoritesWithInvalidHotelId_thenReturns404() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.post()
                     .uri(EndPoints.Favorites.ADD_TO_FAVORITES + "/-1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isNotFound();
         }
@@ -66,11 +66,11 @@ class FavoritesControllerTest extends BaseControllerTestClass {
     class GetFavorites {
         @Test
         void whenGetFavorites_thenReturnFavorites() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.get()
                     .uri(EndPoints.Favorites.GET_FAVORITES)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(GetHotelsResponseDTO.class)
@@ -82,39 +82,39 @@ class FavoritesControllerTest extends BaseControllerTestClass {
     class RemoveFavorites {
         @Test
         void whenRemoveFavorites_thenReturnFavoritesRemoved() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Favorites.REMOVE_FAVORITES + "/1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk();
 
             webTestClient.delete()
                     .uri(EndPoints.Favorites.REMOVE_FAVORITES + "/2")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk();
         }
 
         @Test
         void whenRemoveFavoritesWithInvalidFavoritesId_thenReturns404() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Favorites.REMOVE_FAVORITES + "/-1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isNotFound();
         }
 
         @Test
         void whenRemoveFavoritesOfOtherUser_thenReturn403() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Favorites.REMOVE_FAVORITES + "/4")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isForbidden();
         }

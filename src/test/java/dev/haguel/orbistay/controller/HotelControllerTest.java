@@ -10,7 +10,7 @@ import dev.haguel.orbistay.dto.response.GetFilteredHotelsResponseDTO;
 import dev.haguel.orbistay.dto.response.GetHotelResponseDTO;
 import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
 import dev.haguel.orbistay.dto.request.GetFilteredHotelsRequestDTO;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.entity.Review;
 import dev.haguel.orbistay.util.EndPoints;
@@ -333,7 +333,7 @@ class HotelControllerTest extends BaseControllerTestClass {
     class WriteHotelReview {
         @Test
         void whenWriteReviewWithValidData_thenReturnReview() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             WriteReviewRequestDTO requestDTO = WriteReviewRequestDTO.builder()
                     .hotelId(String.valueOf(1L))
@@ -345,7 +345,7 @@ class HotelControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Hotels.WRITE_HOTEL_REVIEW)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -363,7 +363,7 @@ class HotelControllerTest extends BaseControllerTestClass {
 
         @Test
         void whenWriteReviewWithInvalidHotelId_thenReturnError() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             WriteReviewRequestDTO requestDTO = WriteReviewRequestDTO.builder()
                     .hotelId(String.valueOf(-1L))
@@ -375,7 +375,7 @@ class HotelControllerTest extends BaseControllerTestClass {
 
             webTestClient.post()
                     .uri(EndPoints.Hotels.WRITE_HOTEL_REVIEW)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDTO)
                     .exchange()
@@ -387,33 +387,33 @@ class HotelControllerTest extends BaseControllerTestClass {
     class RemoveReview {
         @Test
         void whenRemoveReviewWithValidId_thenReturn200() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Hotels.REMOVE_HOTEL_REVIEW + "/1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk();
         }
 
         @Test
         void whenRemoveReviewWithInvalidId_thenReturn404() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Hotels.REMOVE_HOTEL_REVIEW + "/-1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isNotFound();
         }
 
         @Test
         void whenRemoveReviewOfAnotherUser_thenReturn403() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
                     .uri(EndPoints.Hotels.REMOVE_HOTEL_REVIEW + "/3")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isForbidden();
         }

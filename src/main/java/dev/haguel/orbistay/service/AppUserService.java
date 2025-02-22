@@ -4,8 +4,10 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
-import dev.haguel.orbistay.dto.response.EditAppUserInfoDTO;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
+import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseDTO;
+import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseWrapperDTO;
+import dev.haguel.orbistay.dto.response.JwtDTO;
 import dev.haguel.orbistay.entity.Address;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.Country;
@@ -67,12 +69,12 @@ public class AppUserService {
         return appUser;
     }
 
-    private JwtResponseDTO getJwtResponseDTO(AppUser appUser) {
+    private JwtDTO getJwtResponseDTO(AppUser appUser) {
         String accessToken = jwtService.generateAccessToken(appUser);
         String refreshToken = jwtService.generateRefreshToken(appUser);
         redisService.setAuthValue(appUser.getEmail(), refreshToken);
 
-        return new JwtResponseDTO(accessToken, refreshToken);
+        return new JwtDTO(accessToken, refreshToken);
     }
 
     @Transactional(readOnly = true)
@@ -106,7 +108,7 @@ public class AppUserService {
     }
 
     @Transactional
-    public EditAppUserInfoDTO editAppUserData(AppUser appUser, EditAppUserDataRequestDTO data)
+    public EditAppUserInfoResponseWrapperDTO editAppUserData(AppUser appUser, EditAppUserDataRequestDTO data)
             throws CountryNotFoundException {
         if(appUser == null) {
             log.error("Provided null user");
@@ -148,13 +150,15 @@ public class AppUserService {
 
         AppUser saved = save(appUser);
 
-        JwtResponseDTO jwtResponseDTO = getJwtResponseDTO(saved);
-        EditAppUserInfoDTO editAppUserInfoDTO = EditAppUserInfoDTO.builder()
+        JwtDTO jwtDTO = getJwtResponseDTO(saved);
+        EditAppUserInfoResponseDTO editAppUserInfoResponseDTO = EditAppUserInfoResponseDTO.builder()
                 .appUser(appUserMapper.appUserToAppUserInfoDTO(saved))
-                .jwtResponseDTO(jwtResponseDTO)
+                .accessTokenResponseDTO(new AccessTokenResponseDTO(jwtDTO.getAccessToken()))
                 .build();
-
-        return editAppUserInfoDTO;
+        return EditAppUserInfoResponseWrapperDTO.builder()
+                .editAppUserInfoResponseDTO(editAppUserInfoResponseDTO)
+                .jwtDTO(jwtDTO)
+                .build();
     }
 
     public AppUser setAvatar(AppUser appUser, MultipartFile avatar) throws IOException {

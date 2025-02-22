@@ -46,8 +46,6 @@ public class JwtService {
                     .setExpiration(Date.from(resetExpirationInstant))
                     .setIssuedAt(Date.from(resetIssuedInstant))
                     .signWith(jwtResetPasswordSecret)
-                    .claim("username", appUser.getUsername())
-                    .claim("uuid", UUID.randomUUID().toString())
                     .compact();
 
             log.info("JWT reset password token generated");
@@ -71,9 +69,6 @@ public class JwtService {
                     .setExpiration(Date.from(accessExpirationInstant))
                     .setIssuedAt(Date.from(accessIssuedInstant))
                     .signWith(jwtAccessSecret)
-                    .claim("role", appUser.getRole())
-                    .claim("username", appUser.getUsername())
-                    .claim("uuid", UUID.randomUUID().toString())
                     .compact();
 
             log.info("JWT access token generated");
@@ -97,7 +92,6 @@ public class JwtService {
                     .setIssuedAt(Date.from(refreshIssuedInstant))
                     .setExpiration(Date.from(refreshExpirationInstant))
                     .signWith(jwtRefreshSecret)
-                    .claim("uuid", UUID.randomUUID().toString())
                     .compact();
 
             log.info("JWT refresh token generated");

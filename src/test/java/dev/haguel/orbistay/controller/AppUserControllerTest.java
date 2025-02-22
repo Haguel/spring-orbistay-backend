@@ -4,10 +4,13 @@ import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.request.AddressDataRequestDTO;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
 import dev.haguel.orbistay.dto.request.PassportDataRequestDTO;
+import dev.haguel.orbistay.dto.request.SignInRequestDTO;
+import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.service.AppUserService;
+import dev.haguel.orbistay.service.RedisService;
 import dev.haguel.orbistay.util.EndPoints;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,11 +45,11 @@ class AppUserControllerTest extends BaseControllerTestClass {
     class GetCurrentAppUser {
         @Test
         void whenGetCurrentAppUser_thenReturnInfo() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.get()
                     .uri(EndPoints.AppUsers.GET_CURRENT_APP_USER)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody(GetAppUserInfoResponseDTO.class)
@@ -61,7 +64,7 @@ class AppUserControllerTest extends BaseControllerTestClass {
     class EditCurrentAppUser {
         @Test
         void whenEditAppUserWithFullData_thenReturnUpdatedUser() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             AddressDataRequestDTO addressDataRequestDTO = AddressDataRequestDTO.builder()
                     .countryId(TestDataGenerator.generateRandomCountryId())
@@ -90,22 +93,24 @@ class AppUserControllerTest extends BaseControllerTestClass {
 
             webTestClient.put()
                     .uri(EndPoints.AppUsers.EDIT_CURRENT_APP_USER)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(editAppUserDataRequestDTO)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBody(GetAppUserInfoResponseDTO.class)
+                    .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                    .expectHeader().valueMatches(HttpHeaders.SET_COOKIE, "refresh_token=.*; Path=/; Max-Age=\\d+; Expires=.*; HttpOnly; SameSite=Lax")
+                    .expectBody(EditAppUserInfoResponseDTO.class)
                     .value(response -> {
                         assertNotNull(response);
-                        assertEquals(editAppUserDataRequestDTO.getEmail(), response.getEmail());
-                        assertEquals(editAppUserDataRequestDTO.getUsername(), response.getUsername());
-                        assertEquals(editAppUserDataRequestDTO.getPhone(), response.getPhone());
-                        assertEquals(editAppUserDataRequestDTO.getBirthDate(), response.getBirthDate().toString());
-                        assertEquals(editAppUserDataRequestDTO.getGender(), response.getGender().toString());
-                        assertEquals(editAppUserDataRequestDTO.getCitizenshipCountryId(), response.getCitizenship().getId().toString());
-                        assertEquals(addressDataRequestDTO.getCity(), response.getResidency().getCity());
-                        assertEquals(addressDataRequestDTO.getStreet(), response.getResidency().getStreet());
+                        assertEquals(editAppUserDataRequestDTO.getEmail(), response.getAppUser().getEmail());
+                        assertEquals(editAppUserDataRequestDTO.getUsername(), response.getAppUser().getUsername());
+                        assertEquals(editAppUserDataRequestDTO.getPhone(), response.getAppUser().getPhone());
+                        assertEquals(editAppUserDataRequestDTO.getBirthDate(), response.getAppUser().getBirthDate().toString());
+                        assertEquals(editAppUserDataRequestDTO.getGender(), response.getAppUser().getGender().toString());
+                        assertEquals(editAppUserDataRequestDTO.getCitizenshipCountryId(), response.getAppUser().getCitizenship().getId().toString());
+                        assertEquals(addressDataRequestDTO.getCity(), response.getAppUser().getResidency().getCity());
+                        assertEquals(addressDataRequestDTO.getStreet(), response.getAppUser().getResidency().getStreet());
                     });
 
             AppUser appUser = appUserService.findByEmail(editAppUserDataRequestDTO.getEmail());

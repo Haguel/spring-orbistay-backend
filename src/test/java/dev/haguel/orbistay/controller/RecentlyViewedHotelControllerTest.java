@@ -2,7 +2,7 @@ package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
-import dev.haguel.orbistay.dto.response.JwtResponseDTO;
+import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
 import dev.haguel.orbistay.util.EndPoints;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,34 +29,34 @@ class RecentlyViewedHotelControllerTest extends BaseControllerTestClass {
     class AddToRecentlyViewedHotels {
         @Test
         void whenAddToRecentlyViewedHotels_thenReturns200() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.post()
                     .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS + "/1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk();
 
             webTestClient.post()
                     .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS + "/1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk();
 
             webTestClient.post()
                     .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS + "/2")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk();
         }
 
         @Test
         void whenAddToRecentlyViewedHotelsWithInvalidHotelId_thenReturns404() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.post()
                     .uri(EndPoints.RecentlyViewedHotels.ADD_TO_RECENTLY_VIEWED_HOTELS + "/-1")
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isNotFound();
         }
@@ -66,11 +66,11 @@ class RecentlyViewedHotelControllerTest extends BaseControllerTestClass {
     class GetRecentlyViewedHotels {
         @Test
         void whenGetRecentlyViewedHotels_thenReturns200() {
-            JwtResponseDTO jwtResponseDTO = SharedTestUtil.signInJohnDoeAndGetTokens(webTestClient);
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.get()
                     .uri(EndPoints.RecentlyViewedHotels.GET_RECENTLY_VIEWED_HOTELS)
-                    .header("Authorization", "Bearer " + jwtResponseDTO.getAccessToken())
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(GetHotelsResponseDTO.class)
