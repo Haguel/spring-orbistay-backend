@@ -35,7 +35,7 @@ public class Passport {
     private Country countryOfIssuance;
 
     @OneToOne
-    @JoinColumn(name = "app_user_id")
+    @JoinColumn(name = "app_user_id", nullable = false)
     @JsonBackReference
     private AppUser appUser;
 }

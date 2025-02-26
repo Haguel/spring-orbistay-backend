@@ -41,6 +41,8 @@ public class BookingController {
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "400", description = "Required data must be filled",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Passport is expired",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Hotel room not found",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Country not found",
@@ -100,7 +102,7 @@ public class BookingController {
     @DeleteMapping(EndPoints.Booking.CANCEL_BOOKING + "/{id}")
     public ResponseEntity<?> cancelBooking(@RequestHeader(name="Authorization") String authorizationHeader,
                                           @PathVariable Long id)
-            throws InvalidJwtTokenException, BookingNotFoundException, BookingCanNotBeCanceled, CanNotChangeOtherUserDataException {
+            throws InvalidJwtTokenException, BookingNotFoundException, BookingCanNotBeCanceledException, CanNotChangeOtherUserDataException {
         log.info("Cancel booking request received");
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
         Booking booking = bookingService.findById(id);

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -52,6 +53,10 @@ public class BookingService {
 
         if(!appUser.getEmailVerification().isVerified()) {
             throw new RequiredDataMissingException("Email is not verified");
+        }
+
+        if(appUser.getPassport().getExpirationDate().isBefore(LocalDate.now())) {
+            throw new PassportIsExpiredException("Passport is expired");
         }
     }
 
@@ -101,7 +106,7 @@ public class BookingService {
     }
 
     @Transactional
-    public void cancelBooking(AppUser appUser, Booking booking) throws CanNotChangeOtherUserDataException, BookingCanNotBeCanceled {
+    public void cancelBooking(AppUser appUser, Booking booking) throws CanNotChangeOtherUserDataException, BookingCanNotBeCanceledException {
         if(booking.getAppUser().getId() != appUser.getId()) {
             log.warn("User with id {} is not allowed to cancel booking of another user", appUser.getId());
             throw new CanNotChangeOtherUserDataException("User is not allowed to cancel another user's booking");
@@ -110,7 +115,7 @@ public class BookingService {
         // Booking can not be canceled if check-in is less than 24 hours from now
         if(booking.getCheckIn().minusDays(1).isBefore(LocalDateTime.now())) {
             log.warn("Booking with id {} can not be canceled already", booking.getId());
-            throw new BookingCanNotBeCanceled("Booking can not be canceled already");
+            throw new BookingCanNotBeCanceledException("Booking can not be canceled already");
         }
 
         BookingStatus bookingStatus = bookingStatusRepository.findCanceledStatus();

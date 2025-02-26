@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.dto.request;
 
+import dev.haguel.orbistay.annotation.IsDateAfterToday;
 import dev.haguel.orbistay.annotation.ValidDateFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -41,5 +42,6 @@ public class PassportDataRequestDTO {
     @NotNull
     @NotBlank
     @ValidDateFormat
+    @IsDateAfterToday(message = "Passport is expired")
     private String expirationDate;
 }

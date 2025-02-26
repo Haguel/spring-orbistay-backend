@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface IsDateAfterToday {
-    String message() default "must be before or after today's date";
+    String message() default "must be after today's date";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

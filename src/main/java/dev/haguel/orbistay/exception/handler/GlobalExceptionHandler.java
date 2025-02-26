@@ -6,7 +6,6 @@ import dev.haguel.orbistay.exception.error.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -117,8 +116,8 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
-    @ExceptionHandler(BookingCanNotBeCanceled.class)
-    public ResponseEntity<ErrorResponse> handleBookingCanNotBeCanceled(BookingCanNotBeCanceled exception) {
+    @ExceptionHandler(BookingCanNotBeCanceledException.class)
+    public ResponseEntity<ErrorResponse> handleBookingCanNotBeCanceled(BookingCanNotBeCanceledException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 exception.getMessage(),
@@ -344,6 +343,20 @@ public class GlobalExceptionHandler {
         log.error("Country can't be found in database", exception);
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(PassportIsExpiredException.class)
+    public ResponseEntity<ErrorResponse> handlePassportIsExpiredException(PassportIsExpiredException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Passport is expired"
+        );
+
+        log.error("Passport is expired", exception);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(errorResponse);
     }
 

@@ -143,6 +143,32 @@ class BookingControllerTest extends BaseControllerTestClass {
         }
 
         @Test
+        void whenBookHotelRoomWithExpiredPassport_thenReturn403() {
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInAndGetAccessToken("admin@example.com", "admin_pass", webTestClient);
+
+            Long hotelRoomId = 1L;
+
+            BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
+                    .hotelRoomId(hotelRoomId.toString())
+                    .countryId("1")
+                    .checkIn(LocalDate.now().plusDays(5).toString())
+                    .checkOut(LocalDate.now().plusDays(10).toString())
+                    .firstName("John")
+                    .lastName("Doe")
+                    .email("admin@example.com")
+                    .phoneNumber("1234567890")
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isForbidden();
+        }
+
+        @Test
         void whenBookHotelRoomWithSameDayAsOtherCheckOut_thenReturnBooking() throws HotelRoomNotFoundException {
             AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
