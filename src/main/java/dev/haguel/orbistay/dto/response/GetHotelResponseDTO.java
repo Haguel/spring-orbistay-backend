@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
@@ -47,6 +48,12 @@ public class GetHotelResponseDTO {
 
     @Schema(description = "The hotel's average rate", example = "4.5")
     private double avgRate;
+
+    @Schema(description = "The hotel's check-in time", example = "14:00")
+    private LocalTime checkInTime;
+
+    @Schema(description = "The hotel's check-out time", example = "12:00")
+    private LocalTime checkOutTime;
 
     @ArraySchema(schema = @Schema(implementation = Review.class))
     @Schema(description = "The hotel's reviews")

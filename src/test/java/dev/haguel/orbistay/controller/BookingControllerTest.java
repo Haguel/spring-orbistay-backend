@@ -73,9 +73,9 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .expectBody(Booking.class)
                     .value(response -> {
                         assertNotNull(response);
-                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckIn()), hotelRoom.getCheckInTime()),
+                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckIn()), hotelRoom.getHotel().getCheckInTime()),
                                 response.getCheckIn());
-                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckOut()), hotelRoom.getCheckOutTime()),
+                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckOut()), hotelRoom.getHotel().getCheckOutTime()),
                                 response.getCheckOut());
                         assertEquals(requestDTO.getFirstName(), response.getFirstName());
                         assertEquals(requestDTO.getLastName(), response.getLastName());
@@ -196,9 +196,9 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .expectBody(Booking.class)
                     .value(response -> {
                         assertNotNull(response);
-                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckIn()), hotelRoom.getCheckInTime()),
+                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckIn()), hotelRoom.getHotel().getCheckInTime()),
                                 response.getCheckIn());
-                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckOut()), hotelRoom.getCheckOutTime()),
+                        assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckOut()), hotelRoom.getHotel().getCheckOutTime()),
                                 response.getCheckOut());
                         assertEquals(requestDTO.getFirstName(), response.getFirstName());
                         assertEquals(requestDTO.getLastName(), response.getLastName());

@@ -55,6 +55,8 @@ CREATE TABLE hotel (
     full_desc TEXT NOT NULL,
     stars INT,
     main_image_url VARCHAR(255),
+    check_in_time TIME NOT NULL,
+    check_out_time TIME NOT NULL,
     FOREIGN KEY (address_id) REFERENCES address(id)
 );
 
@@ -72,8 +74,6 @@ CREATE TABLE hotel_room (
     cost_per_night NUMERIC(10, 2) NOT NULL,
     metering NUMERIC(10, 2) NOT NULL,
     is_children_friendly BOOLEAN NOT NULL DEFAULT FALSE,
-    check_in_time TIME NOT NULL,
-    check_out_time TIME NOT NULL,
     capacity INT NOT NULL,
     images_url TEXT[],
     hotel_id BIGINT NOT NULL,

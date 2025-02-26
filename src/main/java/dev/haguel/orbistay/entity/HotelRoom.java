@@ -40,12 +40,6 @@ public class HotelRoom {
     @Column(nullable = false)
     private Integer capacity;
 
-    @Column(nullable = false)
-    private LocalTime checkInTime;
-
-    @Column(nullable = false)
-    private LocalTime checkOutTime;
-
     @ManyToOne
     @JoinColumn(name = "hotel_id", nullable = false)
     @JsonIgnore

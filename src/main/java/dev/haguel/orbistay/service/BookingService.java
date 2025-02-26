@@ -78,8 +78,9 @@ public class BookingService {
     public Booking bookHotelRoom(AppUser appUser, BookHotelRoomRequestDTO bookHotelRoomRequestDTO)
             throws BookingNotAvailableException, HotelRoomNotFoundException, CountryNotFoundException, InvalidDataException {
         HotelRoom hotelRoom = hotelRoomService.findById(Long.valueOf(bookHotelRoomRequestDTO.getHotelRoomId()));
+        Hotel hotel = hotelRoom.getHotel();
         Country country = countryService.findById(Long.valueOf(bookHotelRoomRequestDTO.getCountryId()));
-        Booking booking = bookingMapper.bookHotelRoomRequestDTOToBooking(bookHotelRoomRequestDTO, hotelRoom.getCheckInTime(), hotelRoom.getCheckOutTime());
+        Booking booking = bookingMapper.bookHotelRoomRequestDTOToBooking(bookHotelRoomRequestDTO, hotel.getCheckInTime(), hotel.getCheckOutTime());
 
         if(!areDatesNotReversed(booking.getCheckIn(), booking.getCheckOut())) {
             log.warn("Check-in must be before check-out");

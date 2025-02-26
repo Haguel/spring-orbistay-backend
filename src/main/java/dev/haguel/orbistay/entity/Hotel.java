@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import jakarta.persistence.*;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +37,12 @@ public class Hotel {
 
     @Column
     private String mainImageUrl;
+
+    @Column(nullable = false)
+    private LocalTime checkInTime;
+
+    @Column(nullable = false)
+    private LocalTime checkOutTime;
 
     @OneToMany(mappedBy = "hotel")
     @JsonIgnore
