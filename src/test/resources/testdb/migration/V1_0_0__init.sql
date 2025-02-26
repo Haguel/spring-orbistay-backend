@@ -21,7 +21,7 @@ CREATE TABLE address (
 
 CREATE TABLE app_user (
     id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
+    username VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(50),
     email VARCHAR(255) NOT NULL UNIQUE,
