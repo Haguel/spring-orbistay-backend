@@ -3,6 +3,7 @@ package dev.haguel.orbistay.service;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobHttpHeaders;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
 import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
 import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseDTO;
@@ -166,7 +167,9 @@ public class AppUserService {
                 .getBlobClient(String.valueOf(appUser.getId()));
 
         try {
+            BlobHttpHeaders headers = new BlobHttpHeaders().setContentType(avatar.getContentType());
             blobClient.upload(avatar.getInputStream(), avatar.getSize(), true);
+            blobClient.setHttpHeaders(headers);
         } catch (IOException exception) {
             log.error("Error while uploading avatar to blob storage");
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while uploading avatar to blob storage");
