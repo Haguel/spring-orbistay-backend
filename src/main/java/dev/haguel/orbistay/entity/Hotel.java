@@ -32,7 +32,7 @@ public class Hotel {
     @Column(nullable = false)
     private String fullDesc;
 
-    @Column
+    @Column(nullable = false)
     private Integer stars;
 
     @Column

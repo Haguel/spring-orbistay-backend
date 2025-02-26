@@ -53,7 +53,7 @@ CREATE TABLE hotel (
     address_id BIGINT NOT NULL,
     short_desc TEXT NOT NULL,
     full_desc TEXT NOT NULL,
-    stars INT,
+    stars INT NOT NULL,
     main_image_url VARCHAR(255),
     check_in_time TIME NOT NULL,
     check_out_time TIME NOT NULL,

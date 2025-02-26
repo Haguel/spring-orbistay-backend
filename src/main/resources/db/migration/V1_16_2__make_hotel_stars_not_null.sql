@@ -1,0 +1,2 @@
+ALTER TABLE hotel
+    ALTER COLUMN stars SET NOT NULL;
