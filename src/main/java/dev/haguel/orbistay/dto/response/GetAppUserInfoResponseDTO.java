@@ -3,6 +3,7 @@ package dev.haguel.orbistay.dto.response;
 import dev.haguel.orbistay.entity.Address;
 import dev.haguel.orbistay.entity.Country;
 import dev.haguel.orbistay.entity.EmailVerification;
+import dev.haguel.orbistay.entity.Passport;
 import dev.haguel.orbistay.entity.enumeration.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -44,6 +45,9 @@ public class GetAppUserInfoResponseDTO {
 
     @Schema(description = "The app user's residency", implementation = Address.class)
     private Address residency;
+
+    @Schema(description = "The app user's passport", implementation = Passport.class)
+    private Passport passport;
 
     @Schema(description = "The app user's email verification status", implementation = EmailVerification.class)
     private EmailVerification emailVerification;
