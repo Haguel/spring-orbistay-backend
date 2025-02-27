@@ -63,7 +63,6 @@ public class AppUser implements UserDetails {
     private Address residency;
 
     @OneToOne(mappedBy = "appUser")
-    @JsonIgnore
     private Passport passport;
 
     @OneToMany(mappedBy = "appUser")

@@ -1,12 +1,10 @@
 package dev.haguel.orbistay.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import dev.haguel.orbistay.entity.enumeration.Gender;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Data
 @Builder
@@ -36,6 +34,6 @@ public class Passport {
 
     @OneToOne
     @JoinColumn(name = "app_user_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnore
     private AppUser appUser;
 }
