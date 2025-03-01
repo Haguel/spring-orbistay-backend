@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -27,5 +29,12 @@ public class CountryService {
         }
 
         return country;
+    }
+
+    public List<Country> findAll() {
+        List<Country> countries = countryRepository.findAll();
+
+        log.info("{} countries found in database", countries.size());
+        return countries;
     }
 }

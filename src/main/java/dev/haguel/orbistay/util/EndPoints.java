@@ -18,6 +18,17 @@ public class EndPoints {
         }
     }
 
+    public static class Countries {
+        private static final String BASE_ENDPOINT = "/countries";
+        public static final String GET_ALL_COUNTRIES = BASE_ENDPOINT;
+
+        public static String[] getUnauthorizedEndpoints() {
+            return new String[] {
+                    GET_ALL_COUNTRIES,
+            };
+        }
+    }
+
     public static class Auth {
         private static final String BASE_ENDPOINT = "/auth";
         public static final String SIGN_UP = BASE_ENDPOINT + "/signUp";
@@ -151,7 +162,8 @@ public class EndPoints {
                 Auth.getUnauthorizedEndpoints(),
                 OAuth2.getUnauthorizedEndpoints(),
                 Hotels.getUnauthorizedEndpoints(),
-                Destinations.getUnauthorizedEndpoints()
+                Destinations.getUnauthorizedEndpoints(),
+                Countries.getUnauthorizedEndpoints()
         )
                 .flatMap(Stream::of)
                 .toArray(String[]::new);
