@@ -4,13 +4,10 @@ import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.request.AddressDataRequestDTO;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
 import dev.haguel.orbistay.dto.request.PassportDataRequestDTO;
-import dev.haguel.orbistay.dto.request.SignInRequestDTO;
 import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
-import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.service.AppUserService;
-import dev.haguel.orbistay.service.RedisService;
 import dev.haguel.orbistay.util.EndPoints;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -115,7 +112,7 @@ class AppUserControllerTest extends BaseControllerTestClass {
                         assertEquals(addressDataRequestDTO.getCountryId(), response.getAppUser().getResidency().getCountry().getId().toString());
                         assertEquals(passportDataRequestDTO.getPassportNumber(), response.getAppUser().getPassport().getPassportNumber());
                         assertEquals(passportDataRequestDTO.getExpirationDate(), response.getAppUser().getPassport().getExpirationDate().toString());
-                        assertEquals(passportDataRequestDTO.getCountryOfIssuanceId(), response.getAppUser().getPassport().getCountryOfIssuance().getId().toString());
+                        assertEquals(passportDataRequestDTO.getCountryOfIssuanceId(), response.getAppUser().getPassport().getIssuingCountry().getId().toString());
                     });
         }
     }

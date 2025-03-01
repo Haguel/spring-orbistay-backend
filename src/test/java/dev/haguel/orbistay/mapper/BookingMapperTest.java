@@ -36,7 +36,7 @@ public class BookingMapperTest extends BaseMapperTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             LocalTime localTime = LocalTime.now();
@@ -48,7 +48,7 @@ public class BookingMapperTest extends BaseMapperTestClass {
             assertEquals(requestDTO.getFirstName(), booking.getFirstName());
             assertEquals(requestDTO.getLastName(), booking.getLastName());
             assertEquals(requestDTO.getEmail(), booking.getEmail());
-            assertEquals(requestDTO.getPhoneNumber(), booking.getPhoneNumber());
+            assertEquals(requestDTO.getPhone(), booking.getPhone());
         }
     }
 }

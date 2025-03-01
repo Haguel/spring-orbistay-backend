@@ -7,8 +7,8 @@ import jakarta.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "place_of_birth")
-public class PlaceOfBirth {
+@Entity(name = "birthplace")
+public class Birthplace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

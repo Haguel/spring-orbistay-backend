@@ -33,7 +33,7 @@ class PassportMapperTest extends BaseMapperTestClass {
             assertNotNull(passport);
             assertEquals(dto.getPassportNumber(), passport.getPassportNumber());
             assertEquals(dto.getExpirationDate(), passport.getExpirationDate().toString());
-            assertEquals(Long.parseLong(dto.getCountryOfIssuanceId()), passport.getCountryOfIssuance().getId());
+            assertEquals(Long.parseLong(dto.getCountryOfIssuanceId()), passport.getIssuingCountry().getId());
         }
     }
 }

@@ -2,7 +2,7 @@ package dev.haguel.orbistay.mapper;
 
 import dev.haguel.orbistay.dto.response.GetBrieflyHotelRoomsResponseDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
-import dev.haguel.orbistay.repository.HotelRoomRepository;
+import dev.haguel.orbistay.repository.RoomRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ class HotelRoomMapperTest extends BaseMapperTestClass {
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
 
     @Autowired
-    private HotelRoomRepository hotelRoomRepository;
+    private RoomRepository roomRepository;
 
     @Autowired
     private HotelRoomMapper hotelRoomMapper;
@@ -27,7 +27,7 @@ class HotelRoomMapperTest extends BaseMapperTestClass {
     class GetBrieflyHotelRoomsResponseDTOMapping {
         @Test
         void whenHotelRoomToBrieflyHotelRoomResponseDTO_thenReturnBrieflyHotelRoomResponseDTOO() {
-            HotelRoom hotelRoom = hotelRoomRepository.findById(1L).orElse(null);
+            HotelRoom hotelRoom = roomRepository.findById(1L).orElse(null);
             GetBrieflyHotelRoomsResponseDTO responseDTO = hotelRoomMapper.hotelRoomToBrieflyHotelRoomsDTO(hotelRoom);
 
             assertNotNull(responseDTO);

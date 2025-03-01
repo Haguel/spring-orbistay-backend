@@ -4,7 +4,7 @@ import dev.haguel.orbistay.dto.request.GetFileredHotelRoomsRequestDTO;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
 import dev.haguel.orbistay.exception.HotelRoomsNotFoundException;
-import dev.haguel.orbistay.repository.HotelRoomRepository;
+import dev.haguel.orbistay.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class HotelRoomService {
-    private final HotelRoomRepository hotelRoomRepository;
+    private final RoomRepository roomRepository;
 
     @Transactional(readOnly = true)
     public List<HotelRoom> getFilteredHotelRooms(GetFileredHotelRoomsRequestDTO getFileredHotelRoomsRequestDTO)
@@ -31,7 +31,7 @@ public class HotelRoomService {
         Double minPrice = Optional.ofNullable(getFileredHotelRoomsRequestDTO.getMinPrice()).map(Double::parseDouble).orElse(null);
         Double maxPrice = Optional.ofNullable(getFileredHotelRoomsRequestDTO.getMaxPrice()).map(Double::parseDouble).orElse(null);
 
-        List<HotelRoom> hotelRooms = hotelRoomRepository.findHotelRooms(
+        List<HotelRoom> hotelRooms = roomRepository.findHotelRooms(
                 hotelId,
                 peopleCount,
                 isChildrenFriendly,
@@ -61,7 +61,7 @@ public class HotelRoomService {
         Double minPrice = Optional.ofNullable(getFileredHotelRoomsRequestDTO.getMinPrice()).map(Double::parseDouble).orElse(null);
         Double maxPrice = Optional.ofNullable(getFileredHotelRoomsRequestDTO.getMaxPrice()).map(Double::parseDouble).orElse(null);
 
-        HotelRoom hotelRoom = hotelRoomRepository.findHotelRoom(
+        HotelRoom hotelRoom = roomRepository.findHotelRoom(
                 hotelId,
                 peopleCount,
                 isChildrenFriendly,
@@ -83,7 +83,7 @@ public class HotelRoomService {
     @Transactional(readOnly = true)
     public HotelRoom findById(Long id)
             throws HotelRoomNotFoundException {
-        HotelRoom hotelRoom = hotelRoomRepository.findById(id).orElse(null);
+        HotelRoom hotelRoom = roomRepository.findById(id).orElse(null);
 
         if(hotelRoom == null) {
             log.warn("Hotel room couldn't be found in database by provided id: {}", id);

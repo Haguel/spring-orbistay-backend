@@ -339,8 +339,8 @@ class HotelControllerTest extends BaseControllerTestClass {
                     .hotelId(String.valueOf(1L))
                     .content("Great hotel!")
                     .rate("8.6")
-                    .goodSides("The staff was very friendly")
-                    .badSides("The room was a bit small")
+                    .pros("The staff was very friendly")
+                    .cons("The room was a bit small")
                     .build();
 
             webTestClient.post()
@@ -356,8 +356,8 @@ class HotelControllerTest extends BaseControllerTestClass {
                         assertEquals(Long.parseLong(requestDTO.getHotelId()), review.getHotel().getId());
                         assertEquals(requestDTO.getContent(), review.getContent());
                         assertEquals(Double.parseDouble(requestDTO.getRate()), review.getRate());
-                        assertEquals(requestDTO.getGoodSides(), review.getGoodSides());
-                        assertEquals(requestDTO.getBadSides(), review.getBadSides());
+                        assertEquals(requestDTO.getPros(), review.getPros());
+                        assertEquals(requestDTO.getCons(), review.getCons());
                     });
         }
 
@@ -369,8 +369,8 @@ class HotelControllerTest extends BaseControllerTestClass {
                     .hotelId(String.valueOf(-1L))
                     .content("Great hotel!")
                     .rate("8.6")
-                    .goodSides("The staff was very friendly")
-                    .badSides("The room was a bit small")
+                    .pros("The staff was very friendly")
+                    .cons("The room was a bit small")
                     .build();
 
             webTestClient.post()

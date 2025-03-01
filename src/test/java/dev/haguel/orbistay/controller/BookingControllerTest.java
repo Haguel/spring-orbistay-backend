@@ -60,7 +60,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             webTestClient.post()
@@ -80,7 +80,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                         assertEquals(requestDTO.getFirstName(), response.getFirstName());
                         assertEquals(requestDTO.getLastName(), response.getLastName());
                         assertEquals(requestDTO.getEmail(), response.getEmail());
-                        assertEquals(requestDTO.getPhoneNumber(), response.getPhoneNumber());
+                        assertEquals(requestDTO.getPhone(), response.getPhone());
                         assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoom().getId());
                         assertEquals(Long.parseLong(requestDTO.getCountryId()), response.getCountry().getId());
                         assertEquals("ACTIVE", response.getStatus().getStatus());
@@ -104,7 +104,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             webTestClient.post()
@@ -130,7 +130,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             webTestClient.post()
@@ -156,7 +156,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("admin@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             webTestClient.post()
@@ -183,7 +183,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             webTestClient.post()
@@ -203,7 +203,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                         assertEquals(requestDTO.getFirstName(), response.getFirstName());
                         assertEquals(requestDTO.getLastName(), response.getLastName());
                         assertEquals(requestDTO.getEmail(), response.getEmail());
-                        assertEquals(requestDTO.getPhoneNumber(), response.getPhoneNumber());
+                        assertEquals(requestDTO.getPhone(), response.getPhone());
                         assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoom().getId());
                         assertEquals(Long.parseLong(requestDTO.getCountryId()), response.getCountry().getId());
                         assertEquals("ACTIVE", response.getStatus().getStatus());
@@ -222,7 +222,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             webTestClient.post()
@@ -246,7 +246,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             webTestClient.post()
@@ -270,7 +270,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             webTestClient.post()
@@ -294,7 +294,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .firstName("John")
                     .lastName("Doe")
                     .email("john.test@example.com")
-                    .phoneNumber("1234567890")
+                    .phone("1234567890")
                     .build();
 
             webTestClient.post()

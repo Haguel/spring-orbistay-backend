@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface HotelRoomRepository extends JpaRepository<HotelRoom, Long> {
+public interface RoomRepository extends JpaRepository<HotelRoom, Long> {
     @Query(value = """
     SELECT DISTINCT hr.*
     FROM hotel_room hr
     WHERE (hr.hotel_id = :hotelId)
       AND (:peopleCount IS NULL OR hr.capacity >= CAST(:peopleCount AS INT))
-      AND (:isChildrenFriendly IS NULL OR :isChildrenFriendly = hr.is_children_friendly)
+      AND (:isChildrenFriendly IS NULL OR :isChildrenFriendly = hr.child_friendly)
       AND (:minPrice IS NULL OR hr.cost_per_night >= :minPrice)
       AND (:maxPrice IS NULL OR hr.cost_per_night <= :maxPrice)
       AND NOT EXISTS (
@@ -40,7 +40,7 @@ public interface HotelRoomRepository extends JpaRepository<HotelRoom, Long> {
     FROM hotel_room hr
     WHERE (hr.hotel_id = :hotelId)
       AND (:peopleCount IS NULL OR hr.capacity >= CAST(:peopleCount AS INT))
-      AND (:isChildrenFriendly IS NULL OR :isChildrenFriendly = hr.is_children_friendly)
+      AND (:isChildrenFriendly IS NULL OR :isChildrenFriendly = hr.child_friendly)
       AND (:minPrice IS NULL OR hr.cost_per_night >= :minPrice)
       AND (:maxPrice IS NULL OR hr.cost_per_night <= :maxPrice)
       AND NOT EXISTS (

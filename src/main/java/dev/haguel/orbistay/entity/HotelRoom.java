@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import jakarta.persistence.*;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,10 +31,10 @@ public class HotelRoom {
     private Double costPerNight;
 
     @Column(nullable = false)
-    private Double metering;
+    private Double area;
 
     @Column(nullable = false)
-    private Boolean isChildrenFriendly;
+    private Boolean child_friendly;
 
     @Column(nullable = false)
     private Integer capacity;
@@ -50,32 +49,32 @@ public class HotelRoom {
     private List<HotelRoomImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "hotelRoom")
-    private List<HotelRoomRoomFacility> hotelRoomRoomFacilities;
+    private List<RoomFacilityLink> roomFacilityLinks;
 
     @OneToMany(mappedBy = "hotelRoom")
-    private List<HotelRoomRoomHighlight> hotelRoomRoomHighlights;
+    private List<RoomHighlightLink> roomHighlightLinks;
 
-    @OneToMany(mappedBy = "hotelRoom")
-    private List<HotelRoomRoomBed> hotelRoomRoomBeds;
+    @OneToMany(mappedBy = "hotelRoom", fetch = FetchType.EAGER)
+    private List<RoomBedLink> roomBedLinks;
 
-    @JsonProperty("hotelRoomRoomFacilities")
-    public List<RoomFacility> getRoomFacilities() {
-        return hotelRoomRoomFacilities.stream()
-                .map(HotelRoomRoomFacility::getRoomFacility)
+    @JsonProperty("roomFacilityLinks")
+    public List<Facility> getRoomFacilities() {
+        return roomFacilityLinks.stream()
+                .map(RoomFacilityLink::getFacility)
                 .collect(Collectors.toList());
     }
 
-    @JsonProperty("hotelRoomRoomHighlights")
-    public List<RoomHighlight> getRoomHighlights() {
-        return hotelRoomRoomHighlights.stream()
-                .map(HotelRoomRoomHighlight::getRoomHighlight)
+    @JsonProperty("roomHighlightLinks")
+    public List<Highlight> getRoomHighlights() {
+        return roomHighlightLinks.stream()
+                .map(RoomHighlightLink::getHighlight)
                 .collect(Collectors.toList());
     }
 
-    @JsonProperty("hotelRoomRoomBeds")
-    public List<RoomBed> getRoomBeds() {
-        return hotelRoomRoomBeds.stream()
-                .map(HotelRoomRoomBed::getRoomBed)
+    @JsonProperty("roomBedLinks")
+    public List<BedType> getRoomBeds() {
+        return roomBedLinks.stream()
+                .map(RoomBedLink::getBedType)
                 .collect(Collectors.toList());
     }
 

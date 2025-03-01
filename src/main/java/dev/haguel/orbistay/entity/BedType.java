@@ -10,17 +10,16 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "hotel_room_room_bed")
-public class HotelRoomRoomBed {
+@Entity(name = "bed_type")
+public class BedType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "hotel_room_id", nullable = false)
-    private HotelRoom hotelRoom;
+    @Column(nullable = false)
+    private String bedType;
 
-    @ManyToOne
-    @JoinColumn(name = "room_bed_id", nullable = false)
-    private RoomBed roomBed;
+    public BedType(String bedType) {
+        this.bedType = bedType;
+    }
 }

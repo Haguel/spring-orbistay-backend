@@ -12,7 +12,7 @@ public abstract class PassportMapper {
     @Autowired
     protected SharedMapperUtil sharedMapperUtil;
 
-    @Mapping(target = "countryOfIssuance", expression = "java(sharedMapperUtil.getCountryById(passportDataRequestDTO.getCountryOfIssuanceId()))")
+    @Mapping(target = "issuingCountry", expression = "java(sharedMapperUtil.getCountryById(passportDataRequestDTO.getCountryOfIssuanceId()))")
     public abstract Passport passportDataRequestDTOToPassport(PassportDataRequestDTO passportDataRequestDTO);
 
 }

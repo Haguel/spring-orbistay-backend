@@ -57,15 +57,15 @@ public class Hotel {
     private Address address;
 
     @OneToMany(mappedBy = "hotel")
-    private List<HotelHotelHighlight> hotelHotelHighlights;
+    private List<HotelHighlightLink> hotelHighlightLinks;
 
     @OneToMany(mappedBy = "hotel")
     private List<Review> reviews;
 
-    @JsonProperty("hotelHotelHighlights")
+    @JsonProperty("hotelHighlightLinks")
     public List<HotelHighlight> getHotelHighlights() {
-        return hotelHotelHighlights.stream()
-                .map(HotelHotelHighlight::getHotelHighlight)
+        return hotelHighlightLinks.stream()
+                .map(HotelHighlightLink::getHotelHighlight)
                 .collect(Collectors.toList());
     }
 

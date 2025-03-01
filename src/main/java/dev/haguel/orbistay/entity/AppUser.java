@@ -55,11 +55,11 @@ public class AppUser implements UserDetails {
     private Gender gender;
 
     @ManyToOne
-    @JoinColumn(name = "citizenship_id")
+    @JoinColumn(name = "citizenship_country_id")
     private Country citizenship;
 
     @ManyToOne
-    @JoinColumn(name = "residency_id")
+    @JoinColumn(name = "residence_address_id")
     private Address residency;
 
     @OneToOne(mappedBy = "appUser")

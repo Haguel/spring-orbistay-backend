@@ -7,8 +7,8 @@ import jakarta.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "hotel_hotel_highlight")
-public class HotelHotelHighlight {
+@Entity(name = "hotel_highlight_link")
+public class HotelHighlightLink {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

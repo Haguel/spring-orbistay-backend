@@ -29,8 +29,8 @@ public class Passport {
     private LocalDate expirationDate;
 
     @ManyToOne
-    @JoinColumn(name = "country_of_issuance_id", nullable = false)
-    private Country countryOfIssuance;
+    @JoinColumn(name = "issuing_country_id", nullable = false)
+    private Country issuingCountry;
 
     @OneToOne
     @JoinColumn(name = "app_user_id", nullable = false)

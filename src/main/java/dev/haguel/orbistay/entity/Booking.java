@@ -37,10 +37,10 @@ public class Booking {
     private String email;
 
     @Column(nullable = false)
-    private String phoneNumber;
+    private String phone;
 
     @ManyToOne
-    @JoinColumn(name = "country_id", nullable = false)
+    @JoinColumn(name = "guest_country_id", nullable = false)
     private Country country;
 
     @ManyToOne
@@ -56,6 +56,6 @@ public class Booking {
     private HotelRoom hotelRoom;
 
     @ManyToOne
-    @JoinColumn(name = "booking_status_id", nullable = false)
+    @JoinColumn(name = "status_id", nullable = false)
     private BookingStatus status;
 }

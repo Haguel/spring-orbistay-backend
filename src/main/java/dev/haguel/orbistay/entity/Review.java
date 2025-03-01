@@ -29,10 +29,10 @@ public class Review {
     private String content;
 
     @Column
-    private String goodSides; // what was good about the hotel
+    private String pros; // what was good about the hotel
 
     @Column
-    private String badSides; // what was bad about the hotel
+    private String cons; // what was bad about the hotel
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

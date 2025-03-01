@@ -10,8 +10,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "room_facility")
-public class RoomFacility {
+@Entity(name = "highlight")
+public class Highlight {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,7 +19,10 @@ public class RoomFacility {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "roomFacility")
+    @Column(nullable = false)
+    private String imageUrl;
+
+    @OneToMany(mappedBy = "highlight")
     @JsonIgnore
-    private List<HotelRoomRoomFacility> hotelRoomRoomFacilities;
+    private List<RoomHighlightLink> roomHighlightLinks;
 }

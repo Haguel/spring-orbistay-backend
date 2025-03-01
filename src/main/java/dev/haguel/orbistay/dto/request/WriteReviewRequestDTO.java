@@ -32,8 +32,8 @@ public class WriteReviewRequestDTO {
     private String rate;
 
     @Schema(description = "What was good about the hotel", example = "The staff was very friendly")
-    private String goodSides;
+    private String pros;
 
     @Schema(description = "What was bad about the hotel", example = "The room was a bit small")
-    private String badSides;
+    private String cons;
 }

@@ -7,8 +7,8 @@ import jakarta.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "hotel_room_room_facility")
-public class HotelRoomRoomFacility {
+@Entity(name = "room_highlight_link")
+public class RoomHighlightLink {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,6 +18,6 @@ public class HotelRoomRoomFacility {
     private HotelRoom hotelRoom;
 
     @ManyToOne
-    @JoinColumn(name = "room_facility_id", nullable = false)
-    private RoomFacility roomFacility;
+    @JoinColumn(name = "highlight_id", nullable = false)
+    private Highlight highlight;
 }

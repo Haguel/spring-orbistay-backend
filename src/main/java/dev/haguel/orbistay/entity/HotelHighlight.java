@@ -24,5 +24,5 @@ public class HotelHighlight {
 
     @OneToMany(mappedBy = "hotelHighlight")
     @JsonIgnore
-    private List<HotelHotelHighlight> hotelHotelHighlights;
+    private List<HotelHighlightLink> hotelHighlightLinks;
 }

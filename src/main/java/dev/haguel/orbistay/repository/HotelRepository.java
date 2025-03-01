@@ -22,7 +22,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
       AND (:city IS NULL OR LOWER(a.city) LIKE LOWER(CONCAT('%', :city, '%')))
       AND (:countryId IS NULL OR c.id = :countryId)
       AND (:peopleCount IS NULL OR hr.capacity >= CAST(:peopleCount AS INT))
-      AND (:isChildrenFriendly IS NULL OR :isChildrenFriendly = hr.is_children_friendly)
+      AND (:isChildrenFriendly IS NULL OR :isChildrenFriendly = hr.child_friendly)
       AND (:minPrice IS NULL OR hr.cost_per_night >= :minPrice)
       AND (:maxPrice IS NULL OR hr.cost_per_night <= :maxPrice)
       AND NOT EXISTS (

@@ -1,6 +1,6 @@
 package dev.haguel.orbistay.dto.response;
 
-import dev.haguel.orbistay.entity.RoomBed;
+import dev.haguel.orbistay.entity.BedType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +27,6 @@ public class GetBrieflyHotelRoomsResponseDTO {
     @Schema(description = "The hotel room's cost per night", example = "22")
     private double costPerNight;
 
-    @Schema(description = "The hotel room's beds", implementation = RoomBed.class)
-    private List<RoomBed> roomBeds;
+    @Schema(description = "The hotel room's beds", implementation = BedType.class)
+    private List<BedType> bedTypes;
 }

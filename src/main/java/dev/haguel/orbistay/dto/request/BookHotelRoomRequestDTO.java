@@ -55,7 +55,7 @@ public class BookHotelRoomRequestDTO {
     @NotNull
     @NotBlank
     @ValidPhoneNumber
-    private String phoneNumber;
+    private String phone;
 
     @Schema(description = "Country ID", example = "1")
     @NotNull
