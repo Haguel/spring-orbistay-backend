@@ -109,24 +109,14 @@ class AppUserControllerTest extends BaseControllerTestClass {
                         assertEquals(editAppUserDataRequestDTO.getBirthDate(), response.getAppUser().getBirthDate().toString());
                         assertEquals(editAppUserDataRequestDTO.getGender(), response.getAppUser().getGender().toString());
                         assertEquals(editAppUserDataRequestDTO.getCitizenshipCountryId(), response.getAppUser().getCitizenship().getId().toString());
+                        assertFalse(response.getAppUser().getEmailVerification().isVerified());
                         assertEquals(addressDataRequestDTO.getCity(), response.getAppUser().getResidency().getCity());
                         assertEquals(addressDataRequestDTO.getStreet(), response.getAppUser().getResidency().getStreet());
+                        assertEquals(addressDataRequestDTO.getCountryId(), response.getAppUser().getResidency().getCountry().getId().toString());
+                        assertEquals(passportDataRequestDTO.getPassportNumber(), response.getAppUser().getPassport().getPassportNumber());
+                        assertEquals(passportDataRequestDTO.getExpirationDate(), response.getAppUser().getPassport().getExpirationDate().toString());
+                        assertEquals(passportDataRequestDTO.getCountryOfIssuanceId(), response.getAppUser().getPassport().getCountryOfIssuance().getId().toString());
                     });
-
-            AppUser appUser = appUserService.findByEmail(editAppUserDataRequestDTO.getEmail());
-
-            assertEquals(appUser.getEmail(), editAppUserDataRequestDTO.getEmail());
-            assertEquals(appUser.getUsername(), editAppUserDataRequestDTO.getUsername());
-            assertEquals(appUser.getPhone(), editAppUserDataRequestDTO.getPhone());
-            assertEquals(appUser.getBirthDate().toString(), editAppUserDataRequestDTO.getBirthDate());
-            assertEquals(appUser.getGender().toString(), editAppUserDataRequestDTO.getGender());
-            assertEquals(appUser.getCitizenship().getId().toString(), editAppUserDataRequestDTO.getCitizenshipCountryId());
-            assertEquals(appUser.getResidency().getCity(), addressDataRequestDTO.getCity());
-            assertEquals(appUser.getResidency().getStreet(), addressDataRequestDTO.getStreet());
-            assertEquals(appUser.getResidency().getCountry().getId().toString(), addressDataRequestDTO.getCountryId());
-            assertEquals(appUser.getPassport().getPassportNumber(), passportDataRequestDTO.getPassportNumber());
-            assertEquals(appUser.getPassport().getExpirationDate().toString(), passportDataRequestDTO.getExpirationDate());
-            assertEquals(appUser.getPassport().getCountryOfIssuance().getId().toString(), passportDataRequestDTO.getCountryOfIssuanceId());
         }
     }
 }

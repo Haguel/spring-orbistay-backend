@@ -42,6 +42,12 @@ public class EmailService {
         return emailVerification;
     }
 
+    public void delete(EmailVerification emailVerification) {
+        emailVerificationRepository.delete(emailVerification);
+
+        log.info("Email verification deleted");
+    }
+
     @Transactional(readOnly = true)
     public EmailVerification findByToken(String token) {
         EmailVerification emailVerification = emailVerificationRepository.findByToken(token).orElse(null);

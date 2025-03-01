@@ -48,6 +48,7 @@ public class AppUserService {
     private final AppUserMapper appUserMapper;
     private final RedisService redisService;
     private final JwtService jwtService;
+    private final EmailService emailService;
     private BlobServiceClient blobServiceClient;
 
     @Value("${spring.cloud.azure.storage.blob.account-name}")
@@ -123,31 +124,39 @@ public class AppUserService {
         Address address = Optional.ofNullable(data.getAddress())
                 .map(addressMapper::addressDataRequestDTOToAddress).orElse(null);
         Passport passport = Optional.ofNullable(data.getPassport())
-                .map(passportMapper::passportDataRequestDTOToPassport)
-                .map((Passport pass) -> {
-                    pass.setAppUser(appUser);
-                    return pass;
-                }).orElse(null);
+                .map(passportMapper::passportDataRequestDTOToPassport).orElse(null);
         Country country = data.getCitizenshipCountryId() == null ? null : countryService.findById(Long.parseLong(data.getCitizenshipCountryId()));
 
         Optional.ofNullable(data.getUsername()).ifPresent(appUser::setUsername);
-        Optional.ofNullable(data.getEmail()).ifPresent(appUser::setEmail);
         Optional.ofNullable(data.getPhone()).ifPresent(appUser::setPhone);
         Optional.ofNullable(birthDate).ifPresent(appUser::setBirthDate);
         Optional.ofNullable(gender).ifPresent(appUser::setGender);
         Optional.ofNullable(country).ifPresent(appUser::setCitizenship);
-        Optional.ofNullable(address).ifPresent((Address a) -> {
-            addressService.save(a);
+
+        if(data.getEmail() != null) {
+            if(appUser.getEmailVerification() != null) {
+                emailService.delete(appUser.getEmailVerification());
+            }
+
+            appUser.setEmailVerification(emailService.createNeededVerificationForAppUser(appUser));
+            appUser.setEmail(data.getEmail());
+            appUser = save(appUser);
+
+            emailService.sendVerificationEmail(appUser);
+        }
+        if(address != null) {
+            addressService.save(address);
 
             Optional.ofNullable(appUser.getResidency()).ifPresent(addressService::delete);
-            appUser.setResidency(a);
-        });
-        Optional.ofNullable(passport).ifPresent((Passport p) -> {
-            passportService.save(p);
+            appUser.setResidency(address);
+        }
+        if(passport != null) {
+            passport.setAppUser(appUser);
+            passportService.save(passport);
 
             Optional.ofNullable(appUser.getPassport()).ifPresent(passportService::delete);
-            appUser.setPassport(p);
-        });
+            appUser.setPassport(passport);
+        }
 
         AppUser saved = save(appUser);
 
