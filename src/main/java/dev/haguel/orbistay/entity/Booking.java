@@ -58,4 +58,8 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "status_id", nullable = false)
     private BookingStatus status;
+
+    @OneToOne
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
 }

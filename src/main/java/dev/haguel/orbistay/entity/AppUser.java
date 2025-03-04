@@ -84,6 +84,9 @@ public class AppUser implements UserDetails {
     @OneToOne(mappedBy = "appUser")
     private EmailVerification emailVerification;
 
+    @OneToMany(mappedBy = "appUser")
+    private List<BankCard> bankCards = Collections.emptyList();
+
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {

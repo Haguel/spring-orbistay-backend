@@ -62,10 +62,20 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel")
     private List<Review> reviews;
 
+    @OneToMany(mappedBy = "hotel")
+    private List<HotelBookingPaymentOptionLink> hotelBookingPaymentOptionLinks;
+
     @JsonProperty("hotelHighlightLinks")
     public List<HotelHighlight> getHotelHighlights() {
         return hotelHighlightLinks.stream()
                 .map(HotelHighlightLink::getHotelHighlight)
+                .collect(Collectors.toList());
+    }
+
+    @JsonProperty("hotelBookingPaymentOptionLinks")
+    public List<BookingPaymentOption> getBookingPaymentOptions() {
+        return hotelBookingPaymentOptionLinks.stream()
+                .map(HotelBookingPaymentOptionLink::getBookingPaymentOption)
                 .collect(Collectors.toList());
     }
 

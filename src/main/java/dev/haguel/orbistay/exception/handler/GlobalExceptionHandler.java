@@ -60,6 +60,20 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(InvalidPaymentException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPaymentException(InvalidPaymentException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Invalid payment"
+        );
+
+        log.error("Invalid payment", exception);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(FavoritesNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleFavoritesNotFoundException(FavoritesNotFoundException exception) {
         ErrorResponse errorResponse = new ErrorResponse(

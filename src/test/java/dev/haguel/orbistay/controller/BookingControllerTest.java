@@ -83,7 +83,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                         assertEquals(requestDTO.getPhone(), response.getPhone());
                         assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoom().getId());
                         assertEquals(Long.parseLong(requestDTO.getCountryId()), response.getCountry().getId());
-                        assertEquals("ACTIVE", response.getStatus().getStatus());
+                        assertEquals("PENDING", response.getStatus().getStatus());
                     });
         }
 
@@ -206,7 +206,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                         assertEquals(requestDTO.getPhone(), response.getPhone());
                         assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoom().getId());
                         assertEquals(Long.parseLong(requestDTO.getCountryId()), response.getCountry().getId());
-                        assertEquals("ACTIVE", response.getStatus().getStatus());
+                        assertEquals("PENDING", response.getStatus().getStatus());
                     });
         }
 

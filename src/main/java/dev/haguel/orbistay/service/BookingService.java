@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -35,7 +37,7 @@ public class BookingService {
         return booking;
     }
 
-    private void checkAppUserForBookingAbility(AppUser appUser) {
+    public void checkEligibility(AppUser appUser) {
         StringBuilder missingFields = new StringBuilder();
         if (appUser.getCitizenship() == null) {
             missingFields.append("citizenship, ");
@@ -77,6 +79,8 @@ public class BookingService {
     @Transactional
     public Booking bookHotelRoom(AppUser appUser, BookHotelRoomRequestDTO bookHotelRoomRequestDTO)
             throws BookingNotAvailableException, HotelRoomNotFoundException, CountryNotFoundException, InvalidDataException {
+        checkEligibility(appUser);
+
         HotelRoom hotelRoom = hotelRoomService.findById(Long.valueOf(bookHotelRoomRequestDTO.getHotelRoomId()));
         Hotel hotel = hotelRoom.getHotel();
         Country country = countryService.findById(Long.valueOf(bookHotelRoomRequestDTO.getCountryId()));
@@ -94,16 +98,20 @@ public class BookingService {
             throw new BookingNotAvailableException("Hotel room is not available for the selected dates");
         }
 
-        checkAppUserForBookingAbility(appUser);
-
         booking.setAppUser(appUser);
         booking.setHotelRoom(hotelRoom);
         booking.setCountry(country);
-        booking.setStatus(bookingStatusRepository.findActiveStatus());
+        booking.setStatus(bookingStatusRepository.findPendingStatus());
         booking = save(booking);
 
-        log.info("Booking created and saved to db");
         return booking;
+    }
+
+    public Booking setCompletedPayment(Booking booking, Payment payment) {
+        booking.setPayment(payment);
+        booking.setStatus(bookingStatusRepository.findActiveStatus());
+
+        return save(booking);
     }
 
     @Transactional

@@ -17,5 +17,8 @@ public interface BookingStatusRepository extends JpaRepository<BookingStatus, Lo
     @Query("SELECT bs FROM booking_status bs WHERE bs.status = 'CHECKED-OUT'")
     BookingStatus findCheckedOutStatus();
 
+    @Query("SELECT bs FROM booking_status bs WHERE bs.status = 'PENDING'")
+    BookingStatus findPendingStatus();
+
     BookingStatus findByStatus(String status);
 }

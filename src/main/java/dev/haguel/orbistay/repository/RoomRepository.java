@@ -59,4 +59,14 @@ public interface RoomRepository extends JpaRepository<HotelRoom, Long> {
                                       @Param("checkOut") LocalDate checkOut,
                                       @Param("minPrice") Double minPrice,
                                       @Param("maxPrice") Double maxPrice);
+
+    @Query(value = """
+        SELECT hr.*
+        FROM hotel_room hr
+        JOIN hotel_booking_payment_option_link hbp ON hr.hotel_id = hbp.hotel_id
+        JOIN booking_payment_option bpo ON hbp.booking_payment_option_id = bpo.id
+        WHERE bpo.option = 'CASH'
+        LIMIT 1;
+    """ , nativeQuery = true)
+    HotelRoom findRoomWithCashPaymentOption();
 }

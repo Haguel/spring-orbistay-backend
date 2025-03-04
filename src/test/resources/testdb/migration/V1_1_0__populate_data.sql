@@ -7,14 +7,13 @@ INSERT INTO booking_status (status) VALUES
                                         ('ACTIVE'),
                                         ('CHECKED-IN'),
                                         ('CHECKED-OUT'),
-                                        ('CANCELED');
+                                        ('CANCELED'),
+                                        ('PENDING');
 
 -- Insert countries
 INSERT INTO country (name, code) VALUES
                                      ('United States', 'US'),
-                                     ('Switzerland', 'CH');
-
-INSERT INTO country (name, code) VALUES
+                                     ('Switzerland', 'CH'),
                                      ('Afghanistan', 'AF'),
                                      ('Albania', 'AL'),
                                      ('Algeria', 'DZ'),
@@ -665,3 +664,18 @@ INSERT INTO room_bed_link (hotel_room_id, bed_type_id) VALUES
                                                            (23, 1),
                                                            (24, 2),
                                                            (24, 2);
+
+INSERT INTO booking_payment_option (option) VALUES
+                                                ('CARD'),
+                                                ('CASH');
+
+-- Add "CARD" as a payment option for each hotel
+INSERT INTO hotel_booking_payment_option_link (hotel_id, booking_payment_option_id)
+SELECT id, (SELECT id FROM booking_payment_option WHERE option = 'CARD')
+FROM hotel;
+
+-- Add "CASH" as a payment option for every second hotel
+INSERT INTO hotel_booking_payment_option_link (hotel_id, booking_payment_option_id)
+SELECT id, (SELECT id FROM booking_payment_option WHERE option = 'CASH')
+FROM hotel
+WHERE id % 2 = 0;

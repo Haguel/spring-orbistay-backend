@@ -86,6 +86,17 @@ public class EndPoints {
         }
     }
 
+    public static class Payment {
+        private static final String BASE_ENDPOINT = "/payments";
+        public static final String PAY_BOOKING = BASE_ENDPOINT + "/bookings";
+
+        public static String[] getAuthorizedEndpoints() {
+            return new String[] {
+                    PAY_BOOKING
+            };
+        }
+    }
+
     public static class Favorites {
         private static final String BASE_ENDPOINT = "/favorites";
         public static final String ADD_TO_FAVORITES = BASE_ENDPOINT;
@@ -176,7 +187,8 @@ public class EndPoints {
                 Booking.getAuthorizedEndpoints(),
                 Hotels.getAuthorizedEndpoints(),
                 RecentlyViewedHotels.getAuthorizedEndpoints(),
-                Favorites.getAuthorizedEndpoints()
+                Favorites.getAuthorizedEndpoints(),
+                Payment.getAuthorizedEndpoints()
         )
                 .flatMap(Stream::of)
                 .toArray(String[]::new);
