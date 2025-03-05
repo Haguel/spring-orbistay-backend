@@ -4,20 +4,19 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
+import dev.haguel.orbistay.dto.request.AddBankCardDTO;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
 import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
 import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseWrapperDTO;
 import dev.haguel.orbistay.dto.response.JwtDTO;
-import dev.haguel.orbistay.entity.Address;
-import dev.haguel.orbistay.entity.AppUser;
-import dev.haguel.orbistay.entity.Country;
-import dev.haguel.orbistay.entity.Passport;
+import dev.haguel.orbistay.entity.*;
 import dev.haguel.orbistay.entity.enumeration.Gender;
 import dev.haguel.orbistay.exception.AppUserNotFoundException;
 import dev.haguel.orbistay.exception.CountryNotFoundException;
 import dev.haguel.orbistay.mapper.AddressMapper;
 import dev.haguel.orbistay.mapper.AppUserMapper;
+import dev.haguel.orbistay.mapper.BankCardMapper;
 import dev.haguel.orbistay.mapper.PassportMapper;
 import dev.haguel.orbistay.repository.AppUserRepository;
 import jakarta.annotation.PostConstruct;
@@ -40,11 +39,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AppUserService {
     private final AppUserRepository appUserRepository;
+    private final BankCardService bankCardService;
     private final CountryService countryService;
     private final AddressService addressService;
     private final PassportService passportService;
     private final AddressMapper addressMapper;
     private final PassportMapper passportMapper;
+    private final BankCardMapper bankCardMapper;
     private final AppUserMapper appUserMapper;
     private final RedisService redisService;
     private final JwtService jwtService;
@@ -184,11 +185,30 @@ public class AppUserService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while uploading avatar to blob storage");
         }
 
-
         String avatarUrl = blobClient.getBlobUrl();
 
         appUser.setAvatarUrl(avatarUrl);
         appUser = save(appUser);
+
+        return appUser;
+    }
+
+    public AppUser addBankCard(AddBankCardDTO addBankCardDTO, AppUser appUser) {
+        BankCard bankCard = bankCardMapper.addBankCardDTOToBankCard(addBankCardDTO);
+        bankCard.setAppUser(appUser);
+        bankCardService.save(bankCard);
+        log.info("size {}", appUser.getBankCards().size());
+
+        return appUser;
+    }
+
+    public AppUser removeBankCard(Long bankCardId, AppUser appUser) {
+        BankCard bankCard = bankCardService.findById(bankCardId);
+
+        appUser.getBankCards().remove(bankCard);
+        appUser = save(appUser);
+
+        bankCardService.delete(bankCard);
 
         return appUser;
     }

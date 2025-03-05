@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.controller;
 
+import dev.haguel.orbistay.dto.request.AddBankCardDTO;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
 import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseWrapperDTO;
@@ -100,6 +101,8 @@ public class AppUserController {
                 .body(editAppUserInfoResponseWrapperDTO.getEditAppUserInfoResponseDTO());
     }
 
+
+
     @Operation(summary = "Upload avatar for current app user by jwt access token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Avatar uploaded successfully",
@@ -118,6 +121,52 @@ public class AppUserController {
         appUser = appUserService.setAvatar(appUser, avatar);
 
         log.info("Avatar uploaded successfully");
+        return ResponseEntity.status(200).body(appUserMapper.appUserToAppUserInfoDTO(appUser));
+    }
+
+    @Operation(summary = "Add bank card to current app user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bank card added successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetAppUserInfoResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid Jwt token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request body",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping(EndPoints.AppUsers.ADD_BANK_CARD)
+    public ResponseEntity<?> addBankCard(@RequestHeader(name="Authorization") String authorizationHeader,
+                                         @Valid @RequestBody AddBankCardDTO addBankCardDTO)
+            throws InvalidJwtTokenException {
+        log.info("Add bank card request received");
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
+        appUser = appUserService.addBankCard(addBankCardDTO, appUser);
+
+        log.info("Bank card added successfully");
+        return ResponseEntity.status(200).body(appUserMapper.appUserToAppUserInfoDTO(appUser));
+    }
+
+    @Operation(summary = "Remove bank card from current app user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bank card removed successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetAppUserInfoResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid Jwt token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Bank card not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @DeleteMapping(EndPoints.AppUsers.REMOVE_BANK_CARD + "/{bankCardId}")
+    public ResponseEntity<?> removeBankCard(@RequestHeader(name="Authorization") String authorizationHeader,
+                                            @PathVariable Long bankCardId)
+            throws InvalidJwtTokenException {
+        log.info("Remove bank card request received");
+        AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
+        appUser = appUserService.removeBankCard(bankCardId, appUser);
+
+        log.info("Bank card removed successfully");
         return ResponseEntity.status(200).body(appUserMapper.appUserToAppUserInfoDTO(appUser));
     }
 }

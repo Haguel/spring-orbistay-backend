@@ -669,6 +669,11 @@ INSERT INTO booking_payment_option (option) VALUES
                                                 ('CARD'),
                                                 ('CASH');
 
+INSERT INTO payment_status (status) VALUES
+                                        ('COMPLETED'),
+                                        ('ON_CHECK_IN'),
+                                        ('REFUNDED');
+
 -- Add "CARD" as a payment option for each hotel
 INSERT INTO hotel_booking_payment_option_link (hotel_id, booking_payment_option_id)
 SELECT id, (SELECT id FROM booking_payment_option WHERE option = 'CARD')
@@ -679,3 +684,19 @@ INSERT INTO hotel_booking_payment_option_link (hotel_id, booking_payment_option_
 SELECT id, (SELECT id FROM booking_payment_option WHERE option = 'CASH')
 FROM hotel
 WHERE id % 2 = 0;
+
+-- Insert cancellation rules for every second hotel (even hotel IDs) and update the hotel table in one go
+WITH cancel_rules AS (
+    INSERT INTO booking_cancel_rule (appeal_if_cancelled_before_hours, cancel_fee, hotel_id)
+        SELECT 24, 50.00, id
+        FROM hotel
+        WHERE id % 2 = 0
+        RETURNING id AS cancel_rule_id, hotel_id
+)
+UPDATE hotel h
+SET booking_cancel_rule_id = cr.cancel_rule_id
+FROM cancel_rules cr
+WHERE h.id = cr.hotel_id;
+
+INSERT INTO bank_card (card_number, card_holder_name, expiration_date, cvv, app_user_id)
+    VALUES ('1234567890123456', 'John Doe', '12/25', '123', 1);

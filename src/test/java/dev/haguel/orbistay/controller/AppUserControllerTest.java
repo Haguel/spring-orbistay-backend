@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
+import dev.haguel.orbistay.dto.request.AddBankCardDTO;
 import dev.haguel.orbistay.dto.request.AddressDataRequestDTO;
 import dev.haguel.orbistay.dto.request.EditAppUserDataRequestDTO;
 import dev.haguel.orbistay.dto.request.PassportDataRequestDTO;
@@ -21,6 +22,8 @@ import test_utils.SharedTestUtil;
 import test_utils.TestDataGenerator;
 import test_utils.TestDataStorage;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class AppUserControllerTest extends BaseControllerTestClass {
@@ -31,9 +34,6 @@ class AppUserControllerTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static RedisContainer redis = new RedisContainer("redis:6.2-alpine");
-
-    @Autowired
-    private AppUserService appUserService;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -74,7 +74,7 @@ class AppUserControllerTest extends BaseControllerTestClass {
                     .lastName(TestDataGenerator.generateRandomLastName())
                     .passportNumber(TestDataGenerator.generateRandomPassportNumber())
                     .countryOfIssuanceId(TestDataGenerator.generateRandomCountryId())
-                    .expirationDate(TestDataGenerator.generateRandomExpirationDate(false))
+                    .expirationDate(LocalDate.now().plusYears(1).toString())
                     .countryOfIssuanceId(TestDataGenerator.generateRandomCountryId())
                     .build();
             EditAppUserDataRequestDTO editAppUserDataRequestDTO = EditAppUserDataRequestDTO.builder()
@@ -113,6 +113,52 @@ class AppUserControllerTest extends BaseControllerTestClass {
                         assertEquals(passportDataRequestDTO.getPassportNumber(), response.getAppUser().getPassport().getPassportNumber());
                         assertEquals(passportDataRequestDTO.getExpirationDate(), response.getAppUser().getPassport().getExpirationDate().toString());
                         assertEquals(passportDataRequestDTO.getCountryOfIssuanceId(), response.getAppUser().getPassport().getIssuingCountry().getId().toString());
+                    });
+        }
+    }
+
+    @Nested
+    class AddBankCard {
+        @Test
+        void whenAddBankCard_thenReturnAppUser() {
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
+
+            AddBankCardDTO addBankCardDTO = AddBankCardDTO.builder()
+                    .cardNumber("1234567891234567")
+                    .cardHolderName("John Doe")
+                    .expirationDate("12/25")
+                    .cvv("123")
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.AppUsers.ADD_BANK_CARD)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .bodyValue(addBankCardDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(GetAppUserInfoResponseDTO.class)
+                    .value(response -> {
+                        assertNotNull(response);
+                        assertEquals(2, response.getBankCards().size());
+                    });
+        }
+    }
+
+    @Nested
+    class RemoveBankCard {
+        @Test
+        void whenRemoveBankCard_thenReturnAppUser() {
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
+
+            webTestClient.delete()
+                    .uri(EndPoints.AppUsers.REMOVE_BANK_CARD + "/1")
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(GetAppUserInfoResponseDTO.class)
+                    .value(response -> {
+                        assertNotNull(response);
+                        assertEquals(0, response.getBankCards().size());
                     });
         }
     }

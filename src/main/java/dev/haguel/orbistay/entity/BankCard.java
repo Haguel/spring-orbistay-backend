@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,14 +16,14 @@ public class BankCard {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String cardNumber;
 
     @Column(nullable = false)
     private String cardHolderName;
 
     @Column(nullable = false)
-    private LocalDate expirationDate;
+    private String expirationDate;
 
     @Column(nullable = false)
     private String cvv;

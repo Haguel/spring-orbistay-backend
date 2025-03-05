@@ -65,6 +65,9 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel")
     private List<HotelBookingPaymentOptionLink> hotelBookingPaymentOptionLinks;
 
+    @OneToOne(mappedBy = "hotel")
+    private BookingCancelRule bookingCancelRule;
+
     @JsonProperty("hotelHighlightLinks")
     public List<HotelHighlight> getHotelHighlights() {
         return hotelHighlightLinks.stream()

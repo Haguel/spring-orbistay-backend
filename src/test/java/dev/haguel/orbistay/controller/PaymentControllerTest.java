@@ -38,7 +38,7 @@ public class PaymentControllerTest extends BaseControllerTestClass {
     @Nested
     class PayBooking {
         @Test
-        void whenPayBookingWithCash_return200() {
+        void whenPayingBookingWithCash_return200() {
             AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             HotelRoom room = roomRepository.findRoomWithCashPaymentOption();
@@ -77,6 +77,181 @@ public class PaymentControllerTest extends BaseControllerTestClass {
                     .bodyValue(bookingPaymentRequestDTO)
                     .exchange()
                     .expectStatus().isOk();
+        }
+
+        @Test
+        void whenPayingBookingWithCard_return200() {
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
+
+            HotelRoom room = roomRepository.findById(1L).orElse(null);
+
+            BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
+                    .hotelRoomId(room.getId().toString())
+                    .countryId("1")
+                    .checkIn(LocalDate.now().plusDays(5).toString())
+                    .checkOut(LocalDate.now().plusDays(10).toString())
+                    .firstName("John")
+                    .lastName("Doe")
+                    .email("john.test@example.com")
+                    .phone("1234567890")
+                    .build();
+
+            Booking booking = webTestClient.post()
+                    .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(Booking.class)
+                    .returnResult()
+                    .getResponseBody();
+
+            BookingPaymentRequestDTO bookingPaymentRequestDTO = new BookingPaymentRequestDTO();
+            bookingPaymentRequestDTO.setAmount(room.getCostPerNight() * 5);
+            bookingPaymentRequestDTO.setCurrency("USD");
+            bookingPaymentRequestDTO.setPaymentMethod("CARD");
+            bookingPaymentRequestDTO.setBookingId(booking.getId());
+
+            webTestClient.post()
+                    .uri(EndPoints.Payment.PAY_BOOKING)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .bodyValue(bookingPaymentRequestDTO)
+                    .exchange()
+                    .expectStatus().isOk();
+        }
+
+        @Test
+        void whenPayingBookingWithCashToCardOnlyHotel_return400() {
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
+
+            HotelRoom room = roomRepository.findRoomWithOnlyCardPaymentOption();
+
+            BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
+                    .hotelRoomId(room.getId().toString())
+                    .countryId("1")
+                    .checkIn(LocalDate.now().plusDays(5).toString())
+                    .checkOut(LocalDate.now().plusDays(10).toString())
+                    .firstName("John")
+                    .lastName("Doe")
+                    .email("john.test@example.com")
+                    .phone("1234567890")
+                    .build();
+
+            Booking booking = webTestClient.post()
+                    .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(Booking.class)
+                    .returnResult()
+                    .getResponseBody();
+
+            BookingPaymentRequestDTO bookingPaymentRequestDTO = new BookingPaymentRequestDTO();
+            bookingPaymentRequestDTO.setAmount(room.getCostPerNight() * 5);
+            bookingPaymentRequestDTO.setCurrency("USD");
+            bookingPaymentRequestDTO.setPaymentMethod("CASH");
+            bookingPaymentRequestDTO.setBookingId(booking.getId());
+
+            webTestClient.post()
+                    .uri(EndPoints.Payment.PAY_BOOKING)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .bodyValue(bookingPaymentRequestDTO)
+                    .exchange()
+                    .expectStatus().isBadRequest();
+        }
+
+        @Test
+        void whenPayingPaid_return400() {
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
+
+            HotelRoom room = roomRepository.findById(1L).orElse(null);
+
+            BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
+                    .hotelRoomId(room.getId().toString())
+                    .countryId("1")
+                    .checkIn(LocalDate.now().plusDays(5).toString())
+                    .checkOut(LocalDate.now().plusDays(10).toString())
+                    .firstName("John")
+                    .lastName("Doe")
+                    .email("john.test@example.com")
+                    .phone("1234567890")
+                    .build();
+
+            Booking booking = webTestClient.post()
+                    .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(Booking.class)
+                    .returnResult()
+                    .getResponseBody();
+
+            BookingPaymentRequestDTO bookingPaymentRequestDTO = new BookingPaymentRequestDTO();
+            bookingPaymentRequestDTO.setAmount(room.getCostPerNight() * 5);
+            bookingPaymentRequestDTO.setCurrency("USD");
+            bookingPaymentRequestDTO.setPaymentMethod("CARD");
+            bookingPaymentRequestDTO.setBookingId(booking.getId());
+
+            webTestClient.post()
+                    .uri(EndPoints.Payment.PAY_BOOKING)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .bodyValue(bookingPaymentRequestDTO)
+                    .exchange()
+                    .expectStatus().isOk();
+
+            webTestClient.post()
+                    .uri(EndPoints.Payment.PAY_BOOKING)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .bodyValue(bookingPaymentRequestDTO)
+                    .exchange()
+                    .expectStatus().isBadRequest();
+        }
+
+        @Test
+        void whenPayingInvalidAmount_return400() {
+            AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
+
+            HotelRoom room = roomRepository.findById(1L).orElse(null);
+
+            BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
+                    .hotelRoomId(room.getId().toString())
+                    .countryId("1")
+                    .checkIn(LocalDate.now().plusDays(5).toString())
+                    .checkOut(LocalDate.now().plusDays(10).toString())
+                    .firstName("John")
+                    .lastName("Doe")
+                    .email("john.test@example.com")
+                    .phone("1234567890")
+                    .build();
+
+            Booking booking = webTestClient.post()
+                    .uri(EndPoints.Booking.BOOK_HOTEL_ROOM)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(Booking.class)
+                    .returnResult()
+                    .getResponseBody();
+
+            BookingPaymentRequestDTO bookingPaymentRequestDTO = new BookingPaymentRequestDTO();
+            bookingPaymentRequestDTO.setAmount(1D);
+            bookingPaymentRequestDTO.setCurrency("USD");
+            bookingPaymentRequestDTO.setPaymentMethod("CARD");
+            bookingPaymentRequestDTO.setBookingId(booking.getId());
+
+            webTestClient.post()
+                    .uri(EndPoints.Payment.PAY_BOOKING)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .bodyValue(bookingPaymentRequestDTO)
+                    .exchange()
+                    .expectStatus().isBadRequest();
         }
     }
 }

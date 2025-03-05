@@ -88,6 +88,20 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(BankCardNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBankCardNotFoundException(BankCardNotFoundException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "Bank card could not be found in database"
+        );
+
+        log.error("Bank card not found", exception);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(InvalidDataException.class)
     public ResponseEntity<ErrorResponse> handleInvalidDataExceptionException(InvalidDataException exception) {
         ErrorResponse errorResponse = new ErrorResponse(

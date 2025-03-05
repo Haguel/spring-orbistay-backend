@@ -1,8 +1,10 @@
 package dev.haguel.orbistay.controller;
 
 import com.redis.testcontainers.RedisContainer;
+import dev.haguel.orbistay.dto.request.AddBankCardDTO;
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
 import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
+import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.Booking;
 import dev.haguel.orbistay.entity.HotelRoom;
@@ -94,6 +96,25 @@ class BookingControllerTest extends BaseControllerTestClass {
             appUser.getEmailVerification().setVerified(true);
             AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInAndGetAccessToken("jane.smith@example.com", "qwerty", webTestClient);
 
+            AddBankCardDTO addBankCardDTO = AddBankCardDTO.builder()
+                    .cardNumber("1234567891234566")
+                    .cardHolderName("John Doe")
+                    .expirationDate("12/25")
+                    .cvv("123")
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.AppUsers.ADD_BANK_CARD)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .bodyValue(addBankCardDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(GetAppUserInfoResponseDTO.class)
+                    .value(response -> {
+                        assertNotNull(response);
+                        assertEquals(1, response.getBankCards().size());
+                    });
+
             Long hotelRoomId = 1L;
 
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
@@ -120,6 +141,25 @@ class BookingControllerTest extends BaseControllerTestClass {
         void whenBookHotelRoomWithoutVerifiedEmail_thenReturn400() {
             AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInAndGetAccessToken("jane.smith@example.com", "qwerty", webTestClient);
 
+            AddBankCardDTO addBankCardDTO = AddBankCardDTO.builder()
+                    .cardNumber("1234567891234566")
+                    .cardHolderName("John Doe")
+                    .expirationDate("12/25")
+                    .cvv("123")
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.AppUsers.ADD_BANK_CARD)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .bodyValue(addBankCardDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(GetAppUserInfoResponseDTO.class)
+                    .value(response -> {
+                        assertNotNull(response);
+                        assertEquals(1, response.getBankCards().size());
+                    });
+
             Long hotelRoomId = 1L;
 
             BookHotelRoomRequestDTO requestDTO = BookHotelRoomRequestDTO.builder()
@@ -145,6 +185,25 @@ class BookingControllerTest extends BaseControllerTestClass {
         @Test
         void whenBookHotelRoomWithExpiredPassport_thenReturn403() {
             AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInAndGetAccessToken("admin@example.com", "admin_pass", webTestClient);
+
+            AddBankCardDTO addBankCardDTO = AddBankCardDTO.builder()
+                    .cardNumber("1234567891234566")
+                    .cardHolderName("John Doe")
+                    .expirationDate("12/25")
+                    .cvv("123")
+                    .build();
+
+            webTestClient.post()
+                    .uri(EndPoints.AppUsers.ADD_BANK_CARD)
+                    .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
+                    .bodyValue(addBankCardDTO)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(GetAppUserInfoResponseDTO.class)
+                    .value(response -> {
+                        assertNotNull(response);
+                        assertEquals(1, response.getBankCards().size());
+                    });
 
             Long hotelRoomId = 1L;
 

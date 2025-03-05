@@ -8,12 +8,16 @@ public class EndPoints {
         public static final String GET_CURRENT_APP_USER = BASE_ENDPOINT + "/me";
         public static final String EDIT_CURRENT_APP_USER = BASE_ENDPOINT + "/me";
         public static final String UPLOAD_AVATAR = BASE_ENDPOINT + "/me/avatar";
+        public static final String ADD_BANK_CARD = BASE_ENDPOINT + "/me/bankCards";
+        public static final String REMOVE_BANK_CARD = BASE_ENDPOINT + "/me/bankCards";
 
         public static String[] getAuthorizedEndpoints() {
             return new String[] {
                     GET_CURRENT_APP_USER,
                     EDIT_CURRENT_APP_USER,
                     UPLOAD_AVATAR,
+                    ADD_BANK_CARD,
+                    REMOVE_BANK_CARD + "/*",
             };
         }
     }

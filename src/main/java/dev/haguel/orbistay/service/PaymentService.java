@@ -1,10 +1,9 @@
 package dev.haguel.orbistay.service;
 
 import dev.haguel.orbistay.dto.request.BookingPaymentRequestDTO;
-import dev.haguel.orbistay.entity.Booking;
-import dev.haguel.orbistay.entity.BookingPaymentOption;
-import dev.haguel.orbistay.entity.Payment;
+import dev.haguel.orbistay.entity.*;
 import dev.haguel.orbistay.exception.InvalidPaymentException;
+import dev.haguel.orbistay.exception.RequiredDataMissingException;
 import dev.haguel.orbistay.repository.PaymentRepository;
 import dev.haguel.orbistay.repository.PaymentStatusRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class PaymentService {
     }
 
     @Transactional
-    private Payment createCompletePayment(BookingPaymentRequestDTO bookingPaymentRequestDTO, Booking booking) {
+    protected Payment createCompletePayment(BookingPaymentRequestDTO bookingPaymentRequestDTO, Booking booking) {
         Payment payment;
         if(bookingPaymentRequestDTO.getPaymentMethod().equals("CASH")) {
             payment = Payment.builder()

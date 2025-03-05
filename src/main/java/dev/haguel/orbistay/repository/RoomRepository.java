@@ -69,4 +69,21 @@ public interface RoomRepository extends JpaRepository<HotelRoom, Long> {
         LIMIT 1;
     """ , nativeQuery = true)
     HotelRoom findRoomWithCashPaymentOption();
+
+    @Query(value = """
+        SELECT hr.*
+        FROM hotel_room hr
+        JOIN hotel_booking_payment_option_link hbp ON hr.hotel_id = hbp.hotel_id
+        JOIN booking_payment_option bpo ON hbp.booking_payment_option_id = bpo.id
+        WHERE bpo.option = 'CARD'
+          AND NOT EXISTS (
+              SELECT 1
+              FROM hotel_booking_payment_option_link hbp2
+              JOIN booking_payment_option bpo2 ON hbp2.booking_payment_option_id = bpo2.id
+              WHERE hbp2.hotel_id = hr.hotel_id
+                AND bpo2.option != 'CARD'
+          )
+        LIMIT 1;
+    """ , nativeQuery = true)
+    HotelRoom findRoomWithOnlyCardPaymentOption();
 }

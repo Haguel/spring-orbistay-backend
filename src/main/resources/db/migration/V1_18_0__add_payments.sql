@@ -33,9 +33,9 @@ FROM booking;
 
 CREATE TABLE bank_card (
         id BIGSERIAL PRIMARY KEY,
-        card_number VARCHAR(16) NOT NULL,
+        card_number VARCHAR(16) NOT NULL UNIQUE,
         card_holder_name VARCHAR(255) NOT NULL,
-        expiration_date DATE NOT NULL,
+        expiration_date VARCHAR(5) NOT NULL,
         cvv VARCHAR(3) NOT NULL,
         app_user_id BIGINT NOT NULL,
         FOREIGN KEY (app_user_id) REFERENCES app_user(id)

@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -59,6 +57,10 @@ public class BookingService {
 
         if(appUser.getPassport().getExpirationDate().isBefore(LocalDate.now())) {
             throw new PassportIsExpiredException("Passport is expired");
+        }
+
+        if(appUser.getBankCards().isEmpty()) {
+            throw new RequiredDataMissingException("At least one bank card is required");
         }
     }
 
