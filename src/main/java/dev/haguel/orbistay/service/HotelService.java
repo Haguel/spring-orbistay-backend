@@ -89,7 +89,7 @@ public class HotelService {
                         .map(star -> Integer.parseInt(star.stars))
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
-        Boolean sevenToEight = Optional.ofNullable(getFilteredHotelsRequestDTO.getFilters())
+        Boolean sixToEight = Optional.ofNullable(getFilteredHotelsRequestDTO.getFilters())
                 .map(HotelFiltersDTO::getValuations)
                 .map(valuations -> valuations.contains(ObjectValuation.GOOD))
                 .orElse(false);
@@ -129,8 +129,8 @@ public class HotelService {
                 .filter(hotel -> stars.isEmpty() || stars.contains(hotel.getStars()))
                 .filter((Hotel hotel) ->  {
                     double avgRate = hotel.getAvgRate();
-                    return (!sevenToEight && !eightToNine && !nineToTen)
-                            || (sevenToEight && avgRate >= 7 && avgRate < 8)
+                    return (!sixToEight && !eightToNine && !nineToTen)
+                            || (sixToEight && avgRate >= 6 && avgRate < 8)
                             || (eightToNine && avgRate >= 8 && avgRate < 9)
                             || (nineToTen && avgRate >= 9 && avgRate <= 10);
                 })
