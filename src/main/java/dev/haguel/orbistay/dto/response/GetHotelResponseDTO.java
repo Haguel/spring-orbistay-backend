@@ -1,5 +1,7 @@
 package dev.haguel.orbistay.dto.response;
 
+import dev.haguel.orbistay.entity.BookingCancelRule;
+import dev.haguel.orbistay.entity.BookingPaymentOption;
 import dev.haguel.orbistay.entity.HotelHighlight;
 import dev.haguel.orbistay.entity.Review;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -62,4 +64,11 @@ public class GetHotelResponseDTO {
     @ArraySchema(schema = @Schema(implementation = GetBrieflyHotelRoomsResponseDTO.class))
     @Schema(description = "The hotel's rooms briefly data")
     private List<GetBrieflyHotelRoomsResponseDTO> hotelRooms;
+
+    @ArraySchema(schema = @Schema(implementation = BookingPaymentOption.class))
+    @Schema(description = "The hotel's booking payment options")
+    private List<BookingPaymentOption> bookingPaymentOptions;
+
+    @Schema(description = "The hotel's booking cancel rule")
+    private BookingCancelRule bookingCancelRule;
 }

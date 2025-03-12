@@ -27,6 +27,7 @@ public abstract class HotelMapper {
     @Mapping(target = "avgRate", expression = "java(hotelMapperUtil.getReviewsAvgRate(hotel))")
     @Mapping(target = "imagesUrls", expression = "java(hotelMapperUtil.getImagesUrls(hotel))")
     @Mapping(target = "hotelRooms", expression = "java(hotelMapperUtil.getBrieflyHotelRoomsResponseDTOs(hotel))")
+    @Mapping(target = "bookingPaymentOptions", expression = "java(hotel.getBookingPaymentOptions())")
     public abstract GetHotelResponseDTO hotelToHotelResponseDTO(Hotel hotel);
 
     @Mapping(target = "country", source = "address.country")

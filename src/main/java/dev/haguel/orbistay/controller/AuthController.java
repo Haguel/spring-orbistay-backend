@@ -160,7 +160,7 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping(EndPoints.Auth.CHANGE_PASSWORD)
-    public ResponseEntity<?> changePassword(@RequestHeader(name="Authorization") String authorizationHeader,
+    public ResponseEntity<?> changePassword(@RequestHeader(name = "Authorization") String authorizationHeader,
                                             @RequestBody @Valid ChangePasswordRequestDTO changePasswordRequestDTO)
             throws InvalidJwtTokenException, IncorrectPasswordException {
         log.info("Change password request received");
@@ -204,7 +204,7 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping(EndPoints.Auth.RESEND_EMAIL_VERIFICATION)
-    public ResponseEntity<?> resendEmailVerification(@RequestHeader(name="Authorization") String authorizationHeader)
+    public ResponseEntity<?> resendEmailVerification(@RequestHeader(name = "Authorization") String authorizationHeader)
             throws EmailVerificationNotFoundException, EmailSendingException {
         log.info("Resend email verification request received");
 
