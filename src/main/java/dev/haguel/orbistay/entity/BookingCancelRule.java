@@ -1,5 +1,6 @@
 package dev.haguel.orbistay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,5 +25,6 @@ public class BookingCancelRule {
 
     @OneToOne
     @JoinColumn(name = "hotel_id", referencedColumnName = "id")
+    @JsonIgnore
     private Hotel hotel;
 }
