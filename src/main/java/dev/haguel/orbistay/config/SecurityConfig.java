@@ -4,7 +4,7 @@ import dev.haguel.orbistay.filter.JwtFilter;
 import dev.haguel.orbistay.service.CustomOAuth2UserService;
 import dev.haguel.orbistay.service.UserDetailsCustomService;
 import dev.haguel.orbistay.util.EndPoints;
-import dev.haguel.orbistay.util.OAuth2AuthenticationSuccessHandler;
+import dev.haguel.orbistay.handler.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;

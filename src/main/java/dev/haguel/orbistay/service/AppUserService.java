@@ -19,6 +19,8 @@ import dev.haguel.orbistay.mapper.AppUserMapper;
 import dev.haguel.orbistay.mapper.BankCardMapper;
 import dev.haguel.orbistay.mapper.PassportMapper;
 import dev.haguel.orbistay.repository.AppUserRepository;
+import dev.haguel.orbistay.strategy.notification.context.NotificationContext;
+import dev.haguel.orbistay.strategy.notification.context.NotificationType;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,7 @@ public class AppUserService {
     private final RedisService redisService;
     private final JwtService jwtService;
     private final EmailService emailService;
+    private final NotificationContext notificationContext;
     private BlobServiceClient blobServiceClient;
 
     @Value("${spring.cloud.azure.storage.blob.account-name}")
@@ -143,7 +146,9 @@ public class AppUserService {
             appUser.setEmail(data.getEmail());
             appUser = save(appUser);
 
-            emailService.sendVerificationEmail(appUser);
+            notificationContext.setNotificationType(NotificationType.EMAIL);
+            String message = notificationContext.getMessageFactory().getVerificationMessage(appUser);
+            notificationContext.notifyUser(appUser.getEmail(), "Orbistay Email Verification", message);
         }
         if(address != null) {
             addressService.save(address);

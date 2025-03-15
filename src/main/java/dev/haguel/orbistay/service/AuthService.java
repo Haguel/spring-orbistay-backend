@@ -8,10 +8,14 @@ import dev.haguel.orbistay.dto.response.JwtDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.EmailVerification;
 import dev.haguel.orbistay.entity.enumeration.Role;
+import dev.haguel.orbistay.event.AppUserSignUpEvent;
 import dev.haguel.orbistay.exception.*;
+import dev.haguel.orbistay.strategy.notification.context.NotificationContext;
+import dev.haguel.orbistay.strategy.notification.context.NotificationType;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +40,8 @@ public class AuthService {
     private final RedisService redisService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final NotificationContext notificationContext;
 
     private JwtDTO getJwtDTO(AppUser appUser) {
         String accessToken = jwtService.generateAccessToken(appUser);
@@ -68,7 +74,9 @@ public class AuthService {
             }
         }
 
-        emailService.sendVerificationEmail(appUser);
+        notificationContext.setNotificationType(NotificationType.EMAIL);
+        AppUserSignUpEvent appUserSignUpEvent = new AppUserSignUpEvent(this, appUser);
+        applicationEventPublisher.publishEvent(appUserSignUpEvent);
 
         return getJwtDTO(appUser);
     }
@@ -150,7 +158,9 @@ public class AuthService {
         String resetPasswordJwt = jwtService.generateResetPasswordToken(appUser);
         redisService.setResetPasswordValue(appUser.getEmail(), resetPasswordJwt);
 
-        emailService.sendResetPasswordEmail(appUser, resetPasswordJwt);
+        notificationContext.setNotificationType(NotificationType.EMAIL);
+        String message = notificationContext.getMessageFactory().getResetPasswordMessage(resetPasswordJwt);
+        notificationContext.notifyUser(appUser.getEmail(), "Orbistay Reset Password", message);
     }
 
     @Transactional
@@ -197,6 +207,8 @@ public class AuthService {
         emailVerification = emailService.continueAndSaveVerification(emailVerification);
         appUser = emailVerification.getAppUser();
 
-        emailService.sendVerificationEmail(appUser);
+        notificationContext.setNotificationType(NotificationType.EMAIL);
+        String message = notificationContext.getMessageFactory().getVerificationMessage(appUser);
+        notificationContext.notifyUser(appUser.getEmail(), "Orbistay Email Verification", message);
     }
 }

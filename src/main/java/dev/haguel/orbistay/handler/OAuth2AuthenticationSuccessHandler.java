@@ -1,4 +1,4 @@
-package dev.haguel.orbistay.util;
+package dev.haguel.orbistay.handler;
 
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.enumeration.Role;
