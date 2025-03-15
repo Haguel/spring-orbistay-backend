@@ -55,7 +55,7 @@ class FavoritesControllerTest extends BaseControllerTestClass {
             AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.post()
-                    .uri(EndPoints.Favorites.ADD_TO_FAVORITES + "/-1")
+                    .uri(EndPoints.Favorites.ADD_TO_FAVORITES + "/999")
                     .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isNotFound();
@@ -98,25 +98,25 @@ class FavoritesControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenRemoveFavoritesWithInvalidFavoritesId_thenReturns404() {
+        void whenRemoveFavoritesWithInvalidHotelId_thenReturns404() {
             AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
-                    .uri(EndPoints.Favorites.REMOVE_FAVORITES + "/-1")
+                    .uri(EndPoints.Favorites.REMOVE_FAVORITES + "/999")
                     .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isNotFound();
         }
 
         @Test
-        void whenRemoveFavoritesOfOtherUser_thenReturn403() {
+        void whenRemoveFavoritesWithInvalidFavoritesId_thenReturns404() {
             AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             webTestClient.delete()
-                    .uri(EndPoints.Favorites.REMOVE_FAVORITES + "/4")
+                    .uri(EndPoints.Favorites.REMOVE_FAVORITES + "/10")
                     .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
-                    .expectStatus().isForbidden();
+                    .expectStatus().isNotFound();
         }
     }
 }

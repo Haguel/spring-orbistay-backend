@@ -86,22 +86,22 @@ public class FavoritesController {
             @ApiResponse(responseCode = "200", description = "Hotel removed from favorites successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid jwt token",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Can not delete other user's favorites",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Favorites not found",
+            @ApiResponse(responseCode = "404", description = "Hotel not found",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Favorites not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @DeleteMapping(EndPoints.Favorites.REMOVE_FAVORITES + "/{favoritesId}")
+    @DeleteMapping(EndPoints.Favorites.REMOVE_FAVORITES + "/{hotelId}")
     public ResponseEntity<?> removeHotelFromFavorites(@RequestHeader(name="Authorization") String authorizationHeader,
-                                                      @PathVariable String favoritesId)
+                                                      @PathVariable String hotelId)
             throws InvalidJwtTokenException, CanNotChangeOtherUserDataException, FavoritesNotFoundException {
         log.info("Remove hotel from favorites request received");
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
-        Favorites favorites = favoritesService.findById(Long.parseLong(favoritesId));
+        Hotel favoritesHotel = hotelService.findById(Long.parseLong(hotelId));
 
-        favoritesService.removeHotelFromFavorites(appUser, favorites);
+        favoritesService.removeHotelFromFavorites(appUser, favoritesHotel);
         return ResponseEntity.status(200).build();
     }
 }
