@@ -1,6 +1,7 @@
 package dev.haguel.orbistay.mapper;
 
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
+import dev.haguel.orbistay.dto.response.BookingInfoResponseDTO;
 import dev.haguel.orbistay.entity.Booking;
 import dev.haguel.orbistay.util.mapper.SharedMapperUtil;
 import org.mapstruct.AfterMapping;
@@ -26,6 +27,10 @@ public abstract class BookingMapper {
     @Mapping(target = "status", ignore = true)
     public abstract Booking bookHotelRoomRequestDTOToBooking(BookHotelRoomRequestDTO bookHotelRoomRequestDTO,
                                                              LocalTime checkInTime, LocalTime checkOutTime);
+
+    @Mapping(target = "hotelRoomId", source = "hotelRoom.id")
+    @Mapping(target = "hotelId", source = "hotelRoom.hotel.id")
+    public abstract BookingInfoResponseDTO bookingToBookingInfoResponseDTO(Booking booking);
 
     @AfterMapping
     protected void validateBookingDates(@MappingTarget Booking booking) {

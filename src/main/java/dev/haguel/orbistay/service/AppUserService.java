@@ -137,7 +137,7 @@ public class AppUserService {
         Optional.ofNullable(gender).ifPresent(appUser::setGender);
         Optional.ofNullable(country).ifPresent(appUser::setCitizenship);
 
-        if(data.getEmail() != null) {
+        if(data.getEmail() != null && !data.getEmail().equals(appUser.getEmail())) {
             if(appUser.getEmailVerification() != null) {
                 emailService.delete(appUser.getEmailVerification());
             }

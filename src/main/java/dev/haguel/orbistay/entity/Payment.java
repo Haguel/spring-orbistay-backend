@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long id;
 
     @Column(nullable = false)
@@ -28,12 +29,15 @@ public class Payment {
     private String paymentMethod;
 
     @Column(unique = true)
+    @JsonIgnore
     private String transactionId;
 
     @Column(nullable = false, updatable = false)
+    @JsonIgnore
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
+    @JsonIgnore
     private LocalDateTime updatedAt;
 
     @ManyToOne

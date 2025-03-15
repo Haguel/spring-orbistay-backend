@@ -1,12 +1,17 @@
 package dev.haguel.orbistay.controller;
 
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
+import dev.haguel.orbistay.dto.response.BookingInfoResponseDTO;
+import dev.haguel.orbistay.dto.response.GetHotelsResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.Booking;
+import dev.haguel.orbistay.entity.Country;
 import dev.haguel.orbistay.exception.*;
+import dev.haguel.orbistay.mapper.BookingMapper;
 import dev.haguel.orbistay.service.BookingService;
 import dev.haguel.orbistay.service.SecurityService;
 import dev.haguel.orbistay.util.EndPoints;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,11 +33,12 @@ import java.util.List;
 public class BookingController {
     private final BookingService bookingService;
     private final SecurityService securityService;
+    private final BookingMapper bookingMapper;
 
     @Schema(description = "Book hotel room")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Hotel room booked successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Booking.class))),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookingInfoResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid jwt token",
@@ -60,13 +66,13 @@ public class BookingController {
         AppUser appUser = securityService.getAppUserFromAuthorizationHeader(authorizationHeader);
         Booking booking = bookingService.bookHotelRoom(appUser, bookHotelRoomRequestDTO);
 
-        return ResponseEntity.status(200).body(booking);
+        return ResponseEntity.status(200).body(bookingMapper.bookingToBookingInfoResponseDTO(booking));
     }
 
     @Schema(description = "Get bookings")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Bookings retrieved successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Booking.class))),
+                content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookingInfoResponseDTO.class)))),
             @ApiResponse(responseCode = "400", description = "Invalid jwt token",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
@@ -80,8 +86,11 @@ public class BookingController {
         List<Booking> bookings = appUser.getBookings();
         log.info("Found {} bookings", bookings.size());
 
+        List<BookingInfoResponseDTO> bookingInfoResponseDTOs = bookings.stream()
+                .map(bookingMapper::bookingToBookingInfoResponseDTO).toList();
+
         log.info("Returning bookings");
-        return ResponseEntity.status(200).body(bookings);
+        return ResponseEntity.status(200).body(bookingInfoResponseDTOs);
     }
 
     @Schema(description = "Cancel booking")

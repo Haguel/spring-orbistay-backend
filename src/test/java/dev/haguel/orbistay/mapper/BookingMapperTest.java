@@ -1,7 +1,9 @@
 package dev.haguel.orbistay.mapper;
 
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
+import dev.haguel.orbistay.dto.response.BookingInfoResponseDTO;
 import dev.haguel.orbistay.entity.Booking;
+import dev.haguel.orbistay.repository.BookingRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.testcontainers.junit.jupiter.Container;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,6 +26,9 @@ public class BookingMapperTest extends BaseMapperTestClass {
 
     @Autowired
     private BookingMapper bookingMapper;
+
+    @Autowired
+    private BookingRepository bookingRepository;
 
     @Nested
     class BookHotelRoomRequestDTOMapping{
@@ -49,6 +55,31 @@ public class BookingMapperTest extends BaseMapperTestClass {
             assertEquals(requestDTO.getLastName(), booking.getLastName());
             assertEquals(requestDTO.getEmail(), booking.getEmail());
             assertEquals(requestDTO.getPhone(), booking.getPhone());
+        }
+    }
+
+    @Nested
+    class BookingToBookingInfoResponseDTOMapping {
+        @Test
+        public void whenBookingToBookingInfoResponseDTO_thenReturnBookingInfoResponseDTO() {
+            Booking booking = bookingRepository.findById(1L).orElse(null);
+
+            BookingInfoResponseDTO responseDTO = bookingMapper.bookingToBookingInfoResponseDTO(booking);
+
+            assertNotNull(responseDTO);
+            assertEquals(booking.getId(), responseDTO.getId());
+            assertEquals(booking.getCheckIn(), responseDTO.getCheckIn());
+            assertEquals(booking.getCheckOut(), responseDTO.getCheckOut());
+            assertEquals(booking.getFirstName(), responseDTO.getFirstName());
+            assertEquals(booking.getLastName(), responseDTO.getLastName());
+            assertEquals(booking.getEmail(), responseDTO.getEmail());
+            assertEquals(booking.getPhone(), responseDTO.getPhone());
+            assertEquals(booking.getCountry().getId(), responseDTO.getCountry().getId());
+            assertEquals(booking.getStatus().getId(), responseDTO.getStatus().getId());
+            assertEquals(booking.getHotelRoom().getId(), responseDTO.getHotelRoomId());
+            assertEquals(booking.getHotelRoom().getHotel().getId(), responseDTO.getHotelId());
+            Optional.ofNullable(booking.getPayment()).ifPresent(bookingPayment ->
+                    assertEquals(bookingPayment.getId(), responseDTO.getPayment().getId()));
         }
     }
 }

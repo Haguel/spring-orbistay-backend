@@ -4,6 +4,7 @@ import com.redis.testcontainers.RedisContainer;
 import dev.haguel.orbistay.dto.request.AddBankCardDTO;
 import dev.haguel.orbistay.dto.request.BookHotelRoomRequestDTO;
 import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
+import dev.haguel.orbistay.dto.response.BookingInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.Booking;
@@ -72,7 +73,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .bodyValue(requestDTO)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBody(Booking.class)
+                    .expectBody(BookingInfoResponseDTO.class)
                     .value(response -> {
                         assertNotNull(response);
                         assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckIn()), hotelRoom.getHotel().getCheckInTime()),
@@ -83,7 +84,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                         assertEquals(requestDTO.getLastName(), response.getLastName());
                         assertEquals(requestDTO.getEmail(), response.getEmail());
                         assertEquals(requestDTO.getPhone(), response.getPhone());
-                        assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoom().getId());
+                        assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoomId());
                         assertEquals(Long.parseLong(requestDTO.getCountryId()), response.getCountry().getId());
                         assertEquals("PENDING", response.getStatus().getStatus());
                     });
@@ -252,7 +253,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .bodyValue(requestDTO)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBody(Booking.class)
+                    .expectBody(BookingInfoResponseDTO.class)
                     .value(response -> {
                         assertNotNull(response);
                         assertEquals(LocalDateTime.of(LocalDate.parse(requestDTO.getCheckIn()), hotelRoom.getHotel().getCheckInTime()),
@@ -263,7 +264,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                         assertEquals(requestDTO.getLastName(), response.getLastName());
                         assertEquals(requestDTO.getEmail(), response.getEmail());
                         assertEquals(requestDTO.getPhone(), response.getPhone());
-                        assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoom().getId());
+                        assertEquals(Long.parseLong(requestDTO.getHotelRoomId()), response.getHotelRoomId());
                         assertEquals(Long.parseLong(requestDTO.getCountryId()), response.getCountry().getId());
                         assertEquals("PENDING", response.getStatus().getStatus());
                     });
@@ -377,7 +378,7 @@ class BookingControllerTest extends BaseControllerTestClass {
                     .header("Authorization", "Bearer " + accessTokenResponseDTO.getAccessToken())
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBodyList(Booking.class)
+                    .expectBodyList(BookingInfoResponseDTO.class)
                     .hasSize(7);
         }
     }
