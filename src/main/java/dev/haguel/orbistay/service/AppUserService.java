@@ -51,7 +51,7 @@ public class AppUserService {
     private final AppUserMapper appUserMapper;
     private final RedisService redisService;
     private final JwtService jwtService;
-    private final EmailService emailService;
+    private final EmailVerificationService emailVerificationService;
     private final NotificationContext notificationContext;
     private BlobServiceClient blobServiceClient;
 
@@ -83,7 +83,7 @@ public class AppUserService {
         return new JwtDTO(accessToken, refreshToken);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, noRollbackFor = AppUserNotFoundException.class)
     public AppUser findByEmail(String email)
             throws AppUserNotFoundException {
         AppUser appUser = appUserRepository.findAppUserByEmail(email).orElse(null);
@@ -139,10 +139,10 @@ public class AppUserService {
 
         if(data.getEmail() != null && !data.getEmail().equals(appUser.getEmail())) {
             if(appUser.getEmailVerification() != null) {
-                emailService.delete(appUser.getEmailVerification());
+                emailVerificationService.delete(appUser.getEmailVerification());
             }
 
-            appUser.setEmailVerification(emailService.createNeededVerificationForAppUser(appUser));
+            appUser.setEmailVerification(emailVerificationService.createNeededVerificationForAppUser(appUser));
             appUser.setEmail(data.getEmail());
             appUser = save(appUser);
 

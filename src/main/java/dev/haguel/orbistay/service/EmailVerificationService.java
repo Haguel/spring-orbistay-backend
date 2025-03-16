@@ -2,29 +2,23 @@ package dev.haguel.orbistay.service;
 
 import dev.haguel.orbistay.entity.AppUser;
 import dev.haguel.orbistay.entity.EmailVerification;
-import dev.haguel.orbistay.exception.EmailSendingException;
 import dev.haguel.orbistay.exception.EmailVerificationNotFoundException;
 import dev.haguel.orbistay.repository.EmailVerificationRepository;
 import dev.haguel.orbistay.util.Generator;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class EmailService {
+public class EmailVerificationService {
     @Value("${spring.mail.username}")
     private String username;
     @Value("${frontend.host}")
@@ -80,6 +74,7 @@ public class EmailService {
                 .appUser(appUser)
                 .token(null)
                 .isVerified(true)
+                .expiresAt(LocalDateTime.now().minusDays(1))
                 .build();
 
         return save(emailVerification);

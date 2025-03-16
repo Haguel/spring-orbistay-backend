@@ -39,7 +39,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final RedisService redisService;
     private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
+    private final EmailVerificationService emailVerificationService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final NotificationContext notificationContext;
 
@@ -63,7 +63,7 @@ public class AuthService {
 
         try {
             appUser = appUserService.save(appUser);
-            appUser.setEmailVerification(emailService.createNeededVerificationForAppUser(appUser));
+            appUser.setEmailVerification(emailVerificationService.createNeededVerificationForAppUser(appUser));
             appUser = appUserService.save(appUser);
         } catch (DataIntegrityViolationException exception) {
             if(exception.getMessage().contains("app_user_username_key")) {
@@ -181,7 +181,7 @@ public class AuthService {
     }
 
     public void verifyEmail(String token) {
-        EmailVerification emailVerification = emailService.findByToken(token);
+        EmailVerification emailVerification = emailVerificationService.findByToken(token);
 
         if(!emailVerification.isVerified() && emailVerification.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new EmailVerificationExpiredException("Email verification is expired");
@@ -193,7 +193,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Email verification doesn't bind to any user");
         }
 
-        emailService.changeAndSaveEmailVerificationToVerified(emailVerification);
+        emailVerificationService.changeAndSaveEmailVerificationToVerified(emailVerification);
     }
 
     public void resendVerificationEmail(AppUser appUser)
@@ -204,7 +204,7 @@ public class AuthService {
             throw new EmailAlreadyVerifiedException("Email already verified");
         }
 
-        emailVerification = emailService.continueAndSaveVerification(emailVerification);
+        emailVerification = emailVerificationService.continueAndSaveVerification(emailVerification);
         appUser = emailVerification.getAppUser();
 
         notificationContext.setNotificationType(NotificationType.EMAIL);
