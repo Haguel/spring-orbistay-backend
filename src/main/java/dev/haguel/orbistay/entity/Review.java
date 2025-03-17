@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"appUser", "hotel"})
+@EqualsAndHashCode(exclude = {"appUser", "hotel"})
 @Entity(name = "review")
 public class Review {
     @Id

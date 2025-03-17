@@ -115,16 +115,13 @@ public class HotelService {
             ).orElse(null);
 
         if (filteredHotels == null || filteredHotels.isEmpty()) {
+            log.warn("No hotel found for the given criteria");
             throw new HotelsNotFoundException("No hotels found for given criteria");
         }
+
         log.info("Found {} hotels", filteredHotels.size());
 
-        // Get statistics by stars and valuations
-        List<HashMap<? extends Enum, Integer>> statistics = getStatistics(filteredHotels);
-        HashMap<HotelStars, Integer> hotelsCountByStars = (HashMap<HotelStars, Integer>) statistics.get(0);
-        HashMap<ObjectValuation, Integer> hotelsCountByValuations = (HashMap<ObjectValuation, Integer>) statistics.get(1);
-
-        // Additional filtering by stars and valuations
+        // Filtering by stars and valuations
         filteredHotels = filteredHotels.stream()
                 .filter(hotel -> stars.isEmpty() || stars.contains(hotel.getStars()))
                 .filter((Hotel hotel) ->  {
@@ -135,10 +132,15 @@ public class HotelService {
                             || (nineToTen && avgRate >= 9 && avgRate <= 10);
                 })
                 .toList();
+
+        // Get statistics by stars and valuations
+        List<HashMap<? extends Enum, Integer>> statistics = getStatistics(filteredHotels);
+        HashMap<HotelStars, Integer> hotelsCountByStars = (HashMap<HotelStars, Integer>) statistics.get(0);
+        HashMap<ObjectValuation, Integer> hotelsCountByValuations = (HashMap<ObjectValuation, Integer>) statistics.get(1);
+
         List<FilteredHotelDTO> hotelsResponses = filteredHotels.stream()
                 .map(hotelMapper::hotelToFilteredHotelDTO)
                 .collect(Collectors.toList());
-
 
         // Set suitable hotel room for each hotel
         for (FilteredHotelDTO hotelResponse : hotelsResponses) {
@@ -155,7 +157,7 @@ public class HotelService {
             try {
                 hotelResponse.setHotelRoom(hotelRoomService.getHotelRoom(getFileredHotelRoomsRequestDTO));
             } catch (HotelRoomNotFoundException e) {
-                log.error("No hotel room found for the given criteria but hotel is found");
+                log.warn("No hotel room found for the given criteria but hotel is found");
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
