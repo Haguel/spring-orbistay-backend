@@ -76,18 +76,10 @@ public class SecurityConfig {
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider());
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
-    }
-
-    @Bean
-    public FilterRegistrationBean<JwtFilter> jwtFilterRegistration(JwtFilter jwtFilter) {
-        FilterRegistrationBean<JwtFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(jwtFilter);
-        registration.addUrlPatterns(EndPoints.getAuthorizedEndpoints());
-        registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return registration;
     }
 
     @Bean
