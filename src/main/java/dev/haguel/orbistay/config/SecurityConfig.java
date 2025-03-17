@@ -7,8 +7,10 @@ import dev.haguel.orbistay.util.EndPoints;
 import dev.haguel.orbistay.handler.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -74,10 +76,18 @@ public class SecurityConfig {
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
+                .authenticationProvider(authenticationProvider());
+        
         return http.build();
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtFilter> jwtFilterRegistration(JwtFilter jwtFilter) {
+        FilterRegistrationBean<JwtFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(jwtFilter);
+        registration.addUrlPatterns(EndPoints.getAuthorizedEndpoints());
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return registration;
     }
 
     @Bean
