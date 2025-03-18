@@ -11,7 +11,7 @@ import org.testcontainers.junit.jupiter.Container;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PassportMapperTest extends BaseMapperTestClass {
+class PassportMapperIntegrationTest extends BaseMapperTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");

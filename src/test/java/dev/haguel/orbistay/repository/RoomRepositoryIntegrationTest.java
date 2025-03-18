@@ -14,7 +14,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RoomRepositoryTest extends BaseRepositoryTestClass {
+class RoomRepositoryIntegrationTest extends BaseRepositoryTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");

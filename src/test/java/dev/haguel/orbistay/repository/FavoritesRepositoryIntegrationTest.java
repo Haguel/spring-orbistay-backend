@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Container;
 
 import static org.junit.Assert.*;
 
-public class FavoritesRepositoryTest extends BaseRepositoryTestClass {
+public class FavoritesRepositoryIntegrationTest extends BaseRepositoryTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");

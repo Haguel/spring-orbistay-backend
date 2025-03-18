@@ -8,14 +8,11 @@ import dev.haguel.orbistay.dto.request.PassportDataRequestDTO;
 import dev.haguel.orbistay.dto.response.EditAppUserInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
-import dev.haguel.orbistay.service.AppUserService;
 import dev.haguel.orbistay.util.EndPoints;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.*;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import test_utils.SharedTestUtil;
@@ -26,7 +23,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AppUserControllerTest extends BaseControllerTestClass {
+class AppUserControllerIntegrationTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
@@ -34,9 +31,6 @@ class AppUserControllerTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static RedisContainer redis = new RedisContainer("redis:6.2-alpine");
-
-    @Autowired
-    private WebTestClient webTestClient;
 
     @Nested
     class GetCurrentAppUser {

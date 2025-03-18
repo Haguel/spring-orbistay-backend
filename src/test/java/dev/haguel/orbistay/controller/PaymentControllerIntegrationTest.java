@@ -13,14 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import test_utils.SharedTestUtil;
 
 import java.time.LocalDate;
 
-public class PaymentControllerTest extends BaseControllerTestClass {
+public class PaymentControllerIntegrationTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
@@ -28,9 +27,6 @@ public class PaymentControllerTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static RedisContainer redis = new RedisContainer("redis:6.2-alpine");
-
-    @Autowired
-    private WebTestClient webTestClient;
 
     @Autowired
     private RoomRepository roomRepository;

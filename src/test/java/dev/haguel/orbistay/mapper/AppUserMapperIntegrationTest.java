@@ -12,7 +12,7 @@ import org.testcontainers.junit.jupiter.Container;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AppUserMapperTest extends BaseMapperTestClass {
+class AppUserMapperIntegrationTest extends BaseMapperTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");

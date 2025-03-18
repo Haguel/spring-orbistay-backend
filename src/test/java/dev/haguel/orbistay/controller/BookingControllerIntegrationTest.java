@@ -7,7 +7,6 @@ import dev.haguel.orbistay.dto.response.AccessTokenResponseDTO;
 import dev.haguel.orbistay.dto.response.BookingInfoResponseDTO;
 import dev.haguel.orbistay.dto.response.GetAppUserInfoResponseDTO;
 import dev.haguel.orbistay.entity.AppUser;
-import dev.haguel.orbistay.entity.Booking;
 import dev.haguel.orbistay.entity.HotelRoom;
 import dev.haguel.orbistay.exception.HotelRoomNotFoundException;
 import dev.haguel.orbistay.repository.AppUserRepository;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import test_utils.SharedTestUtil;
@@ -28,7 +26,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BookingControllerTest extends BaseControllerTestClass {
+class BookingControllerIntegrationTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
@@ -36,9 +34,6 @@ class BookingControllerTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static RedisContainer redis = new RedisContainer("redis:6.2-alpine");
-
-    @Autowired
-    private WebTestClient webTestClient;
 
     @Autowired
     private HotelRoomService hotelRoomService;

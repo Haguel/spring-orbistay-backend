@@ -15,7 +15,7 @@ import org.testcontainers.junit.jupiter.Container;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
-class HotelMapperTest extends BaseMapperTestClass {
+class HotelMapperIntegrationTest extends BaseMapperTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");

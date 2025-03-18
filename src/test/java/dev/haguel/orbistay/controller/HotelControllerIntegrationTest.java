@@ -16,11 +16,8 @@ import dev.haguel.orbistay.entity.Review;
 import dev.haguel.orbistay.util.EndPoints;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import test_utils.SharedTestUtil;
@@ -29,7 +26,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class HotelControllerTest extends BaseControllerTestClass {
+class HotelControllerIntegrationTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
@@ -37,9 +34,6 @@ class HotelControllerTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static RedisContainer redis = new RedisContainer("redis:6.2-alpine");
-
-    @Autowired
-    private WebTestClient webTestClient;
 
     @Nested
     class GetFilteredHotels {
@@ -62,9 +56,7 @@ class HotelControllerTest extends BaseControllerTestClass {
                     .filters(hotelFiltersDTO)
                     .build();
 
-            webTestClient.mutate()
-                    .build()
-                    .method(HttpMethod.GET)
+            webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path(EndPoints.Hotels.GET_FILTERED_HOTELS)
                             .queryParam("name", requestDTO.getName())
@@ -81,7 +73,6 @@ class HotelControllerTest extends BaseControllerTestClass {
                             .queryParam("valuations", String.join(",",
                                     requestDTO.getFilters().getValuations().stream().map(Enum::name).toList()))
                             .build())
-                    .contentType(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(GetFilteredHotelsResponseDTO.class)
@@ -100,15 +91,12 @@ class HotelControllerTest extends BaseControllerTestClass {
                     .filters(hotelFiltersDTO)
                     .build();
 
-            webTestClient.mutate()
-                    .build()
-                    .method(HttpMethod.GET)
+            webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path(EndPoints.Hotels.GET_FILTERED_HOTELS)
                             .queryParam("stars", String.join(",",
                                     requestDTO.getFilters().getStars().stream().map(Enum::name).toList()))
                             .build())
-                    .contentType(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(GetFilteredHotelsResponseDTO.class)
@@ -125,15 +113,12 @@ class HotelControllerTest extends BaseControllerTestClass {
                     .filters(hotelFiltersDTO)
                     .build();
 
-            webTestClient.mutate()
-                    .build()
-                    .method(HttpMethod.GET)
+            webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path(EndPoints.Hotels.GET_FILTERED_HOTELS)
                             .queryParam("valuations", String.join(",",
                                     requestDTO2.getFilters().getValuations().stream().map(Enum::name).toList()))
                             .build())
-                    .contentType(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(GetFilteredHotelsResponseDTO.class)
@@ -145,23 +130,20 @@ class HotelControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenGetFilteredHotelsWithInvalidCriteria_thenReturnError() {
+        void whenGetFilteredHotelsWithInvalidCriteria_thenReturn404() {
             GetFilteredHotelsRequestDTO requestDTO = GetFilteredHotelsRequestDTO.builder()
                     .name("Invalid Hotel")
                     .city("Invalid City")
                     .countryId("-1")
                     .build();
 
-            webTestClient.mutate()
-                    .build()
-                    .method(HttpMethod.GET)
+            webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path(EndPoints.Hotels.GET_FILTERED_HOTELS)
                             .queryParam("name", requestDTO.getName())
                             .queryParam("city", requestDTO.getCity())
                             .queryParam("countryId", requestDTO.getCountryId())
                             .build())
-                    .contentType(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isNotFound();
         }
@@ -173,9 +155,7 @@ class HotelControllerTest extends BaseControllerTestClass {
         void whenGetHotelWithValidId_thenReturnHotel() {
             Long validHotelId = 1L;
 
-            webTestClient.mutate()
-                    .build()
-                    .get()
+            webTestClient.get()
                     .uri(EndPoints.Hotels.GET_HOTEL + "/" + validHotelId)
                     .exchange()
                     .expectStatus().isOk()
@@ -187,7 +167,7 @@ class HotelControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenGetHotelWithInvalidId_thenReturnError() {
+        void whenGetHotelWithInvalidId_thenReturn404() {
             Long invalidHotelId = 999L;
 
             webTestClient.mutate()
@@ -213,9 +193,7 @@ class HotelControllerTest extends BaseControllerTestClass {
                     .maxPrice(String.valueOf(25.0))
                     .build();
 
-            webTestClient.mutate()
-                    .build()
-                    .method(HttpMethod.GET)
+            webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
                             .queryParam("hotelId", requestDTO.getHotelId())
@@ -226,7 +204,6 @@ class HotelControllerTest extends BaseControllerTestClass {
                             .queryParam("minPrice", requestDTO.getMinPrice())
                             .queryParam("maxPrice", requestDTO.getMaxPrice())
                             .build())
-                    .contentType(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBodyList(HotelRoom.class)
@@ -237,7 +214,7 @@ class HotelControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenGetFilteredHotelRoomsWithInvalidCriteria_thenReturnError() {
+        void whenGetFilteredHotelRoomsWithInvalidCriteria_thenReturn404() {
             GetFileredHotelRoomsRequestDTO requestDTO = GetFileredHotelRoomsRequestDTO.builder()
                     .hotelId(String.valueOf(999L))
                     .peopleCount(String.valueOf(2))
@@ -248,9 +225,7 @@ class HotelControllerTest extends BaseControllerTestClass {
                     .maxPrice(String.valueOf(25.0))
                     .build();
 
-            webTestClient.mutate()
-                    .build()
-                    .method(HttpMethod.GET)
+            webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
                             .queryParam("hotelId", requestDTO.getHotelId())
@@ -261,13 +236,12 @@ class HotelControllerTest extends BaseControllerTestClass {
                             .queryParam("minPrice", requestDTO.getMinPrice())
                             .queryParam("maxPrice", requestDTO.getMaxPrice())
                             .build())
-                    .contentType(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isNotFound();
         }
 
         @Test
-        void whenGetFilteredHotelRoomsWithTakenDates_thenReturnError() {
+        void whenGetFilteredHotelRoomsWithTakenDates_thenReturn404() {
             GetFileredHotelRoomsRequestDTO requestDTO = GetFileredHotelRoomsRequestDTO.builder()
                     .hotelId(String.valueOf(1L))
                     .peopleCount(String.valueOf(2))
@@ -278,9 +252,7 @@ class HotelControllerTest extends BaseControllerTestClass {
                     .maxPrice(String.valueOf(25.0))
                     .build();
 
-            webTestClient.mutate()
-                    .build()
-                    .method(HttpMethod.GET)
+            webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path(EndPoints.Hotels.GET_FILTERED_HOTEL_ROOMS)
                             .queryParam("hotelId", requestDTO.getHotelId())
@@ -291,7 +263,6 @@ class HotelControllerTest extends BaseControllerTestClass {
                             .queryParam("minPrice", requestDTO.getMinPrice())
                             .queryParam("maxPrice", requestDTO.getMaxPrice())
                             .build())
-                    .contentType(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isNotFound();
         }
@@ -303,9 +274,7 @@ class HotelControllerTest extends BaseControllerTestClass {
         void whenGetHotelRoomWithValidId_thenReturnHotelRoom() {
             Long validHotelRoomId = 1L;
 
-            webTestClient.mutate()
-                    .build()
-                    .get()
+            webTestClient.get()
                     .uri(EndPoints.Hotels.GET_HOTEL_ROOM + "/" + validHotelRoomId)
                     .exchange()
                     .expectStatus().isOk()
@@ -317,12 +286,10 @@ class HotelControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenGetHotelRoomWithInvalidId_thenReturnError() {
+        void whenGetHotelRoomWithInvalidId_thenReturn404() {
             Long invalidHotelRoomId = 999L;
 
-            webTestClient.mutate()
-                    .build()
-                    .get()
+            webTestClient.get()
                     .uri(EndPoints.Hotels.GET_HOTEL_ROOM + "/" + invalidHotelRoomId)
                     .exchange()
                     .expectStatus().isNotFound();
@@ -362,7 +329,7 @@ class HotelControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenWriteReviewWithInvalidHotelId_thenReturnError() {
+        void whenWriteReviewWithInvalidHotelId_thenReturn404() {
             AccessTokenResponseDTO accessTokenResponseDTO = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient);
 
             WriteReviewRequestDTO requestDTO = WriteReviewRequestDTO.builder()

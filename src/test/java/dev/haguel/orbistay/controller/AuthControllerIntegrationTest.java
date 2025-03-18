@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import test_utils.SharedTestUtil;
@@ -26,7 +25,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AuthControllerTest extends BaseControllerTestClass {
+class AuthControllerIntegrationTest extends BaseControllerTestClass {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
@@ -43,9 +42,6 @@ class AuthControllerTest extends BaseControllerTestClass {
 
     @Autowired
     private JwtService jwtService;
-
-    @Autowired
-    private WebTestClient webTestClient;
 
     @Nested
     class SignUp {
@@ -79,7 +75,7 @@ class AuthControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenExistedUserSignUp_thenReturnError() {
+        void whenExistedUserSignUp_thenReturn400() {
             SignUpRequestDTO signUpRequestDTO = SignUpRequestDTO.builder()
                     .username("john_doe")
                     .email(TestDataStorage.JOHN_DOE_EMAIL)
@@ -125,8 +121,7 @@ class AuthControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenExistedUserSignInWithIncorrectData_thenReturnError() {
-            String correctEmail = TestDataStorage.JOHN_DOE_EMAIL;
+        void whenExistedUserSignInWithInvalidEmail_thenReturn404() {
             String correctPassword = TestDataStorage.JOHN_DOE_PASSWORD;
             SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                     .email(TestDataGenerator.generateRandomEmail())
@@ -139,8 +134,13 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .bodyValue(signInRequestDTO)
                     .exchange()
                     .expectStatus().isNotFound();
+        }
 
-            signInRequestDTO = SignInRequestDTO.builder()
+        @Test
+        void whenExistedUserSignInWithInvalidPassword_thenReturn400() {
+            String correctEmail = TestDataStorage.JOHN_DOE_EMAIL;
+
+            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                     .email(correctEmail)
                     .password(TestDataGenerator.generateRandomPassword())
                     .build();
@@ -154,7 +154,7 @@ class AuthControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenNewUserSignIn_thenReturnError() {
+        void whenNewUserSignIn_thenReturn404() {
             SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                     .email(TestDataGenerator.generateRandomEmail())
                     .password(TestDataGenerator.generateRandomPassword())
@@ -217,25 +217,11 @@ class AuthControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenUserChangePasswordWithIncorrectData_thenReturnError() {
-            String email = TestDataStorage.JOHN_DOE_EMAIL;
+        void whenUserChangePasswordWithIncorrectData_thenReturn400() {
+            String accessToken = SharedTestUtil.signInJohnDoeAndGetAccessToken(webTestClient).getAccessToken();
             String password = TestDataStorage.JOHN_DOE_PASSWORD;
-            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
-                    .email(email)
-                    .password(password)
-                    .build();
+            String email = TestDataStorage.JOHN_DOE_EMAIL;
 
-            AccessTokenResponseDTO accessTokenResponseDTO = webTestClient.post()
-                    .uri(EndPoints.Auth.SIGN_IN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(signInRequestDTO)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(AccessTokenResponseDTO.class)
-                    .returnResult()
-                    .getResponseBody();
-
-            String accessToken = accessTokenResponseDTO.getAccessToken();
             String incorrectPassword;
             do {
                 incorrectPassword = TestDataGenerator.generateRandomPassword();
@@ -245,6 +231,7 @@ class AuthControllerTest extends BaseControllerTestClass {
                 newPassword = TestDataGenerator.generateRandomPassword();
             } while (newPassword.equals(password));
 
+            // Change password with incorrect old password
             ChangePasswordRequestDTO changePasswordRequestDTO = ChangePasswordRequestDTO.builder()
                     .oldPassword(incorrectPassword)
                     .newPassword(newPassword)
@@ -258,7 +245,8 @@ class AuthControllerTest extends BaseControllerTestClass {
                     .exchange()
                     .expectStatus().isBadRequest();
 
-            signInRequestDTO = SignInRequestDTO.builder()
+            // Try to sign in with new password
+            SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder()
                     .email(email)
                     .password(newPassword)
                     .build();
@@ -293,7 +281,7 @@ class AuthControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenUserRefreshAccessTokenWithInvalidRefreshToken_thenReturnError() {
+        void whenUserRefreshAccessTokenWithInvalidRefreshToken_thenReturn400() {
             webTestClient.post()
                     .uri(EndPoints.Auth.REFRESH_ACCESS_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -303,7 +291,7 @@ class AuthControllerTest extends BaseControllerTestClass {
         }
 
         @Test
-        void whenUserRefreshAccessTokenWithUnbindRefreshToken_thenReturnError() {
+        void whenUserRefreshAccessTokenWithUnbindRefreshToken_thenReturn404() {
             String refreshToken = SharedTestUtil.signInJohnDoeAndGetRefreshToken(webTestClient);
 
             redisService.deleteAuthValue(TestDataStorage.JOHN_DOE_EMAIL);

@@ -11,7 +11,7 @@ import org.testcontainers.junit.jupiter.Container;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AddressMapperTest extends BaseMapperTestClass{
+class AddressMapperIntegrationTest extends BaseMapperTestClass{
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:12.0-alpine");
@@ -30,6 +30,7 @@ class AddressMapperTest extends BaseMapperTestClass{
             Address address = addressMapper.addressDataRequestDTOToAddress(dto);
 
             assertNotNull(address);
+            assertNotNull(address.getCountry().getId());
             assertEquals(dto.getCity(), address.getCity());
             assertEquals(Long.parseLong(dto.getCountryId()), address.getCountry().getId());
         }
