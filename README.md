@@ -11,7 +11,7 @@
 
 - 🛏️ **Property Listings**: Manage properties for rent.
 - 🗓️ **Booking System**: Secure booking and reservation handling.
-- 👤 **User Management**: Registration, authentication, and authorization.
+- 👤 **User Management**: Modify & manage user data.
 - 🔐 **Authentication**: Two types - Email/Password and Google OAuth 2.0.
 - ❤️ **Favorites**: Add and manage favorite hotels.
 - 📝 **Reviews**: Leave and view hotel reviews.
@@ -28,7 +28,9 @@
 - **Spring Security (JWT)**
 - **Spring Data JPA**
 - **PostgreSQL**
+- **Redis**
 - **Docker**
+- **Azure Services**
 - **Swagger UI**
 
 ---
@@ -81,7 +83,7 @@ docker-compose up -d
 Access Swagger UI for testing APIs:
 
 - **Local URL:** `http://localhost:8080/swagger-ui.html`
-- **Production URL:** `https://orbistay-backend-czfkfnfwhnheaaa3.northeurope-01.azurewebsites.net/swagger-ui.html`
+- **Production URL:** `https://orbistay-frontend-f3dhcscsacgug5gt.northeurope-01.azurewebsites.net/swagger-ui.html`
 
 ---
 
